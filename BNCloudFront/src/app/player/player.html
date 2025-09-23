@@ -1,1 +1,28 @@
-<p>player works!</p>
+<div class="player-container">
+  <audio #audioPlayer></audio>
+
+  <div class="controls">
+    <button mat-icon-button (click)="togglePlay()">
+      <mat-icon>{{ isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
+    </button>
+
+    <span class="timer">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
+
+    <mat-slider
+      class="progress-slider"
+      [min]="0"
+      [max]="duration"
+    >
+    </mat-slider>
+
+    <mat-icon>volume_up</mat-icon>
+    <mat-slider
+      class="volume-slider"
+      [min]="0"
+      [max]="1"
+      [step]="0.01"
+    >
+    </mat-slider>
+
+  </div>
+</div>

@@ -1,0 +1,46 @@
+.subscriptions-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 2rem;
+  background: #121212; /* Dark theme */
+}
+
+.subscriptions-card {
+  width: 100%;
+  max-width: 600px;
+  padding: 2rem;
+  background: #1e1e2f;
+  color: #f0f0f0;
+  border: 1px solid #bb86fc;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(187, 134, 252, 0.2);
+}
+
+.title {
+  text-align: center;
+  color: #e1bee7;
+  margin-bottom: 1rem;
+}
+
+.subscription-list {
+  max-height: 350px;
+  overflow-y: auto;
+  border: 1px solid #bb86fc;
+  border-radius: 0.5rem;
+}
+
+.subscription-item {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.subscription-item:hover {
+  background-color: rgba(187, 134, 252, 0.2);
+}
+
+.item-type {
+  font-weight: bold;
+  margin-right: 0.5rem;
+}

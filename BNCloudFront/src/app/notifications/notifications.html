@@ -1,1 +1,17 @@
-<p>notifications works!</p>
+<div class="notification-container">
+  <mat-card class="notification-card">
+    <h2 class="title">Notifications</h2>
+
+    <div class="notification-list">
+      <mat-list>
+        <mat-list-item
+          *ngFor="let notification of notifications"
+          (click)="markAsRead(notification)"
+          [ngClass]="{ 'read': notification.read }"
+          class="notification-item">
+          {{ notification.message }}
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </mat-card>
+</div>

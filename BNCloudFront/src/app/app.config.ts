@@ -21,6 +21,21 @@ import { Song } from './song/song';
 import { Subscriptions } from './subscriptions/subscriptions';
 import {Navbar} from './navbar/navbar';
 import {Player} from './player/player';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {ReactiveFormsModule} from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import {MatList} from '@angular/material/list';
+import {MatListItem} from '@angular/material/list';
+import {UserList} from './user-list/user-list';
+import {MatOption} from '@angular/material/core';
+import {MatSelect} from '@angular/material/select';
+import {UserListCreate} from './user-list-create/user-list-create';
 
 @NgModule({
   declarations: [
@@ -41,13 +56,28 @@ import {Player} from './player/player';
     Register,
     Search,
     Song,
-    Subscriptions
+    Subscriptions,
+    UserList,
+    UserListCreate
   ],
   imports: [
     AppRoutingModule,
     Navbar,
     Player,
-    BrowserModule
+    BrowserModule,
+    BrowserAnimationsModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+    MatSnackBarModule,
+    MatList,
+    MatListItem,
+    MatOption,
+    MatSelect,
   ],
   bootstrap: [App]
 })

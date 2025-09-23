@@ -1,1 +1,33 @@
-<p>search works!</p>
+<div class="search-container">
+  <mat-card class="search-card">
+    <h2 class="title">Search</h2>
+
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form">
+      <mat-form-field appearance="outline" class="type-field">
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="type">
+          <mat-option value="song">Song</mat-option>
+          <mat-option value="album">Album</mat-option>
+          <mat-option value="artist">Artist</mat-option>
+          <mat-option value="genre">Genre</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="query-field">
+        <mat-label>Query</mat-label>
+        <input matInput formControlName="query" placeholder="Enter search term">
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit">Search</button>
+    </form>
+
+    <div class="results-container" *ngIf="results.length > 0">
+      <h3>Results:</h3>
+      <mat-list>
+        <mat-list-item *ngFor="let item of results" (click)="navigate(item)" class="result-item">
+          <span class="item-type">{{ item.type | titlecase }}:</span> {{ item.name }}
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </mat-card>
+</div>
