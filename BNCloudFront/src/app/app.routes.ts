@@ -17,6 +17,8 @@ import { ArtistCrud } from './artist-crud/artist-crud';
 import { Artist } from './artist/artist';
 import { Album } from './album/album';
 import { AdminDashboard } from './admin-dashboard/admin-dashboard';
+import {UserListCreate} from './user-list-create/user-list-create';
+import {UserList} from './user-list/user-list';
 
 const routes: Routes = [
   { path: '', component: Home },
@@ -35,6 +37,8 @@ const routes: Routes = [
   { path: 'artist/:artistId', component: Artist },
   { path: 'album/:albumId', component: Album },
   { path: 'dashboard', component: AdminDashboard },
+  { path: 'user-list', component: UserList },
+  { path: 'user-list-create', component: UserListCreate },
   { path: '**', component: Error }
 ];
 

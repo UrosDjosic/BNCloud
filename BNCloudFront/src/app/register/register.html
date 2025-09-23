@@ -1,1 +1,63 @@
-<p>register works!</p>
+<div class="register-container">
+  <mat-card class="register-card">
+    <h2 class="title">Create Account</h2>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>First Name</mat-label>
+        <input matInput formControlName="firstName" />
+        <mat-error *ngIf="f.firstName?.hasError('required')">First name is required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Last Name</mat-label>
+        <input matInput formControlName="lastName" />
+        <mat-error *ngIf="f.lastName?.hasError('required')">Last name is required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Birthdate</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="birthDate" />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error *ngIf="f.birthDate?.hasError('required')">Birthdate is required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" />
+        <mat-error *ngIf="f.username?.hasError('required')">Username is required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" />
+        <mat-error *ngIf="f.email?.hasError('required')">Email is required</mat-error>
+        <mat-error *ngIf="f.email?.hasError('email')">Enter a valid email</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password" />
+        <mat-error *ngIf="f.password?.hasError('required')">Password is required</mat-error>
+        <mat-error *ngIf="f.password?.hasError('minlength')">Min 6 characters</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Repeat Password</mat-label>
+        <input matInput type="password" formControlName="confirmPassword" />
+        <mat-error *ngIf="f.confirmPassword?.hasError('required')">Please confirm password</mat-error>
+        <mat-error *ngIf="registerForm.hasError('passwordMismatch')">Passwords do not match</mat-error>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit" class="submit-btn">
+        Register
+      </button>
+
+      <button mat-stroked-button color="accent" type="button" (click)="goToLogin()">
+        Already have an account? Login
+      </button>
+    </form>
+  </mat-card>
+</div>

@@ -1,1 +1,16 @@
-<p>subscriptions works!</p>
+<div class="subscriptions-container">
+  <mat-card class="subscriptions-card">
+    <h2 class="title">My Subscriptions</h2>
+
+    <div class="subscription-list">
+      <mat-list>
+        <mat-list-item
+          *ngFor="let item of subscriptions"
+          (click)="navigate(item)"
+          class="subscription-item">
+          <span class="item-type">{{ item.type | titlecase }}:</span> {{ item.name }}
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </mat-card>
+</div>

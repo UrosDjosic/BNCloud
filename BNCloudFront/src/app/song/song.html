@@ -1,1 +1,41 @@
-<p>song works!</p>
+<div class="song-container" *ngIf="song">
+  <mat-card class="song-card">
+    <h2 class="title">{{ song.fileName }}</h2>
+
+    <!-- Player -->
+    <app-player [songId]="song.id"></app-player>
+
+    <!-- Metadata -->
+    <div class="metadata">
+      <p><strong>File Name:</strong> {{ song.fileName }}</p>
+      <p><strong>Type:</strong> {{ song.fileType }}</p>
+      <p><strong>Size:</strong> {{ song.size }}</p>
+      <p><strong>Created At:</strong> {{ song.createdAt }}</p>
+      <p><strong>Last Modified:</strong> {{ song.updatedAt }}</p>
+
+      <p><strong>Authors:</strong>
+        <span *ngFor="let author of song.authors; let last = last">
+          <a (click)="navigateToArtist(author.id)">{{ author.name }}</a>{{ last ? '' : ', ' }}
+        </span>
+      </p>
+
+      <p><strong>Albums:</strong>
+        <span *ngFor="let album of song.albums; let last = last">
+          <a (click)="navigateToAlbum(album.id)">{{ album.name }}</a>{{ last ? '' : ', ' }}
+        </span>
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-buttons">
+      <button mat-raised-button color="primary" (click)="subscribeSong()">Subscribe</button>
+      <button mat-raised-button color="accent" (click)="addToUserList()">Add to My List</button>
+      <button mat-raised-button color="warn" (click)="downloadSong()">Download</button>
+      <button mat-stroked-button *ngFor="let s of [1,2,3]" (click)="rateSong(s)">
+        {{ s }} Star{{ s > 1 ? 's' : '' }}
+      </button>
+      <button mat-stroked-button color="primary" (click)="editSong()">Edit</button>
+      <button mat-stroked-button color="warn" (click)="deleteSong()">Delete</button>
+    </div>
+  </mat-card>
+</div>

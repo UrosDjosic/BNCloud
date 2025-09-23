@@ -1,1 +1,74 @@
-<p>artist-crud works!</p>
+<div class="artist-crud-container">
+  <mat-card class="artist-crud-card">
+
+    <h2 class="title">Artist Management</h2>
+
+    <!-- Toggle button -->
+    <button mat-stroked-button color="accent" (click)="toggleView()">
+      {{ isCreating ? 'Back to Artist List' : 'Create New Artist' }}
+    </button>
+
+    <!-- CREATE VIEW -->
+    <div *ngIf="isCreating" class="form-container">
+      <h3>Create Artist</h3>
+      <form [formGroup]="createForm" (ngSubmit)="createArtist()" class="artist-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Biography</mat-label>
+          <textarea matInput formControlName="biography" rows="4"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Genres</mat-label>
+          <input matInput formControlName="genres" placeholder="Comma-separated">
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" class="submit-btn">Create</button>
+      </form>
+    </div>
+
+    <!-- UPDATE/DELETE VIEW -->
+    <div *ngIf="!isCreating" class="update-delete-container">
+
+      <h3>Existing Artists</h3>
+      <div class="artist-list">
+        <mat-list>
+          <mat-list-item *ngFor="let artist of artists" (click)="selectArtist(artist)" [class.selected]="artist === selectedArtist">
+            {{ artist.name }}
+          </mat-list-item>
+        </mat-list>
+      </div>
+
+      <div *ngIf="selectedArtist" class="form-container">
+        <h3>Edit Artist</h3>
+        <form [formGroup]="updateForm" class="artist-form">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Biography</mat-label>
+            <textarea matInput formControlName="biography" rows="4"></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Genres</mat-label>
+            <input matInput formControlName="genres">
+          </mat-form-field>
+
+          <div class="button-group">
+            <button mat-raised-button color="primary" type="button" (click)="updateArtist()">Update</button>
+            <button mat-raised-button color="warn" type="button" (click)="deleteArtist()">Delete</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+  </mat-card>
+</div>

@@ -1,1 +1,18 @@
-<p>profile works!</p>
+<div class="profile-container">
+  <mat-card class="profile-card">
+    <h2 class="title">My Profile</h2>
+
+    <div class="info">
+      <p><strong>First Name:</strong> {{ user?.firstName }}</p>
+      <p><strong>Last Name:</strong> {{ user?.lastName }}</p>
+      <p><strong>Birth Date:</strong> {{ user?.birthDate }}</p>
+      <p><strong>Username:</strong> {{ user?.username }}</p>
+      <p><strong>Email:</strong> {{ user?.email }}</p>
+    </div>
+
+    <div class="button-group">
+      <button mat-raised-button color="primary" (click)="goToLists()">My Lists</button>
+      <button mat-raised-button color="accent" (click)="goToSubscriptions()">Subscriptions</button>
+    </div>
+  </mat-card>
+</div>

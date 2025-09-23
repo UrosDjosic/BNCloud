@@ -1,0 +1,35 @@
+.player-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  background: #1e1e2f;
+  padding: 1rem;
+  border: 1px solid #bb86fc;
+  border-radius: 0.5rem;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.timer {
+  color: #f0f0f0;
+  font-weight: bold;
+  min-width: 80px;
+}
+
+mat-slider {
+  width: 150px;
+  color: #bb86fc;
+}
+
+.volume-slider {
+  width: 100px;
+}
+
+button.mat-icon-button {
+  color: #bb86fc;
+}
