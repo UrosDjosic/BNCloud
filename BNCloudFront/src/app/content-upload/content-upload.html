@@ -1,1 +1,63 @@
-<p>content-upload works!</p>
+<div class="upload-container">
+  <mat-card class="upload-card">
+    <h2 class="title">Upload Content</h2>
+
+    <div *ngFor="let song of uploads; let i = index" class="song-upload">
+      <h3>Song {{ i + 1 }}</h3>
+
+      <!-- File Upload -->
+      <mat-form-field class="full-width">
+        <input type="file" (change)="onFileSelected($event, i)" accept="audio/*" />
+      </mat-form-field>
+
+      <div *ngIf="song.fileName" class="file-info">
+        <p><strong>File Name:</strong> {{ song.fileName }}</p>
+        <p><strong>File Type:</strong> {{ song.fileType }}</p>
+        <p><strong>Size:</strong> {{ (song.fileSize || 0) / 1000 | number:'1.0-0' }} KB</p>
+        <p><strong>Created:</strong> {{ song.creationTime | date:'short' }}</p>
+        <p><strong>Modified:</strong> {{ song.modificationTime | date:'short' }}</p>
+      </div>
+
+      <!-- Supporting Information -->
+      <mat-form-field class="full-width">
+        <mat-label>Song Name</mat-label>
+        <input matInput [(ngModel)]="song.name" />
+      </mat-form-field>
+
+      <mat-form-field class="full-width">
+        <mat-label>Genres (comma-separated)</mat-label>
+        <input matInput [(ngModel)]="song.genres" placeholder="e.g. Rock, Pop" />
+      </mat-form-field>
+
+      <mat-form-field class="full-width">
+        <mat-label>Artists (comma-separated)</mat-label>
+        <input matInput [(ngModel)]="song.artists" placeholder="e.g. Artist1, Artist2" />
+      </mat-form-field>
+
+      <mat-form-field class="full-width">
+        <input type="file" (change)="onImageSelected($event, i)" accept="image/*" />
+        <mat-label>Upload Cover Image</mat-label>
+      </mat-form-field>
+
+      <button mat-stroked-button color="warn" *ngIf="uploads.length > 1" (click)="removeSong(i)">
+        Remove Song
+      </button>
+
+      <mat-divider></mat-divider>
+    </div>
+
+    <!-- Add More Songs -->
+    <div class="actions">
+      <button mat-stroked-button color="accent" (click)="addAnotherSong()">
+        + Add Another Song
+      </button>
+    </div>
+
+    <!-- Submit -->
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="submit()">
+        Upload
+      </button>
+    </div>
+  </mat-card>
+</div>

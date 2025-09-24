@@ -1,1 +1,30 @@
-<p>user-list works!</p>
+<div class="userlist-container">
+  <mat-card class="userlist-card">
+    <h2 class="title">My Lists</h2>
+
+    <mat-list *ngIf="userSongs.length > 0">
+      <mat-list-item
+        *ngFor="let song of userSongs"
+        (click)="navigateToSong(song.id)"
+        class="clickable-item">
+
+        <div class="song-info">
+          <span class="song-name">🎵 {{ song.name }}</span>
+          <span class="artists">
+            by
+            <ng-container *ngFor="let artist of song.artists; let last = last">
+              <a (click)="$event.stopPropagation(); navigateToArtist(artist.id)">
+                {{ artist.name }}
+              </a>{{ last ? '' : ', ' }}
+            </ng-container>
+          </span>
+        </div>
+
+      </mat-list-item>
+    </mat-list>
+
+    <p *ngIf="userSongs.length === 0" class="empty-message">
+      You haven’t added any songs to your lists yet.
+    </p>
+  </mat-card>
+</div>

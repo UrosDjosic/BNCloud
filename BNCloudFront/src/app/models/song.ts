@@ -1,5 +1,5 @@
-import {Artist} from './artist';
-import {Album} from './album';
+import {ArtistDTO} from './artist';
+import {AlbumDTO} from './album';
 
 export interface SongDTO {
   id: string;
@@ -8,8 +8,8 @@ export interface SongDTO {
   size: string;
   createdAt: string;
   updatedAt: string;
-  genre: string; //maybe change to enum later?
-  authors: Artist[];
-  albums: Album[];
+  genres: string[]; //maybe change to enum later?
+  authors: ArtistDTO[];
+  albums: AlbumDTO[];
   ratings?: number[]; // 1-3
 }

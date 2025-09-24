@@ -1,0 +1,68 @@
+.userlist-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 2rem;
+  background: #121212;
+}
+
+.userlist-card {
+  width: 100%;
+  max-width: 700px;
+  padding: 2rem;
+  background: #1e1e2f;
+  color: #f0f0f0;
+  border: 1px solid #bb86fc;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(187, 134, 252, 0.2);
+}
+
+.title {
+  text-align: center;
+  color: #e1bee7;
+  margin-bottom: 1rem;
+}
+
+.song-info {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.song-name {
+  font-weight: bold;
+  color: #bb86fc;
+}
+
+.artists {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.artists a {
+  cursor: pointer;
+  color: #e1bee7;
+  text-decoration: underline;
+}
+
+.artists a:hover {
+  color: #ff4081;
+}
+
+.clickable-item {
+  cursor: pointer;
+  border-radius: 0.3rem;
+  transition: background 0.2s;
+}
+
+.clickable-item:hover {
+  background-color: rgba(187, 134, 252, 0.2);
+}
+
+.empty-message {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #888;
+  font-style: italic;
+}

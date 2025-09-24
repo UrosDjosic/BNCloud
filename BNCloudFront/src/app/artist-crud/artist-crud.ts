@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {OnInit} from '@angular/core';
-import {Artist} from '../models/artist';
+import {ArtistDTO} from '../models/artist';
 import {Validators} from '@angular/forms';
 
 @Component({
@@ -14,8 +14,8 @@ import {Validators} from '@angular/forms';
 export class ArtistCrud implements OnInit {
 
   isCreating: boolean = false; // toggle between create and update/delete
-  artists: Artist[] = []; // will hold list of artists for selection
-  selectedArtist?: Artist;
+  artists: ArtistDTO[] = []; // will hold list of artists for selection
+  selectedArtist?: ArtistDTO;
 
   createForm: any;
   updateForm: any;
@@ -52,12 +52,12 @@ export class ArtistCrud implements OnInit {
     // Example fetch
     // this.artistService.getAll().subscribe({ next: res => this.artists = res });
     this.artists = [
-      { id: '1', name: 'Artist One', biography: 'Bio 1', genres: 'Pop, Rock' },
-      { id: '2', name: 'Artist Two', biography: 'Bio 2', genres: 'Jazz' }
+      { id: '1', name: 'Artist One', biography: 'Bio 1', genres: ['Pop', 'Rock'] },
+      { id: '2', name: 'Artist Two', biography: 'Bio 2', genres: ['Jazz'] }
     ]; // dummy data
   }
 
-  selectArtist(artist: Artist) {
+  selectArtist(artist: ArtistDTO) {
     this.selectedArtist = artist;
     this.updateForm.patchValue({
       name: artist.name,

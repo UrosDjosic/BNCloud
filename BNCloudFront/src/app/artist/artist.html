@@ -1,1 +1,21 @@
-<p>artist works!</p>
+<div class="artist-container" *ngIf="artist">
+  <mat-card class="artist-card">
+    <h2 class="title">{{ artist.name }}</h2>
+
+    <div class="artist-info">
+      <p><strong>Biography:</strong></p>
+      <p class="bio">{{ artist.biography }}</p>
+
+      <p><strong>Genres:</strong></p>
+      <p class="genres">
+        <span *ngFor="let genre of artist.genres; let last = last">
+          {{ genre }}{{ last ? '' : ', ' }}
+        </span>
+      </p>
+    </div>
+
+    <div class="action-buttons">
+      <button mat-raised-button color="primary" (click)="subscribeArtist()">Subscribe</button>
+    </div>
+  </mat-card>
+</div>

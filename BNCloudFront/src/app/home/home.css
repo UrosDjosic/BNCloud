@@ -1,0 +1,39 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: #121212;
+  text-align: center;
+}
+
+.home-card {
+  background: #1e1e2f;
+  color: #f0f0f0;
+  border: 1px solid #bb86fc;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(187, 134, 252, 0.2);
+  padding: 3rem 2rem;
+  max-width: 700px;
+}
+
+.title {
+  color: #e1bee7;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  color: #ccc;
+  font-size: 1.2rem;
+}
+
+.footer-text {
+  margin-top: auto;
+  margin-bottom: 5rem;
+  font-size: 0.8rem;
+  color: #fff;
+  opacity: 0.6;
+  text-align: center;
+}

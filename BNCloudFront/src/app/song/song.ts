@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {SongDTO} from '../models/song';
-import {Album} from '../models/album';
-import {Artist} from '../models/artist';
+import {AlbumDTO} from '../models/album';
+import {ArtistDTO} from '../models/artist';
 import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
@@ -40,7 +40,7 @@ export class Song implements OnInit {
       authors: [],
       albums: [],
       ratings: [2],
-      genre: ''
+      genres: ['']
     };
   }
 
@@ -67,7 +67,7 @@ export class Song implements OnInit {
 
   editSong() {
     // Navigate to song edit page or open dialog
-    console.log('Editing song info');
+    this.router.navigate(['content-rud']);
   }
 
   deleteSong() {

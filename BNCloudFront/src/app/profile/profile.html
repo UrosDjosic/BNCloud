@@ -10,8 +10,19 @@
       <p><strong>Email:</strong> {{ user?.email }}</p>
     </div>
 
+    <h3 class="subtitle">My Lists</h3>
+    <button mat-raised-button (click)="createList()" style="margin-bottom: 0.5rem; margin-top: 0.5rem; width: fit-content; align-self: center">
+      +
+    </button>
+    <div class="lists-container">
+      <mat-list>
+        <mat-list-item *ngFor="let list of userLists" (click)="goToList(list.id)" class="list-item">
+          {{ list.name }}
+        </mat-list-item>
+      </mat-list>
+    </div>
+
     <div class="button-group">
-      <button mat-raised-button color="primary" (click)="goToLists()">My Lists</button>
       <button mat-raised-button color="accent" (click)="goToSubscriptions()">Subscriptions</button>
     </div>
   </mat-card>
