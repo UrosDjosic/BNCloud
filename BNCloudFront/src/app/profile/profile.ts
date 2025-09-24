@@ -11,12 +11,12 @@ import {Router} from '@angular/router';
 export class Profile implements OnInit {
 
   user?: UserProfile;
+  userLists: UserList[] = [];
 
   constructor(private router: Router) {}
 
   ngOnInit() {
     // Example: fetching user info
-    // probably through localstorage jwtokened id or sum shit, idk
     // this.userService.getCurrentUser().subscribe(res => this.user = res);
 
     // Dummy data
@@ -27,13 +27,32 @@ export class Profile implements OnInit {
       username: 'janedoe',
       email: 'jane@example.com'
     };
+
+    // Example: fetching lists
+    // this.userService.getUserLists().subscribe(res => this.userLists = res);
+
+    // Dummy lists
+    this.userLists = [
+      { id: '1', name: 'Favorites' },
+      { id: '2', name: 'Workout Mix' },
+      { id: '3', name: 'Chill Vibes' }
+    ];
   }
 
-  goToLists() {
-    this.router.navigate(['/my-lists']);
+  goToList(listId: string) {
+    this.router.navigate([`/user-list/${listId}`]);
   }
 
   goToSubscriptions() {
     this.router.navigate(['/subscriptions']);
   }
+
+  createList() {
+    //absolutely fuckall
+  }
+}
+
+interface UserList {
+  id: string;
+  name: string;
 }

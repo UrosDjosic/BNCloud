@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { App } from './app';
 import { AppRoutingModule } from './app.routes';
-import { AdminDashboard } from './admin-dashboard/admin-dashboard';
 import { Album } from './album/album';
 import { ArtistCrud } from './artist-crud/artist-crud';
 import { Artist } from './artist/artist';
@@ -22,7 +21,7 @@ import { Subscriptions } from './subscriptions/subscriptions';
 import {Navbar} from './navbar/navbar';
 import {Player} from './player/player';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -30,17 +29,15 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import {MatList} from '@angular/material/list';
+import {MatDivider, MatList} from '@angular/material/list';
 import {MatListItem} from '@angular/material/list';
 import {UserList} from './user-list/user-list';
 import {MatOption} from '@angular/material/core';
 import {MatSelect} from '@angular/material/select';
-import {UserListCreate} from './user-list-create/user-list-create';
 
 @NgModule({
   declarations: [
     App,
-    AdminDashboard,
     Album,
     ArtistCrud,
     Artist,
@@ -57,8 +54,7 @@ import {UserListCreate} from './user-list-create/user-list-create';
     Search,
     Song,
     Subscriptions,
-    UserList,
-    UserListCreate
+    UserList
   ],
   imports: [
     AppRoutingModule,
@@ -78,6 +74,8 @@ import {UserListCreate} from './user-list-create/user-list-create';
     MatListItem,
     MatOption,
     MatSelect,
+    MatDivider,
+    FormsModule
   ],
   bootstrap: [App]
 })

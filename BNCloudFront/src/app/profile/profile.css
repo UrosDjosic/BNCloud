@@ -24,14 +24,37 @@
   margin-bottom: 1.5rem;
 }
 
+.subtitle {
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  color: #bb86fc;
+}
+
 .info p {
   margin: 0.5rem 0;
 }
 
+.lists-container {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+  border: 1px solid #bb86fc;
+  border-radius: 0.5rem;
+}
+
+.list-item {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.list-item:hover {
+  background: rgba(187, 134, 252, 0.2);
+}
+
 .button-group {
   display: flex;
-  justify-content: space-around;
-  margin-top: 2rem;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
 .button-group button {

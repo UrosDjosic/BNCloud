@@ -1,6 +1,6 @@
-export interface Artist {
+export interface ArtistDTO {
   id: string;
   name: string;
   biography: string;
-  genres: string;
+  genres: string[];
 }

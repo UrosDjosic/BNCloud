@@ -1,1 +1,21 @@
-<p>downloads works!</p>
+<div class="downloads-container">
+  <mat-card class="downloads-card">
+    <h2 class="title">My Downloads</h2>
+
+    <mat-list *ngIf="downloadedSongs.length > 0">
+      <mat-list-item
+        *ngFor="let song of downloadedSongs"
+        (click)="navigateToSong(song.id)"
+        class="clickable-item">
+        <div class="song-info">
+          <span class="song-name">🎵 {{ song.name }}</span>
+          <span class="song-size">{{ song.size }}</span>
+        </div>
+      </mat-list-item>
+    </mat-list>
+
+    <p *ngIf="downloadedSongs.length === 0" class="empty-message">
+      You haven’t downloaded any songs yet.
+    </p>
+  </mat-card>
+</div>
