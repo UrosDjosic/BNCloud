@@ -34,7 +34,7 @@ import {MatListItem} from '@angular/material/list';
 import {UserList} from './user-list/user-list';
 import {MatOption} from '@angular/material/core';
 import {MatSelect} from '@angular/material/select';
-import { AuthConfigModule } from './auth/auth-config.module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -59,7 +59,7 @@ import { AuthConfigModule } from './auth/auth-config.module';
   ],
   imports: [
     AppRoutingModule,
-    AuthConfigModule,
+    HttpClientModule,
     Navbar,
     Player,
     BrowserModule,

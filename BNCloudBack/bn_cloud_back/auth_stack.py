@@ -14,7 +14,7 @@ class AuthStack(Stack):
             self, "UserPool",
             user_pool_name="BNCloudUserPool",
             self_sign_up_enabled=True,                     
-            sign_in_aliases=cognito.SignInAliases(email=True), 
+            sign_in_aliases=cognito.SignInAliases(username=True), 
             auto_verify=cognito.AutoVerifiedAttrs(email=True),
             password_policy=cognito.PasswordPolicy(
                 min_length=8,
@@ -23,16 +23,20 @@ class AuthStack(Stack):
                 require_digits=True,
                 require_symbols=False
             ),
+            custom_attributes={
+                "lastName": cognito.StringAttribute(min_len=1, max_len=50),
+                "firstName": cognito.StringAttribute(min_len=1, max_len=50),
+            },
             removal_policy=RemovalPolicy.DESTROY,
         )
 
-        admin_group = cognito.CfnUserPoolGroup(
+        cognito.CfnUserPoolGroup(
             self, "AdminGroup",
             group_name="Administrator",
             user_pool_id=self.user_pool.user_pool_id,
             description="Administrators of the app"
         )
-        user_group = cognito.CfnUserPoolGroup(
+        cognito.CfnUserPoolGroup(
             self, "UserGroup",
             group_name="User",
             user_pool_id=self.user_pool.user_pool_id,
@@ -43,6 +47,7 @@ class AuthStack(Stack):
             "AppClient",
             user_pool_client_name="WebClient",
             auth_flows=cognito.AuthFlow(
+                admin_user_password=True,
                 user_password=True,
                 user_srp=True,
             ),
