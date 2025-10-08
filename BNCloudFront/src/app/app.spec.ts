@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
-import { AppConfig } from './app.config';
+import { AppConfig } from './app.module';
 import { BrowserModule } from '@angular/platform-browser';
 
 describe('App', () => {

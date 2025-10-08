@@ -1,8 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit,signal} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {Router} from '@angular/router';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Validators} from '@angular/forms';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -13,11 +15,16 @@ import {Validators} from '@angular/forms';
 export class Login implements OnInit {
 
   loginForm: any;
+  isAuthenticated = signal(false); // signal<boolean>
+  userData = signal<any>(null);    // signal to store user info
+  userRole = signal<string>('');
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private snackBar: MatSnackBar,
+    private oidcService : OidcSecurityService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -34,8 +41,8 @@ export class Login implements OnInit {
       this.snackBar.open('Please enter username and password', 'Close', { duration: 3000 });
       return;
     }
-    const formValue = this.loginForm.value;
-    this.snackBar.open('Pretend we logged in 🎉', 'Close', { duration: 3000 });
+    this.snackBar.open("Pretend we logged in!")
+
   }
 
   goToRegister() {

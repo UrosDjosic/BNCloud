@@ -23,7 +23,7 @@
 .nav-btn {
   justify-content: flex-start;
   width: 100%;
-  color: #f0f0f0;
+  color: #f0f0f0 !important;
   font-weight: bold;
   text-transform: none;
   border-radius: 0.5rem;
