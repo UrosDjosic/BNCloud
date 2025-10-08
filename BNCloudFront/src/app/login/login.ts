@@ -3,8 +3,8 @@ import {FormBuilder} from '@angular/forms';
 import {Router} from '@angular/router';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Validators} from '@angular/forms';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { AuthService } from '../auth/auth.service';
+import { LoginResponse } from '../dto/login-response';
+import {AuthService} from '../services/auth-service';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +23,6 @@ export class Login implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private snackBar: MatSnackBar,
-    private oidcService : OidcSecurityService,
     private authService: AuthService
   ) {}
 
@@ -41,7 +40,19 @@ export class Login implements OnInit {
       this.snackBar.open('Please enter username and password', 'Close', { duration: 3000 });
       return;
     }
-    this.snackBar.open("Pretend we logged in!")
+
+    this.authService.login(
+      this.loginForm.get('username')?.value,  // <-- use .value
+      this.loginForm.get('password')?.value).subscribe({
+      next: (res : LoginResponse) => {
+        this.snackBar.open('Succesfull login')
+        localStorage.setItem('idToken', res.tokens.IdToken);
+        localStorage.setItem('accessToken', res.tokens.AccessToken);
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
 
   }
 
