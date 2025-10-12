@@ -63,18 +63,7 @@ class AuthStack(Stack):
                 logout_urls=["http://localhost:4200/logout"],
             )
         )
-
-
-        self.identity_pool = cognito.CfnIdentityPool(
-            self, "IdentityPool",
-            allow_unauthenticated_identities=False,
-            cognito_identity_providers=[
-                {
-                    "clientId": self.user_pool_client.user_pool_client_id,
-                    "providerName": self.user_pool.user_pool_provider_name,
-                }
-            ],
-        )
         CfnOutput(self, "UserPoolId", value=self.user_pool.user_pool_id)
         CfnOutput(self, "UserPoolClientId", value=self.user_pool_client.user_pool_client_id)
-        CfnOutput(self, "IdentityPoolId", value=self.identity_pool.ref)
+
+    

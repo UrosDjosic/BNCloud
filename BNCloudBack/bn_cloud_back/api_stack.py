@@ -8,10 +8,10 @@ from aws_cdk import (
 )
 
 from api.auth_api import AuthApi
-
+from api.artist_api import ArtistApi
 
 class ApiStack(Stack):
-    def __init__(self, scope: Construct, id: str, *, user_pool : cognito.UserPool, user_pool_client, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, user_pool : cognito.UserPool, user_pool_client,tables, **kwargs):
         super().__init__(scope, id, **kwargs)
 
         api = apigw.RestApi(
@@ -20,6 +20,9 @@ class ApiStack(Stack):
             rest_api_name="BNCloudApi",
             description="API Gateway with Cognito Auth",
             deploy_options=apigw.StageOptions(stage_name="prod"),
+            default_cors_preflight_options=apigw.CorsOptions(
+            allow_origins=apigw.Cors.ALL_ORIGINS,
+            allow_methods=["OPTIONS", "GET", "POST", "PUT"],)
         )
 
         root_api = api.root.add_resource("api")
@@ -29,4 +32,10 @@ class ApiStack(Stack):
             api=root_api,
             user_pool=user_pool,
             user_pool_client=user_pool_client,
+        )
+        artist_api = ArtistApi(
+            self,
+            "ArtistApi",
+            api = root_api,
+            table = tables['artist']
         )

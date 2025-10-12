@@ -1,15 +1,9 @@
 import json
 import boto3
 import os
+from helpers.create_response import create_response
 
-def create_response(status, body):
-    return { 
-        'statusCode': status, 
-        'headers': {
-            'Access-Control-Allow-Origin': '*',
-        },
-        'body': json.dumps(body, default=str)
-        }
+
 # Initialize Cognito client
 client = boto3.client('cognito-idp')
 

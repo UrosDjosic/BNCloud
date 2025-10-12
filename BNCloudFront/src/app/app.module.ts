@@ -2,24 +2,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { App } from './app';
 import { AppRoutingModule } from './app.routes';
-import { Album } from './album/album';
-import { ArtistCrud } from './artist-crud/artist-crud';
-import { Artist } from './artist/artist';
-import { ContentRud } from './content-rud/content-rud';
-import { ContentUpload } from './content-upload/content-upload';
-import { Discover } from './discover/discover';
-import { Downloads } from './downloads/downloads';
-import { Error } from './error/error';
-import { Home } from './home/home';
-import { Login } from './login/login';
-import { Notifications } from './notifications/notifications';
-import { Profile } from './profile/profile';
-import { Register } from './register/register';
-import { Search } from './search/search';
-import { Song } from './song/song';
-import { Subscriptions } from './subscriptions/subscriptions';
-import {Navbar} from './navbar/navbar';
-import {Player} from './player/player';
+import {Navbar} from './components/navbar/navbar';
+import {Player} from './components/player/player';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -31,37 +15,23 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {MatDivider, MatList} from '@angular/material/list';
 import {MatListItem} from '@angular/material/list';
-import {UserList} from './user-list/user-list';
+import {UserList} from './user/user-list/user-list';
 import {MatOption} from '@angular/material/core';
 import {MatSelect} from '@angular/material/select';
 import { HttpClientModule } from '@angular/common/http';
+import { ComponentsModule } from './components/components.module';
+import {UserModule} from './user/user.module';
+
 
 @NgModule({
   declarations: [
-    App,
-    Album,
-    ArtistCrud,
-    Artist,
-    ContentRud,
-    ContentUpload,
-    Discover,
-    Downloads,
-    Error,
-    Home,
-    Login,
-    Notifications,
-    Profile,
-    Register,
-    Search,
-    Song,
-    Subscriptions,
-    UserList
+    App
   ],
   imports: [
+    ComponentsModule,
+    UserModule,
     AppRoutingModule,
     HttpClientModule,
-    Navbar,
-    Player,
     BrowserModule,
     BrowserAnimationsModule,
     ReactiveFormsModule,

@@ -1,16 +1,8 @@
 import json
 import boto3
 import os
+from helpers.create_response import create_response
 client = boto3.client("cognito-idp")
-
-def create_response(status, body):
-    return { 
-        'statusCode': status, 
-        'headers': {
-            'Access-Control-Allow-Origin': '*',
-        },
-        'body': json.dumps(body, default=str)
-        }
 
 USER_POOL_ID = os.environ["USER_POOL_ID"]
 CLIENT_ID = os.environ["CLIENT_ID"]
@@ -20,7 +12,7 @@ def main(event, context):
     password = body.get("password")
 
     if not username or not password:
-        return {"statusCode": 400, "body": json.dumps({"error": "username and password required"})}
+        return create_response(400, {"error": "username and password required"})
 
     try:
         response = client.admin_initiate_auth(
@@ -32,12 +24,29 @@ def main(event, context):
                 "PASSWORD": password
             }
         )
-        return create_response(200,{"message": "Login successful",
-                                "tokens": response.get("AuthenticationResult", {})})
+        auth_result = response.get("AuthenticationResult", {})
+        cookie_header = ""
+        refresh_token = auth_result.get("RefreshToken")
+        if refresh_token:
+            cookie_header = f"RefreshToken={refresh_token}; HttpOnly; Secure; Path=/prod/api/refresh; SameSite=Strict"
+
+        return create_response(
+            200,
+            {
+                "message": "Login successful",
+                "tokens": auth_result
+            },
+            headers={
+                "Set-Cookie": cookie_header,
+                "Access-Control-Allow-Credentials": "true"
+            }
+        )
     except client.exceptions.NotAuthorizedException:
         return create_response(401, {"error": "Invalid username or password"})
 
     except client.exceptions.UserNotFoundException:
         return create_response(404, {"error": "User not found"})
+    except client.exceptions.UserNotConfirmedException:
+        return create_response(403, {"error": "User not confirmed. Please verify your account."})
     except Exception as e:
         return create_response(400, {"message": str(e)})

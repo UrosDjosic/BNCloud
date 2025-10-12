@@ -8,12 +8,12 @@ class AuthApi(Construct):
                  , **kwargs):
         super().__init__(scope, id, **kwargs)
 
-        # Lambda function
+        # REGISTER LAMBDA
         register_lambda = _lambda.Function(
             self, "RegisterHandler",
             runtime=_lambda.Runtime.PYTHON_3_11,
-            handler="handler.register_handler",
-            code=_lambda.Code.from_asset("lambda/register"),
+            handler="register.handler.register_handler",
+            code=_lambda.Code.from_asset("lambda"),
             environment={
                 "USER_POOL_ID": user_pool.user_pool_id,
                 "CLIENT_ID": user_pool_client.user_pool_client_id
@@ -25,12 +25,12 @@ class AuthApi(Construct):
             "POST",register_integration
         )
 
-
+        #Login lambda
         login_lambda = _lambda.Function(
             self, "LoginLambda",
             runtime=_lambda.Runtime.PYTHON_3_11,
-            handler="handler.main",
-            code=_lambda.Code.from_asset("lambda/login"),
+            handler="login.handler.main",
+            code=_lambda.Code.from_asset("lambda"),
             environment={
                 "CLIENT_ID": user_pool_client.user_pool_client_id, 
                 "USER_POOL_ID": user_pool.user_pool_id
@@ -41,6 +41,22 @@ class AuthApi(Construct):
         login_integration = apigw.LambdaIntegration(login_lambda)
         api.add_resource("login").add_method(
             "POST", login_integration
+        )
+
+        #Verify function lambda
+        verify_lambda = _lambda.Function(
+            self,"VerifyLambda",
+            runtime = _lambda.Runtime.PYTHON_3_11,
+            handler = "verify_register.handler.verify_handler",
+            code = _lambda.Code.from_asset("lambda"),
+            environment={
+                "CLIENT_ID": user_pool_client.user_pool_client_id, 
+            },
+        )
+        user_pool.grant(verify_lambda,"cognito-idp:ConfirmSignUp")
+        verify_integration = apigw.LambdaIntegration(verify_lambda)
+        api.add_resource("verify").add_method(
+            "PUT",verify_integration
         )
 
 

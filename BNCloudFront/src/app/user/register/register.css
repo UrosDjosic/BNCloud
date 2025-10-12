@@ -1,0 +1,45 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  background: #121212; /* Dark theme */
+}
+
+.register-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+  background: #1e1e2f;
+  color: #f0f0f0;
+  border: 1px solid #bb86fc; /* Purplish-magenta outline */
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(187, 134, 252, 0.2);
+  margin: 5%;
+}
+
+.title {
+  text-align: center;
+  color: #e1bee7; /* pinkish-purple */
+  margin-bottom: 1rem;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.submit-btn {
+  background: linear-gradient(45deg, #bb86fc, #ff4081);
+  color: white;
+  font-weight: bold;
+}
+
+.submit-btn:hover {
+  opacity: 0.9;
+}
