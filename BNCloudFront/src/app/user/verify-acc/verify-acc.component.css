@@ -1,0 +1,107 @@
+/* Center everything */
+.verify-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #121212;
+  font-family: 'Roboto', sans-serif;
+}
+
+.verify-card {
+  background: #1e1e1e;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  text-align: center;
+  color: #fff;
+  width: 350px;
+}
+
+.verify-card h2 {
+  margin-bottom: 10px;
+  color: #00ffcc;
+}
+
+.verify-card p {
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.verify-form {
+  display: flex;
+  flex-direction: column; /* column layout for single field */
+  align-items: stretch;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* Make the form field take up full width */
+mat-form-field {
+  width: 100%;
+}
+
+/* Optional: make the input text match your dark theme */
+.mat-mdc-form-field {
+  --mdc-theme-primary: #00ffcc;
+  --mdc-theme-on-surface: #fff;
+}
+
+.mat-mdc-input-element {
+  color: #fff;
+}
+
+.mat-mdc-text-field-wrapper {
+  background: #2a2a2a;
+  border-radius: 8px;
+}
+
+
+.code-input {
+  width: 40px;
+  height: 50px;
+  font-size: 1.5rem;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid #555;
+  background: #2a2a2a;
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.code-input:focus {
+  border-color: #bb86fc;
+  box-shadow: 0 0 5px #00ffcc;
+  outline: none;
+}
+
+.verify-btn {
+  width: 100%;
+  padding: 12px;
+  background: #bb86fc;
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.verify-btn:hover {
+  background: linear-gradient(45deg, #bb86fc, #ff4081);
+}
+
+.resend {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.resend a {
+  color: #00ffcc;
+  text-decoration: none;
+}
+
+.resend a:hover {
+  text-decoration: underline;
+}

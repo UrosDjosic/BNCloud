@@ -1,22 +1,24 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { Home } from './home/home';
-import { Register } from './register/register';
-import { Login } from './login/login';
-import { Subscriptions } from './subscriptions/subscriptions';
-import { Song } from './song/song';
-import { Search } from './search/search';
-import { Profile } from './profile/profile';
-import { Notifications } from './notifications/notifications';
-import { Error } from './error/error';
-import { Downloads } from './downloads/downloads';
-import { Discover } from './discover/discover';
-import { ContentUpload } from './content-upload/content-upload';
-import { ContentRud } from './content-rud/content-rud';
-import { ArtistCrud } from './artist-crud/artist-crud';
-import { Artist } from './artist/artist';
-import { Album } from './album/album';
-import {UserList} from './user-list/user-list';
+import { Home } from './components/home/home';
+import { Register } from './user/register/register';
+import { Login } from './user/login/login';
+import { Song } from './components/song/song';
+import { Search } from './components/search/search';
+import { Profile } from './user/profile/profile';
+import { Notifications } from './components/notifications/notifications';
+import { Error } from './components/error/error';
+import { Downloads } from './components/downloads/downloads';
+import { Discover } from './components/discover/discover';
+import { ContentUpload } from './components/content-upload/content-upload';
+import { ContentRud } from './components/content-rud/content-rud';
+import { ArtistCrud } from './components/artist-crud/artist-crud';
+import { Artist } from './components/artist/artist';
+import { Album } from './components/album/album';
+import {UserList} from './user/user-list/user-list';
+import { VerifyAccComponent } from './user/verify-acc/verify-acc.component';
+import { Subscriptions } from './components/subscriptions/subscriptions';
+
 
 const routes: Routes = [
   { path: '', component: Home },
@@ -35,6 +37,7 @@ const routes: Routes = [
   { path: 'artist/:artistId', component: Artist },
   { path: 'album/:albumId', component: Album },
   { path: 'user-list/:userListId', component: UserList },
+  { path: 'verify',component: VerifyAccComponent},
   { path: '**', component: Error }
 ];
 

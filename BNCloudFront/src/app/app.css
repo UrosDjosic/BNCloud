@@ -13,10 +13,11 @@ hr{
   width: 100%;
   height: 100vh;
 }
-.page-div{
-  width: 100%;
-  height: 100vh;
-  overflow-y: scroll;
+.page-div {
+  flex: 1;               /* take remaining horizontal space */
+  height: 100%;          /* full height of outer div */
+  overflow-y: auto;      /* scroll only this div */
+  overflow-x: hidden;    /* optional, prevent horizontal scroll */
 }
 app-root {
   display: flex;
