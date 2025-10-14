@@ -11,7 +11,7 @@ class ArtistApi(Construct):
 
 
         lambda_role = iam.Role(
-            self, "LambdaRole",
+            self, "ArtistLambdaRole",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com")
         )
         lambda_role.add_managed_policy(

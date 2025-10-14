@@ -16,15 +16,20 @@ def create(event, context):
     # Get table instance connection
     table = dynamodb.Table(table_name)
     # Put item into table
-    response = table.put_item(
-        Item={
-            'id' : str(uuid.uuid4()),
-            'name': body['name'],
-            'biography': body['biography'],
-            'genres': body['genres']
-        }
-    )
-    # Create response
+
+    genres = body['genres']
+
+    artist_id = str(uuid.uuid4())
+    for genre in genres:
+        response = table.put_item(
+            Item={
+                'id' : artist_id,
+                'name': body['name'],
+                'biography': body['biography'],
+                'genre': genre
+            }
+        )
+        # Create response
     body = {
         'message': 'Successfully created artist.'
     }

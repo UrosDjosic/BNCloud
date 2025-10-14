@@ -13,7 +13,7 @@ class AuthApi(Construct):
             self, "RegisterHandler",
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="register.handler.register_handler",
-            code=_lambda.Code.from_asset("lambda"),
+            code=_lambda.Code.from_asset("lambda.auth"),
             environment={
                 "USER_POOL_ID": user_pool.user_pool_id,
                 "CLIENT_ID": user_pool_client.user_pool_client_id
@@ -30,7 +30,7 @@ class AuthApi(Construct):
             self, "LoginLambda",
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="login.handler.main",
-            code=_lambda.Code.from_asset("lambda"),
+            code=_lambda.Code.from_asset("lambda.auth"),
             environment={
                 "CLIENT_ID": user_pool_client.user_pool_client_id, 
                 "USER_POOL_ID": user_pool.user_pool_id
@@ -48,7 +48,7 @@ class AuthApi(Construct):
             self,"VerifyLambda",
             runtime = _lambda.Runtime.PYTHON_3_11,
             handler = "verify_register.handler.verify_handler",
-            code = _lambda.Code.from_asset("lambda"),
+            code = _lambda.Code.from_asset("lambda.auth"),
             environment={
                 "CLIENT_ID": user_pool_client.user_pool_client_id, 
             },
@@ -59,4 +59,20 @@ class AuthApi(Construct):
             "PUT",verify_integration
         )
 
+
+        #Refresh access token lambda
+        refresh_lambda= _lambda.Function(
+            self,"RefreshLambda",
+            runtime = _lambda.Runtime.PYTHON_3_11,
+            handler = "refresh.handler.main",
+            code = _lambda.Code.from_asset("lambda.auth"),
+            environment={
+                "CLIENT_ID": user_pool_client.user_pool_client_id, 
+            },
+        )
+        refresh_integration = apigw.LambdaIntegration(refresh_lambda)
+        api.add_resource("refresh").add_method(
+            "PUT",refresh_integration
+        )
+        
 

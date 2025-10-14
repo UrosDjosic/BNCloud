@@ -24,7 +24,11 @@ class StorageStack(Stack):
             self, "artists",
             table_name="Artists",
             partition_key=dynamodb.Attribute(
-                name="id",
+                name="artist_id",
+                type=dynamodb.AttributeType.STRING
+            ),
+            sort_key=dynamodb.Attribute(
+                name = "genre",
                 type=dynamodb.AttributeType.STRING
             ),
             billing_mode=dynamodb.BillingMode.PROVISIONED,
@@ -44,7 +48,21 @@ class StorageStack(Stack):
             ),
             projection_type=dynamodb.ProjectionType.ALL
         )
-        
+
+        #------------ GENRE TABLE --------------
+        genres_table = dynamodb.Table(
+            self, "genres",
+            table_name="Genres",
+            partition_key=dynamodb.Attribute(
+                name="id",
+                type=dynamodb.AttributeType.STRING
+            ),
+            billing_mode=dynamodb.BillingMode.PROVISIONED,
+            read_capacity=1,
+            write_capacity=1
+        )
+        self.tables['genres'] = album_table
+
         #---------ALBUM TABLE -----------
         album_table = dynamodb.Table(
             self, "albums",
@@ -58,7 +76,7 @@ class StorageStack(Stack):
             write_capacity=1
         )
 
-        self.tables['album'] = album_table
+        self.tables['albums'] = genres_table
         #-------CONTENT TABLE ----------
         content_table = dynamodb.Table(
             self,"content",

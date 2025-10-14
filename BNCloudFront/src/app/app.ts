@@ -28,7 +28,7 @@ export class App {
 
   }
   setSidebarState(url: string) {
-    const hideSidebarPaths = ['/login', '/register'];
+    const hideSidebarPaths = ['/login', '/register','/verify'];
     this.showSidebar = !hideSidebarPaths.some(path => url.startsWith(path));
   }
 
