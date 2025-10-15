@@ -42,9 +42,7 @@ export class AuthService {
     );
   }
   logout() {
-    localStorage.removeItem('user');
-    localStorage.removeItem('userID');
-    this.setUser();
+    localStorage.clear();
   }
 
   getRole(): any {

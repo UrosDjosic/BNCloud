@@ -1,6 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {UserProfile} from '../../models/user-profile';
 import {Router} from '@angular/router';
+import {JwtClaims} from '../../models/jwt-claims';
+import {jwtDecode} from 'jwt-decode';
+import {AuthService} from '../../services/auth-service';
 
 @Component({
   selector: 'app-profile',
@@ -9,34 +12,25 @@ import {Router} from '@angular/router';
   standalone: false
 })
 export class Profile implements OnInit {
-
+  claims!: JwtClaims;
   user?: UserProfile;
   userLists: UserList[] = [];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit() {
-    // Example: fetching user info
-    // this.userService.getCurrentUser().subscribe(res => this.user = res);
-
-    // Dummy data
+    //decode jwt token
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/login']);
+    }
+    this.claims = jwtDecode<JwtClaims>(localStorage['idToken']);
     this.user = {
-      firstName: 'Jane',
-      lastName: 'Doe',
-      birthDate: '1995-08-15',
-      username: 'janedoe',
-      email: 'jane@example.com'
-    };
-
-    // Example: fetching lists
-    // this.userService.getUserLists().subscribe(res => this.userLists = res);
-
-    // Dummy lists
-    this.userLists = [
-      { id: '1', name: 'Favorites' },
-      { id: '2', name: 'Workout Mix' },
-      { id: '3', name: 'Chill Vibes' }
-    ];
+      firstName: this.claims["custom:firstName"],
+      lastName: this.claims["custom:lastName"],
+      birthDate: this.claims["birthdate"],
+      username: this.claims["cognito:username"],
+      email: this.claims["email"],
+    }
   }
 
   goToList(listId: string) {
@@ -48,7 +42,12 @@ export class Profile implements OnInit {
   }
 
   createList() {
-    //absolutely fuckall
+    // TODO: implement later
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/']).then(() => {window.location.reload();});
   }
 }
 
