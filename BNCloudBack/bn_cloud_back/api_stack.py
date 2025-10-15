@@ -3,7 +3,6 @@ from constructs import Construct
 from aws_cdk import (
     Stack,
     aws_apigateway as apigw,
-    aws_lambda as _lambda,
     aws_cognito as cognito
 )
 
