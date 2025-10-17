@@ -57,12 +57,12 @@ class StorageStack(Stack):
             read_capacity=1,
             write_capacity=1
         )
-
         self.tables['album'] = album_table
-        #-------CONTENT TABLE ----------
-        content_table = dynamodb.Table(
-            self,"content",
-            table_name="music_content",
+
+        #---------SONGS TABLE -----------
+        song_table = dynamodb.Table(
+            self, "songs",
+            table_name="Songs",
             partition_key=dynamodb.Attribute(
                 name="id",
                 type=dynamodb.AttributeType.STRING
@@ -71,13 +71,30 @@ class StorageStack(Stack):
             read_capacity=1,
             write_capacity=1
         )
-        self.tables['content'] = content_table
-        # Creating S3 bucket used for saving songs(music content)
+        self.tables['song'] = song_table
+
+        #--------------- S3 BUCKET CREATION WITH CORS ----------------
         bucket = s3.Bucket(
-            self, 
-            "SongsBucket",
-            bucket_name="kirdanovi-brodograditelji-bucket",  
-            versioned=True,                            
-            removal_policy=RemovalPolicy.DESTROY,   
-            auto_delete_objects=True                   
+    self, 
+    "SongsBucket",
+    bucket_name="songs-bucket-1",
+    versioned=True,
+    removal_policy=RemovalPolicy.DESTROY,
+    auto_delete_objects=True,
+    cors=[
+        s3.CorsRule(
+            allowed_methods=[
+                s3.HttpMethods.POST,
+                s3.HttpMethods.GET,
+                s3.HttpMethods.PUT,
+                s3.HttpMethods.DELETE,
+                s3.HttpMethods.HEAD
+            ],
+            allowed_origins=["*"],
+            allowed_headers=["*"],
+            exposed_headers=[],
         )
+    ]
+)
+
+

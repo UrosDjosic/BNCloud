@@ -47,7 +47,7 @@ export class Album implements OnInit {
           updatedAt: '',
           genres: [''],
           authors: [],
-          albums: []
+          image: ""
         },
         {
           id: 's2', fileName: 'Fading Lights',
@@ -57,7 +57,7 @@ export class Album implements OnInit {
           updatedAt: '',
           genres: [''],
           authors: [],
-          albums: []
+          image: ""
         },
         {
           id: 's3', fileName: 'Electric Dreams',
@@ -67,7 +67,7 @@ export class Album implements OnInit {
           updatedAt: '',
           genres: [''],
           authors: [],
-          albums: []
+          image: ""
         }
       ]
     };

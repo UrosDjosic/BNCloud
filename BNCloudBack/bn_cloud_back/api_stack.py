@@ -8,6 +8,7 @@ from aws_cdk import (
 
 from api.auth_api import AuthApi
 from api.artist_api import ArtistApi
+from api.song_api import SongApi
 
 class ApiStack(Stack):
     def __init__(self, scope: Construct, id: str, *, user_pool : cognito.UserPool, user_pool_client,tables, **kwargs):
@@ -37,4 +38,10 @@ class ApiStack(Stack):
             "ArtistApi",
             api = root_api,
             table = tables['artist']
+        )
+        song_api = SongApi(
+            self,
+            "SongApi",
+            api = root_api,
+            table = tables['song']
         )
