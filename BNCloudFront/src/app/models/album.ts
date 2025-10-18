@@ -5,5 +5,6 @@ export interface AlbumDTO {
   id: string,
   name: string,
   author: ArtistDTO,
-  songs: SongDTO[]
+  songs: SongDTO[],
+  genres: string[]
 }

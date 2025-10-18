@@ -18,12 +18,6 @@
           <a (click)="navigateToArtist(author.id)">{{ author.name }}</a>{{ last ? '' : ', ' }}
         </span>
       </p>
-
-      <p><strong>Albums:</strong>
-        <span *ngFor="let album of song.albums; let last = last">
-          <a (click)="navigateToAlbum(album.id)">{{ album.name }}</a>{{ last ? '' : ', ' }}
-        </span>
-      </p>
     </div>
 
     <!-- Actions -->

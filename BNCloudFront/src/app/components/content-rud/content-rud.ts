@@ -31,7 +31,7 @@ export class ContentRud implements OnInit {
         size: '',
         createdAt: '',
         updatedAt: '',
-        albums: []
+        image: ""
       },
       {
         id: 's2', fileName: 'Fading Lights', genres: ['Rock'], authors: [],
@@ -39,7 +39,7 @@ export class ContentRud implements OnInit {
         size: '',
         createdAt: '',
         updatedAt: '',
-        albums: []
+        image: ""
       },
       {
         id: 's3', fileName: 'Electric Dreams', genres: ['Electronic'], authors: [],
@@ -47,7 +47,7 @@ export class ContentRud implements OnInit {
         size: '',
         createdAt: '',
         updatedAt: '',
-        albums: []
+        image: ""
       }
     ];
   }

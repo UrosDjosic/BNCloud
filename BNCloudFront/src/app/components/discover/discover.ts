@@ -42,9 +42,9 @@ export class Discover implements OnInit {
     // Dummy filtered data
     this.songs = [
       { id: 's1', fileName: 'Fading Lights', genres: ['Rock', 'Indie'], fileType: '', size: '', createdAt: '', updatedAt: '', authors: [],
-        albums: [], ratings: [] },
+         ratings: [], image: "" },
       { id: 's2', fileName: 'Dreamscapes', genres: ['Rock', 'Electronic'], fileType: '', size: '', createdAt: '', updatedAt: '', authors: [],
-        albums: [], ratings: [] }
+         ratings: [], image: "" },
     ].filter(song => song.genres.includes(this.selectedGenre!));
 
     this.authors = [
