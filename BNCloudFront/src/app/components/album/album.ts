@@ -33,6 +33,7 @@ export class Album implements OnInit {
     this.album = {
       id: id,
       name: 'Echoes of Tomorrow',
+      genres: [],
       author: {
         id: 'a1', name: 'The Midnight Beats',
         biography: '',

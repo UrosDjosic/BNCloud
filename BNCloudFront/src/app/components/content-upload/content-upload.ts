@@ -4,8 +4,7 @@ import {ArtistDTO} from '../../models/artist';
 import {ArtistService} from '../../services/artist-service';
 import {SongService} from '../../services/song-service';
 import {DynamoSongResponse} from '../../dto/dynamo-song-response';
-import {finalize} from 'rxjs';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {AlbumService} from '../../services/album-service';
 
 @Component({
   selector: 'app-content-upload',
@@ -18,7 +17,7 @@ export class ContentUpload implements OnInit {
   artists: ArtistDTO[] = [];
   lastKey: string | null = null;
 
-  constructor(private snackBar: MatSnackBar, private artistService: ArtistService, private ss: SongService, private http: HttpClient) {}
+  constructor(private snackBar: MatSnackBar, private artistService: ArtistService, private ss: SongService, private as: AlbumService) {}
 
   ngOnInit(): void {
     this.loadArtists();
@@ -95,7 +94,7 @@ export class ContentUpload implements OnInit {
     this.uploads.splice(index, 1);
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.uploads.length === 1) {
       const upload = this.uploads[0];
 
@@ -116,10 +115,82 @@ export class ContentUpload implements OnInit {
             this.uploadToS3(upload.file!, response.audioUploadUrl),
             this.uploadToS3(upload.image!, response.imageUploadUrl)
           ]);
+          this.snackBar.open('Song uploaded successfully', 'Close', { duration: 3000 });
+        },
+        error: (err) => {
+          console.error(err);
+          this.snackBar.open('Failed to upload song', 'Close', { duration: 3000 });
         }
-      })
+      });
+    } else {
+      try {
+        // 1️⃣ Upload all songs metadata + files in parallel
+        const uploadResults = await Promise.all(
+          this.uploads.map(async (upload) => {
+            const song = {
+              name: upload.name,
+              genres: upload.genres,
+              artists: upload.artists,
+              creationTime: upload.creationTime,
+              modificationTime: upload.modificationTime,
+              ratings: [],
+              audioFileName: upload.fileName,
+              imageFileName: upload.image!.name,
+            };
+
+            return new Promise<string>((resolve, reject) => {
+              this.ss.uploadSongMetadata(song).subscribe({
+                next: async (response: DynamoSongResponse) => {
+                  try {
+                    await Promise.all([
+                      this.uploadToS3(upload.file!, response.audioUploadUrl),
+                      this.uploadToS3(upload.image!, response.imageUploadUrl)
+                    ]);
+                    resolve(response.songId);
+                  } catch (uploadErr) {
+                    reject(uploadErr);
+                  }
+                },
+                error: (err) => reject(err)
+              });
+            });
+          })
+        );
+
+        // 2️⃣ Aggregate genres & artists across all uploads
+        const allGenres = [
+          ...new Set(this.uploads.flatMap((u) => u.genres))
+        ];
+        const allArtists = [
+          ...new Set(this.uploads.flatMap((u) => u.artists))
+        ];
+
+        // 3️⃣ Create album object
+        const album = {
+          name: this.uploads[0].name || 'Untitled Album',
+          genres: allGenres,
+          artists: allArtists,
+          songs: uploadResults, // IDs returned from uploadSongMetadata
+        };
+
+        // 4️⃣ Upload album
+        this.as.uploadAlbum(album).subscribe({
+          next: (response: string) => {
+            console.log('Album created:', response);
+            this.snackBar.open('Album uploaded successfully', 'Close', { duration: 3000 });
+          },
+          error: (err) => {
+            console.error('Album creation failed', err);
+            this.snackBar.open('Failed to create album', 'Close', { duration: 3000 });
+          }
+        });
+      } catch (err) {
+        console.error('One or more song uploads failed:', err);
+        this.snackBar.open('Some songs failed to upload', 'Close', { duration: 3000 });
+      }
     }
   }
+
 
   async uploadToS3(file: File, presignedUrl: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
