@@ -75,26 +75,43 @@ class StorageStack(Stack):
 
         #--------------- S3 BUCKET CREATION WITH CORS ----------------
         bucket = s3.Bucket(
-    self, 
-    "SongsBucket",
-    bucket_name="songs-bucket-1",
-    versioned=True,
-    removal_policy=RemovalPolicy.DESTROY,
-    auto_delete_objects=True,
-    cors=[
-        s3.CorsRule(
-            allowed_methods=[
-                s3.HttpMethods.POST,
-                s3.HttpMethods.GET,
-                s3.HttpMethods.PUT,
-                s3.HttpMethods.DELETE,
-                s3.HttpMethods.HEAD
-            ],
-            allowed_origins=["*"],
-            allowed_headers=["*"],
-            exposed_headers=[],
+            self, 
+            "SongsBucket",
+            bucket_name="songs-bucket-1",
+            versioned=True,
+            removal_policy=RemovalPolicy.DESTROY,
+            auto_delete_objects=True,
+            cors=[
+                s3.CorsRule(
+                    allowed_methods=[
+                        s3.HttpMethods.POST,
+                        s3.HttpMethods.GET,
+                        s3.HttpMethods.PUT,
+                        s3.HttpMethods.DELETE,
+                        s3.HttpMethods.HEAD
+                    ],
+                    # very permissive origin; change to your frontend origin if using credentials
+                    allowed_origins=["*"],
+                    # allow common S3 headers clients send when uploading with presigned URLs
+                    allowed_headers=[
+                        "*",
+                        "Content-Type",
+                        "Content-MD5",
+                        "x-amz-acl",
+                        "x-amz-meta-*"
+                    ],
+                    # expose S3 response headers so the browser JS can read them after upload
+                    exposed_headers=[
+                        "ETag",
+                        "x-amz-request-id",
+                        "x-amz-id-2",
+                        "x-amz-version-id",
+                        "x-amz-server-side-encryption",
+                        "x-amz-expiration"
+                    ],
+                )
+            ]
         )
-    ]
-)
+        self.songs_bucket = bucket
 
 

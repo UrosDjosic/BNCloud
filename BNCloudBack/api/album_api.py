@@ -1,12 +1,12 @@
 from constructs import Construct
 from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb
-class SongApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table, songs_bucket, **kwargs):
+class AlbumApi(Construct):
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table, **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
-                "TABLE_NAME" : 'Songs'
+                "TABLE_NAME" : 'Albums'
         }   
-        song_resource = api.add_resource("song")
+        album_resource = api.add_resource("album")
 
 
         lambda_role = iam.Role(
@@ -33,18 +33,15 @@ class SongApi(Construct):
         )
 
         #CREATE
-        create_song_lambda = _lambda.Function(
-            self, "CreateSongLambda",
+        create_album_lambda = _lambda.Function(
+            self, "CreateAlbumLambda",
             runtime=_lambda.Runtime.PYTHON_3_11,
-            handler="song.create_song.handler.create",
+            handler="album.create_album.handler.create",
             code=_lambda.Code.from_asset("lambda"),
             environment=env,
             role = lambda_role
         )
-
-        songs_bucket.grant_put(create_song_lambda)
-
-        create_song_integration = apigw.LambdaIntegration(create_song_lambda)
-        song_resource.add_method(
-            "POST", create_song_integration
+        create_album_integration = apigw.LambdaIntegration(create_album_lambda)
+        album_resource.add_method(
+            "POST", create_album_integration
         )

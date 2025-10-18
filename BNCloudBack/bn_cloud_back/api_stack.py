@@ -11,7 +11,7 @@ from api.artist_api import ArtistApi
 from api.song_api import SongApi
 
 class ApiStack(Stack):
-    def __init__(self, scope: Construct, id: str, *, user_pool : cognito.UserPool, user_pool_client,tables, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, user_pool : cognito.UserPool, user_pool_client,tables, songs_bucket, **kwargs):
         super().__init__(scope, id, **kwargs)
 
         api = apigw.RestApi(
@@ -43,5 +43,6 @@ class ApiStack(Stack):
             self,
             "SongApi",
             api = root_api,
-            table = tables['song']
+            table = tables['song'],
+            songs_bucket = songs_bucket
         )

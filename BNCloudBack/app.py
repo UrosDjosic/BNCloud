@@ -13,6 +13,7 @@ api_stack = ApiStack(
     user_pool=auth_stack.user_pool,
     user_pool_client= auth_stack.user_pool_client,
     tables = storage_stack.tables,
+    songs_bucket = storage_stack.songs_bucket,
     env=enviroment
 )
 app.synth()

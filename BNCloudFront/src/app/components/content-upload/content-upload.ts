@@ -111,42 +111,48 @@ export class ContentUpload implements OnInit {
       };
 
       this.ss.uploadSongMetadata(song).subscribe({
-        next: (response: DynamoSongResponse) => {
-          console.log('Presigned URLs received:', response);
-
-          // Step 2: upload audio file
-          const audioHeaders = new HttpHeaders({});
-
-          this.http.put(response.audioUploadUrl, upload.file, { headers: audioHeaders, responseType: 'text' })
-            .pipe(finalize(() => console.log('Audio upload attempt finished')))
-            .subscribe({
-              next: () => {
-                // Step 3: upload image
-                const imageHeaders = new HttpHeaders({});
-
-                this.http.put(response.imageUploadUrl, upload.image, { headers: imageHeaders, responseType: 'text' })
-                  .subscribe({
-                    next: () => {
-                      this.snackBar.open('Upload successful!', 'Close', { duration: 3000 });
-                    },
-                    error: err => {
-                      console.error('Image upload failed', err);
-                      this.snackBar.open('Image upload failed', 'Close', { duration: 3000 });
-                    }
-                  });
-              },
-              error: err => {
-                console.error('Audio upload failed', err);
-                this.snackBar.open('Audio upload failed', 'Close', { duration: 3000 });
-              }
-            });
-        },
-        error: err => {
-          console.error('Failed to create song entry', err);
-          this.snackBar.open('Failed to create song entry', 'Close', { duration: 3000 });
+        next: async (response: DynamoSongResponse) => {
+          await Promise.all([
+            this.uploadToS3(upload.file!, response.audioUploadUrl),
+            this.uploadToS3(upload.image!, response.imageUploadUrl)
+          ]);
         }
-      });
+      })
     }
+  }
+
+  async uploadToS3(file: File, presignedUrl: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      xhr.open('PUT', presignedUrl, true);
+
+      // Optional progress listener (for upload bars later)
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          console.log(`Upload progress: ${percent}%`);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          console.log('Upload succeeded:', xhr.status);
+          resolve();
+        } else {
+          console.error('Upload failed:', xhr.status, xhr.responseText);
+          reject(new Error(`S3 upload failed with status ${xhr.status}`));
+        }
+      };
+
+      xhr.onerror = () => {
+        console.error('Network error during S3 upload');
+        reject(new Error('Network error during S3 upload'));
+      };
+
+      // ⚠️ Don’t set Content-Type header here — this avoids the 403 error
+      xhr.send(file);
+    });
   }
 
 }
