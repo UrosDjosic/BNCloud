@@ -39,8 +39,8 @@ code: string = ''
     // TODO: call your backend here
     this.authService.verifyCode({'username' : this.username, 'code' : this.code}).subscribe({
       next : (res)=>{
-          this.snackBar.open("Successfully activated account!")
-          this.router.navigate(['/home']);
+          this.snackBar.open("Successfully activated account!\n Log In!",'Close',{duration : 3000})
+          this.router.navigate(['/login']);
       },
       error : (err) => {
         this.snackBar.open(err)

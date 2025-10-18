@@ -16,12 +16,12 @@
       Discover
     </button>
 
-    <button mat-button class="nav-btn" (click)="navigate('/artist-crud')">
+    <button *ngIf="role === 'ADMINISTRATOR' " mat-button class="nav-btn" (click)="navigate('/artist-crud')">
       <mat-icon>library_music</mat-icon>
       Artist CRUD
     </button>
 
-    <button mat-button class="nav-btn" (click)="navigate('/content-upload')">
+    <button *ngIf="role === 'ADMINISTRATOR' " mat-button class="nav-btn" (click)="navigate('/content-upload')">
       <mat-icon>add</mat-icon>
       Content Upload
     </button>

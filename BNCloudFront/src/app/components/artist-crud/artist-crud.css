@@ -90,3 +90,14 @@ mat-list-item.selected {
   align-items: center;
   z-index: 1000;
 }
+.genre-buttons button {
+  background-color: #333333; /* light pinkish-purple */
+  color: white;
+  margin: 0.3rem;
+  width: fit-content;
+}
+
+.genre-buttons button.selected-genre {
+  background-color: #a75fff; /* darker purple when selected */
+  color: white;
+}

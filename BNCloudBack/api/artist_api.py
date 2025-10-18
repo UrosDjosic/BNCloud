@@ -2,7 +2,7 @@
 from constructs import Construct
 from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb
 class ArtistApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,genre_table, **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Artists'
@@ -29,18 +29,34 @@ class ArtistApi(Construct):
                     "dynamodb:UpdateItem",
                     "dynamodb:DeleteItem"
                 ],
-                resources=[table.table_arn]
+                resources=[
+                    table.table_arn,
+                    f"{table.table_arn}/index/EntityTypeIndex",
+                    f"{genre_table.table_arn}/index/EntityTypeIndex",
+                    genre_table.table_arn
+                ]
             )
         )
+
+        util_layer =[ _lambda.LayerVersion(
+            self, "UtilLambdaLayer",
+            code=_lambda.Code.from_asset("libs"), 
+            compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
+            description="Shared utilities"
+        )]
 
     
         #CREATE
         create_artist_lambda = _lambda.Function(
             self, "CreateArtistLambda",
+            layers = util_layer,
             runtime=_lambda.Runtime.PYTHON_3_11,
-            handler="artist.create_artist.handler.create",
-            code=_lambda.Code.from_asset("lambda"),
-            environment=env,
+            handler="create_artist.handler.create",
+            code=_lambda.Code.from_asset("lambda/artist"),
+            environment={
+                "TABLE_NAME" : 'Artists',
+                "GENRE_TABLE_NAME" : 'Genres'
+            }   ,
             role = lambda_role
         )
         create_artist_integration = apigw.LambdaIntegration(create_artist_lambda)
@@ -51,9 +67,10 @@ class ArtistApi(Construct):
         #GET
         get_artists_lambda = _lambda.Function(
             self,"GetArtistsLambda",
+            layers = util_layer,
             runtime = _lambda.Runtime.PYTHON_3_11,
-            handler = "artist.get_artists.handler.get",
-            code=_lambda.Code.from_asset("lambda"),
+            handler = "get_artists.handler.get",
+            code=_lambda.Code.from_asset("lambda/artist"),
             environment=env,
             role = lambda_role)
         get_artists_integration = apigw.LambdaIntegration(get_artists_lambda)
@@ -65,9 +82,13 @@ class ArtistApi(Construct):
         update_artist_lambda = _lambda.Function(
             self,"UpdateArtistLambda",
             runtime = _lambda.Runtime.PYTHON_3_11,
-            handler = "artist.update_artist.handler.update",
-            code=_lambda.Code.from_asset("lambda"),
-            environment=env,
+            layers = util_layer,
+            handler = "update_artist.handler.update",
+            code=_lambda.Code.from_asset("lambda/artist"),
+            environment={
+                "TABLE_NAME" : 'Artists',
+                "GENRE_TABLE_NAME" : 'Genres'
+            } ,
             role = lambda_role)
         update_artist_integration = apigw.LambdaIntegration(update_artist_lambda)
         artist_resource.add_method(

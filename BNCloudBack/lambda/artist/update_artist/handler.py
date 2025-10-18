@@ -1,57 +1,118 @@
 import json
 import os
 import boto3
+from boto3.dynamodb.conditions import Key
 from helpers.create_response import create_response
+import uuid
 
 table_name = os.environ['TABLE_NAME']
+genre_table_name = os.environ['GENRE_TABLE_NAME']  
 dynamodb = boto3.resource('dynamodb')
-from boto3.dynamodb.conditions import Key
 
 def update(event, context):
     body = json.loads(event['body'])
-    artist_id = body['artist_id']          # PK
+    artist_id = body['id']
     new_name = body['name']
     new_bio = body['biography']
-    new_genres = set(body['genres'])       # list of new genres
+    new_genres_input = body.get('genres', [])
 
-    table = dynamodb.Table(table_name)
+    artist_table = dynamodb.Table(table_name)
+    genre_table = dynamodb.Table(genre_table_name)
 
-    #Querying
-    response = table.query(
-        KeyConditionExpression=Key('artist_id').eq(artist_id)
-    )
-    items = response['Items']
-    existing_genres = set(item['genre'] for item in items)
+    # ARtist
+    existing_artist = artist_table.get_item(Key={'id': artist_id}).get('Item')
+    if not existing_artist:
+        return create_response(404, {'message': 'Artist not found'})
 
-    # Deletin items which genres does not exist anymore
-    for item in items:
-        if item['genre'] not in new_genres:
-            table.delete_item(
-                Key={'artist_id': artist_id, 'genre': item['genre']}
+    old_genres = set(g['name'] for g in existing_artist.get('genres', []))
+
+    # Parsing neew GENRES
+    new_genres = []
+    for genre in new_genres_input:
+        if isinstance(genre, dict):
+            genre_name = genre.get('name')
+            genre_id = genre.get('id')
+        else:
+            genre_name = str(genre)
+            genre_id = None
+        if not genre_id:
+            existing = genre_table.query(
+                IndexName="EntityTypeIndex",
+                KeyConditionExpression=Key('EntityType').eq('Genre') & Key('name').eq(genre_name)
             )
+            if existing.get('Items'):
+                genre_id = existing['Items'][0]['id']
+            else:
+                genre_id = str(uuid.uuid4())
+                genre_table.put_item(
+                    Item={
+                        'id': genre_id,
+                        'name': genre_name,
+                        'EntityType': 'Genre',
+                        'Artists': []
+                    }
+                )
 
-    # Update existing!
-    for item in items:
-        if item['genre'] in new_genres:
-            table.update_item(
-                Key={'artist_id': artist_id, 'genre': item['genre']},
-                UpdateExpression="SET #n = :name, biography = :bio",
-                ExpressionAttributeNames={'#n': 'name'},
+        new_genres.append({'id': genre_id, 'name': genre_name})
+
+    new_genre_names = set(g['name'] for g in new_genres)
+
+    # Changes update
+    added_genres = new_genre_names - old_genres
+    removed_genres = old_genres - new_genre_names
+
+    # --- Add artist to new genres ---
+    for genre in new_genres:
+        if genre['name'] in added_genres:
+            genre_table.update_item(
+                Key={'id': genre['id']},
+                UpdateExpression="SET #A = list_append(if_not_exists(#A, :empty_list), :new_artist)",
+                ConditionExpression="attribute_not_exists(#A) OR NOT contains(#A, :artist_check)",
+                ExpressionAttributeNames={'#A': 'Artists'},
                 ExpressionAttributeValues={
-                    ':name': new_name,
-                    ':bio': new_bio
+                    ':new_artist': [{'id': artist_id, 'name': new_name}],
+                    ':empty_list': [],
+                    ':artist_check': {'id': artist_id, 'name': new_name}
                 }
             )
 
-    # New genres
-    for genre in new_genres - existing_genres:
-        table.put_item(
-            Item={
-                'artist_id': artist_id,
-                'genre': genre,
-                'name': new_name,
-                'biography': new_bio
-            }
+    # Remove from deleted genres
+    for genre_name in removed_genres:
+        # Find exact genres record
+        existing = genre_table.query(
+            IndexName="EntityTypeIndex",
+            KeyConditionExpression=Key('EntityType').eq('Genre') & Key('name').eq(genre_name)
         )
+        if existing.get('Items'):
+            genre_item = existing['Items'][0]
+            genre_id = genre_item['id']
+            artists = genre_item.get('Artists', [])
+            updated_artists = [a for a in artists if a['id'] != artist_id]
+            genre_table.update_item(
+                Key={'id': genre_id},
+                UpdateExpression="SET #A = :updated_list",
+                ExpressionAttributeNames={'#A': 'Artists'},
+                ExpressionAttributeValues={':updated_list': updated_artists}
+            )
 
-    return create_response(200, {"message": "Artist updated successfully"})
+    # Updating artist
+    artist_table.update_item(
+        Key={'id': artist_id},
+        UpdateExpression="SET #n = :name, biography = :bio, genres = :genres",
+        ExpressionAttributeNames={'#n': 'name'},
+        ExpressionAttributeValues={
+            ':name': new_name,
+            ':bio': new_bio,
+            ':genres': new_genres
+        }
+    )
+
+    return create_response(200, {
+        'message': 'Artist updated successfully',
+        'artist': {
+            'id': artist_id,
+            'name': new_name,
+            'biography': new_bio,
+            'genres': new_genres
+        }
+    })

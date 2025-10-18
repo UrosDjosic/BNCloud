@@ -8,6 +8,7 @@ import { environment } from '../../env/enviroment';
 import { VerificationRequest } from '../dto/verification-request';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {RefreshResponse} from '../dto/refresh-response';
+import {TokenService} from './token-service';
 
 
 
@@ -16,14 +17,14 @@ import {RefreshResponse} from '../dto/refresh-response';
 })
 export class AuthService {
 
-  user$ = new BehaviorSubject("");
+  user$ = new BehaviorSubject<string>('');
   userState = this.user$.asObservable();
 
-  userID$ = new BehaviorSubject("");
-
-
-  constructor(private http: HttpClient) {}
-
+  constructor(private http: HttpClient, private tokenService: TokenService) {
+    // Initialize user from localStorage on service creation
+    const storedRole = this.getRole();
+    this.user$.next(storedRole ? storedRole.toUpperCase() : '');
+  }
   login(username: string, password: string): Observable<LoginResponse> {
     const payload: LoginRequest = { username, password };
     return this.http.post<LoginResponse>(`${environment.apiHost}/login`, payload);
@@ -45,21 +46,25 @@ export class AuthService {
     localStorage.clear();
   }
 
-  getRole(): any {
+  getRole(): string {
     if (this.isLoggedIn()) {
-      const accessToken: any = localStorage.getItem('user');
+      const idToken = this.tokenService.getIdToken();
+      if (!idToken) return '';
+
       const helper = new JwtHelperService();
-      return helper.decodeToken(accessToken).role;
+      const decoded = helper.decodeToken(idToken);
+      //getting user
+      return decoded['cognito:groups'][0];
     }
-    return null;
+    return '';
   }
 
   isLoggedIn(): boolean {
-    return localStorage.getItem('user') != null;
+    return localStorage.getItem('accessToken') != null && localStorage.getItem('idToken') != null;
   }
 
   setUser(): void {
-    this.user$.next(this.getRole());
+    this.user$.next(this.getRole().toUpperCase());
   }
 
 }

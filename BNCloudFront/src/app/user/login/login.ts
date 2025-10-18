@@ -49,6 +49,7 @@ export class Login implements OnInit {
         console.log(res);
         this.tokenService.setAccessToken(res.tokens.AccessToken);
         this.tokenService.setIdToken(res.tokens.IdToken);
+        this.authService.setUser();
       },
       error: (err) => {
         if(err.status == 403){

@@ -14,7 +14,7 @@
 
     <!-- Songs Section -->
     <div *ngIf="songs.length > 0" class="results-section">
-      <h3>Songs</h3>
+      <h3>Artists</h3>
       <mat-list>
         <mat-list-item *ngFor="let song of songs" (click)="navigateToSong(song.id)" class="clickable-item">
           🎵 {{ song.fileName }}

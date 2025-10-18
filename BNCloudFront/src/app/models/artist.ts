@@ -1,6 +1,8 @@
+import {GenreResponse} from '../dto/genre-response';
+
 export interface ArtistDTO {
   id: string;
   name: string;
   biography: string;
-  genres: string[];
+  genres: GenreResponse[];
 }

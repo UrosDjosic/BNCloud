@@ -20,12 +20,6 @@ export class Artist implements OnInit {
     this.route.paramMap.subscribe(params => {
       this.artistId = params.get('artistId') || undefined;
       if (this.artistId) {
-        this.artist = {
-          id: this.artistId,
-          name: 'The Midnight Beats',
-          biography: 'An experimental indie rock band blending electronic and acoustic sounds.',
-          genres: ['Indie Rock', 'Electronic', 'Experimental']
-        };
       }
     });
   }

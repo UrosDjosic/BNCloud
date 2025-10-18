@@ -1,12 +1,20 @@
 from constructs import Construct
 from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb
 
-class ArtistApi(Construct):
+class GenreApi(Construct):
     def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table, **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
-                "TABLE_NAME" : 'Artists'
+                "TABLE_NAME" : 'Genres'
         }   
+
+        util_layer =[ _lambda.LayerVersion(
+            self, "UtilLambdaLayer",
+            code=_lambda.Code.from_asset("libs"), 
+            compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
+            description="Shared utilities"
+        )]
+
         genre_resource = api.add_resource("genre")
 
 
@@ -29,20 +37,24 @@ class ArtistApi(Construct):
                     "dynamodb:UpdateItem",
                     "dynamodb:DeleteItem"
                 ],
-                resources=[table.table_arn]
+                resources=[
+                    table.table_arn,
+                    f"{table.table_arn}/index/EntityTypeIndex"
+                ]
             )
         )   
 
-        #CREATE GENRE LAMBDA
-        create_lambda = _lambda.Function(
-            self,"CreateGenreLambda",
+        #GET ALL (OR ONE)
+        get_lambda = _lambda.Function(
+            self,"GetGenreLambda",
             runtime = _lambda.Runtime.PYTHON_3_11,
-            handler= "",
-            code = _lambda.Code.from_asset("genre.lambda"),
-            enviroment = env,
+            layers = util_layer,
+            handler= "get_genres.handler.get",
+            code = _lambda.Code.from_asset("lambda/genre"),
+            environment = env,
             role = lambda_role
         )
-        create_integration = apigw.LambdaIntegration(create_lambda)
-        genre_resource.create_method(
-            "POST",create_integration
+        get_integration = apigw.LambdaIntegration(get_lambda)
+        genre_resource.add_method(
+            "GET", get_integration
         )

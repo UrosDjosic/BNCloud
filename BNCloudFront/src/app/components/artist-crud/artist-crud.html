@@ -22,8 +22,21 @@
           <textarea matInput formControlName="biography" rows="4"></textarea>
         </mat-form-field>
 
+        <div class="genre-container">
+          <div class="genre-buttons">
+            <button
+              type="button"
+              *ngFor="let genre of availableGenres"
+              mat-raised-button
+              [ngClass]="{'selected-genre': isSelected(genre)}"
+              (click)="toggleGenre(genre)">
+              {{ genre.name }}
+            </button>
+          </div>
+        </div>
+
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Genres (separate with comma)</mat-label> <input matInput formControlName="genres">
+          <mat-label>New Genres (separate with comma)</mat-label> <input matInput formControlName="genres">
         </mat-form-field>
 
         <button mat-raised-button color="primary" type="submit" class="submit-btn">Create</button>
@@ -63,9 +76,22 @@
             <textarea matInput formControlName="biography" rows="4"></textarea>
           </mat-form-field>
 
+          <div class="genre-container">
+            <div class="genre-buttons">
+              <button
+                type="button"
+                *ngFor="let genre of availableGenres"
+                mat-raised-button
+                [ngClass]="{'selected-genre': isSelected(genre)}"
+                (click)="toggleGenre(genre)">
+                {{ genre.name }}
+              </button>
+            </div>
+          </div>
+
           <div style="display: flex; flex-direction: row; justify-content: space-between">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Genres (separate with comma)</mat-label>
+              <mat-label>New Genres (separate with comma)</mat-label>
               <input matInput formControlName="genres">
             </mat-form-field>
           </div>
