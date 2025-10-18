@@ -18,7 +18,7 @@ export class Interceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
 
-    const accessToken: any = localStorage.getItem('user');
+    const accessToken: any = localStorage.getItem('accessToken');
 
     let clonedReq = req;
     if (accessToken) {
@@ -42,7 +42,8 @@ export class Interceptor implements HttpInterceptor {
             switchMap((response: any) => {
               console.log(response);
 
-              localStorage.setItem('user', response.accessToken);
+              localStorage.setItem('accessToken', response.accessToken);
+              localStorage.setItem('idToken', response.idToken);
 
               const retryReq = req.clone({
                 headers: req.headers.set('Authorization', `Bearer ${response.accessToken}`)

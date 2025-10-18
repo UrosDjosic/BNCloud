@@ -32,18 +32,21 @@ class StorageStack(Stack):
             write_capacity=1
         )
         self.tables['artist'] = artist_table
+        
         artist_table.add_global_secondary_index(
-            index_name="GenreIndex",
+            index_name="EntityTypeIndex",
             partition_key=dynamodb.Attribute(
-                name="genre",
+                name="EntityType",  
                 type=dynamodb.AttributeType.STRING
             ),
             sort_key=dynamodb.Attribute(
-                name="name",
+                name="name",  
                 type=dynamodb.AttributeType.STRING
             ),
             projection_type=dynamodb.ProjectionType.ALL
         )
+        
+        
         
         #---------ALBUM TABLE -----------
         album_table = dynamodb.Table(
@@ -72,6 +75,36 @@ class StorageStack(Stack):
             write_capacity=1
         )
         self.tables['song'] = song_table
+
+
+        #---------GENRES TABLE-------------
+        genre_table = dynamodb.Table(
+            self, "genres",
+            table_name="Genres",
+            partition_key=dynamodb.Attribute(
+                name="id",
+                type=dynamodb.AttributeType.STRING
+            ),
+            billing_mode=dynamodb.BillingMode.PROVISIONED,
+            read_capacity=1,
+            write_capacity=1
+        )
+
+        genre_table.add_global_secondary_index(
+            index_name="EntityTypeIndex",
+            partition_key=dynamodb.Attribute(
+                name="EntityType",  
+                type=dynamodb.AttributeType.STRING
+            ),
+            sort_key=dynamodb.Attribute(
+                name="name",  
+                type=dynamodb.AttributeType.STRING
+            ),
+            projection_type=dynamodb.ProjectionType.ALL
+        )
+        self.tables['genre'] = genre_table
+
+
 
         #--------------- S3 BUCKET CREATION WITH CORS ----------------
         bucket = s3.Bucket(
@@ -113,5 +146,4 @@ class StorageStack(Stack):
             ]
         )
         self.songs_bucket = bucket
-
 

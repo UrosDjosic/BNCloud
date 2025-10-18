@@ -28,7 +28,7 @@ def main(event, context):
         cookie_header = ""
         refresh_token = auth_result.get("RefreshToken")
         if refresh_token:
-            cookie_header = f"RefreshToken={refresh_token}; HttpOnly; Secure; Path=/prod/api/refresh; SameSite=Strict"
+            cookie_header = f"RefreshToken={refresh_token}; HttpOnly; Secure; Path=/prod/api/refresh; SameSite=Strict; MaxAge = 2592000"
 
         return create_response(
             200,

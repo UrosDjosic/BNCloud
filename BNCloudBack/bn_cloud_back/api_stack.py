@@ -10,6 +10,7 @@ from api.album_api import AlbumApi
 from api.auth_api import AuthApi
 from api.artist_api import ArtistApi
 from api.song_api import SongApi
+from api.genres_api import GenreApi
 
 class ApiStack(Stack):
     def __init__(self, scope: Construct, id: str, *, user_pool : cognito.UserPool, user_pool_client,tables, songs_bucket, **kwargs):
@@ -38,7 +39,8 @@ class ApiStack(Stack):
             self,
             "ArtistApi",
             api = root_api,
-            table = tables['artist']
+            table = tables['artist'],
+            genre_table = tables['genre']
         )
         song_api = SongApi(
             self,
@@ -52,4 +54,10 @@ class ApiStack(Stack):
             "AlbumApi",
             api = root_api,
             table = tables['album']
+        )
+        genre_api = GenreApi(
+            self,
+            "GenreApi",
+            api = root_api,
+            table = tables['genre']
         )

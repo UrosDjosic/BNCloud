@@ -47,10 +47,12 @@ export class Discover implements OnInit {
          ratings: [], image: "" },
     ].filter(song => song.genres.includes(this.selectedGenre!));
 
-    this.authors = [
-      { id: 'a1', name: 'The Midnight Beats', genres: ['Rock', 'Electronic'], biography: ""},
+    /*
+    this.authors = [{ id: 'a1', name: 'The Midnight Beats', genres: ['Rock', 'Electronic'], biography: ""},
       { id: 'a2', name: 'Luna Waves', genres: ['Indie', 'Rock'],biography: "" }
     ].filter(author => author.genres.includes(this.selectedGenre!));
+     */
+
   }
 
   navigateToSong(songId: string) {

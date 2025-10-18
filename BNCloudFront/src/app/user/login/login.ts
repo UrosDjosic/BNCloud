@@ -5,6 +5,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {Validators} from '@angular/forms';
 import { LoginResponse } from '../../dto/login-response';
 import {AuthService} from '../../services/auth-service';
+import {TokenService} from '../../services/token-service';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,8 @@ export class Login implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private snackBar: MatSnackBar,
-    private authService: AuthService
+    private authService: AuthService,
+    private tokenService: TokenService
   ) {}
 
   ngOnInit() {
@@ -44,8 +46,10 @@ export class Login implements OnInit {
       next: (res : LoginResponse) => {
         this.snackBar.open('Succesfull login','Close',{duration : 3000})
         this.router.navigate(['/']);
-        localStorage.setItem('idToken', res.tokens.IdToken);
-        localStorage.setItem('accessToken', res.tokens.AccessToken);
+        console.log(res);
+        this.tokenService.setAccessToken(res.tokens.AccessToken);
+        this.tokenService.setIdToken(res.tokens.IdToken);
+        this.authService.setUser();
       },
       error: (err) => {
         if(err.status == 403){
