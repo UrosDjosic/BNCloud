@@ -14,7 +14,7 @@ dynamodb = boto3.resource('dynamodb')
 def get(event, context):
     table = dynamodb.Table(table_name)
     params = event.get('queryStringParameters', {}) or {}
-    page_size = int(params.get('pageSize', 3))
+    page_size = int(params.get('pageSize', 100))
     last_key_param = params.get('lastKey')  # for pagination
     artist_id = params.get('artistId')      # filter by artist
 

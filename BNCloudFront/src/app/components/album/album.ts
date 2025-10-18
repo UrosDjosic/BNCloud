@@ -33,6 +33,7 @@ export class Album implements OnInit {
     this.album = {
       id: id,
       name: 'Echoes of Tomorrow',
+      genres: [],
       author: {
         id: 'a1', name: 'The Midnight Beats',
         biography: '',
@@ -47,7 +48,7 @@ export class Album implements OnInit {
           updatedAt: '',
           genres: [''],
           authors: [],
-          albums: []
+          image: ""
         },
         {
           id: 's2', fileName: 'Fading Lights',
@@ -57,7 +58,7 @@ export class Album implements OnInit {
           updatedAt: '',
           genres: [''],
           authors: [],
-          albums: []
+          image: ""
         },
         {
           id: 's3', fileName: 'Electric Dreams',
@@ -67,7 +68,7 @@ export class Album implements OnInit {
           updatedAt: '',
           genres: [''],
           authors: [],
-          albums: []
+          image: ""
         }
       ]
     };

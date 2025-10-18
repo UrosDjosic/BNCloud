@@ -38,9 +38,9 @@ export class Song implements OnInit {
       createdAt: '2024-05-10 12:00',
       updatedAt: '2024-08-15 15:30',
       authors: [],
-      albums: [],
       ratings: [2],
-      genres: ['']
+      genres: [''],
+      image: ""
     };
   }
 

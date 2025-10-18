@@ -20,7 +20,7 @@ export class Profile implements OnInit {
 
   ngOnInit() {
     //decode jwt token
-    if (!this.authService.isLoggedIn()) {
+    if (!localStorage['idToken']) {
       this.router.navigate(['/login']);
     }
     this.claims = jwtDecode<JwtClaims>(localStorage['idToken']);
