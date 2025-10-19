@@ -37,4 +37,11 @@ export class ArtistService {
   getArtist(artistId :string) : Observable<object> {
     return this.http.get<object>(`${environment.apiHost}/artist/${artistId}`)
   }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiHost}/artist`, {
+      body: { artist_id: id }
+    });
+  }
+
 }

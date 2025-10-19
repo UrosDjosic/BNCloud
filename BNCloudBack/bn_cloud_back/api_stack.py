@@ -40,13 +40,14 @@ class ApiStack(Stack):
             "ArtistApi",
             api = root_api,
             table = tables['artist'],
-            genre_table = tables['genre']
+            other_tables = tables
         )
         song_api = SongApi(
             self,
             "SongApi",
             api = root_api,
             table = tables['song'],
+            other_tables= tables,
             songs_bucket = songs_bucket
         )
         album_api = AlbumApi(
@@ -54,7 +55,7 @@ class ApiStack(Stack):
             "AlbumApi",
             api = root_api,
             table = tables['album'],
-            genre_table = tables['genre'],
+            other_tables=tables,
         )
         genre_api = GenreApi(
             self,

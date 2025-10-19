@@ -1,7 +1,7 @@
 from constructs import Construct
 from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb
 class SongApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table, songs_bucket, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,other_tables, songs_bucket, **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Songs'
@@ -34,7 +34,11 @@ class SongApi(Construct):
                     "dynamodb:UpdateItem",
                     "dynamodb:DeleteItem"
                 ],
-                resources=[table.table_arn]
+                resources=[
+                    table.table_arn,
+                    other_tables['artist'].table_arn,
+                    other_tables['genre'].table_arn
+                ]
             )
         )
 

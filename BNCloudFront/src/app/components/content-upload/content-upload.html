@@ -51,7 +51,7 @@
       <mat-form-field class="full-width" appearance="outline">
         <mat-label>Artists</mat-label>
         <mat-select multiple [(ngModel)]="song.artists">
-          <mat-option *ngFor="let artist of artists" [value]="artist.id" style="background-color: #333333">
+          <mat-option *ngFor="let artist of artists" [value]="{'id' :artist.id, 'name' : artist.name}" style="background-color: #333333">
             {{ artist.name }}
           </mat-option>
         </mat-select>
