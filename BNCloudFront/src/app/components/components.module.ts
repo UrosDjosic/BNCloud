@@ -36,6 +36,7 @@ import {MatNativeDateModule, MatOption} from '@angular/material/core';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatChip, MatChipsModule} from '@angular/material/chips';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatProgressBar} from "@angular/material/progress-bar";
 
 
 
@@ -80,7 +81,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
         MatSnackBarModule,
         FormsModule,
         MatChipsModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatProgressBar
     ]
 })
 export class ComponentsModule { }

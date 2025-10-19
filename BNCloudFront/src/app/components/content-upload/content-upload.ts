@@ -19,6 +19,10 @@ export class ContentUpload implements OnInit {
   artists: ArtistDTO[] = [];
   lastKey: string | null = null;
   availableGenres: GenreResponse[] = [];
+  testMode: boolean = false;
+  totalProgress: number = 0;
+  isUploading: boolean = false;
+  private uploadProgressMap = new Map<string, number>();
 
   constructor(private snackBar: MatSnackBar, private artistService: ArtistService, private ss: SongService, private as: AlbumService,
               private genreService: GenreService) {}
@@ -109,6 +113,8 @@ export class ContentUpload implements OnInit {
   }
 
   async submit(): Promise<void> {
+    this.isUploading = true;
+    this.totalProgress = 0;
     if (this.uploads.length === 1) {
       const upload = this.uploads[0];
       const song = {
@@ -129,10 +135,24 @@ export class ContentUpload implements OnInit {
             this.uploadToS3(upload.image!, response.imageUploadUrl)
           ]);
           this.snackBar.open('Song uploaded successfully', 'Close', { duration: 3000 });
+          this.isUploading = false;
+          this.uploadProgressMap.clear();
+          this.totalProgress = 100;
+
+          setTimeout(() => {
+            this.totalProgress = 0;
+          }, 1500);
         },
         error: (err) => {
           console.error(err);
           this.snackBar.open('Failed to upload song', 'Close', { duration: 3000 });
+          this.isUploading = false;
+          this.uploadProgressMap.clear();
+          this.totalProgress = 100;
+
+          setTimeout(() => {
+            this.totalProgress = 0;
+          }, 1500);
         }
       });
     } else {
@@ -204,40 +224,68 @@ export class ContentUpload implements OnInit {
     }
   }
 
+  updateProgress(percent: number): void {
+    this.totalProgress = percent;
+  }
+
+  setFileProgress(fileName: string, percent: number) {
+    // Sačuvaj progres za taj fajl
+    this.uploadProgressMap.set(fileName, percent);
+
+    // Izračunaj prosečan progres svih aktivnih uploadova
+    const values = Array.from(this.uploadProgressMap.values());
+    const avgProgress = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+
+    this.totalProgress = avgProgress;
+  }
 
   async uploadToS3(file: File, presignedUrl: string): Promise<void> {
+
+    if (this.testMode) {
+      console.log(`Simulating upload for ${file.name}...`);
+      return new Promise<void>((resolve) => {
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 10 + Math.random() * 20;
+          if (progress > 100) progress = 100;
+
+          this.setFileProgress(file.name, progress);
+
+          if (progress >= 100) {
+            clearInterval(interval);
+            console.log(`Simulated upload complete for ${file.name}`);
+            resolve();
+          }
+        }, 200);
+      });
+    }
+
+    // stvarni upload ako nije test režim
     return new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-
       xhr.open('PUT', presignedUrl, true);
 
-      // Optional progress listener (for upload bars later)
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           const percent = Math.round((event.loaded / event.total) * 100);
+          this.setFileProgress(file.name, percent);
           console.log(`Upload progress: ${percent}%`);
         }
       };
 
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
-          console.log('Upload succeeded:', xhr.status);
           resolve();
         } else {
-          console.error('Upload failed:', xhr.status, xhr.responseText);
-          reject(new Error(`S3 upload failed with status ${xhr.status}`));
+          reject(new Error(`S3 upload failed: ${xhr.status}`));
         }
       };
 
-      xhr.onerror = () => {
-        console.error('Network error during S3 upload');
-        reject(new Error('Network error during S3 upload'));
-      };
-
-      // ⚠️ Don’t set Content-Type header here — this avoids the 403 error
+      xhr.onerror = () => reject(new Error('Network error during S3 upload'));
       xhr.send(file);
     });
   }
+
 
   toggleGenre(song: any, genre: any): void {
     if (!song.genres) {
