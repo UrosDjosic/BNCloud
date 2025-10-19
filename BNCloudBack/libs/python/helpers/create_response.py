@@ -4,6 +4,7 @@ import json
 def create_response(status, body, headers=None):
     base_headers = {
         'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
     }
 
     if headers:

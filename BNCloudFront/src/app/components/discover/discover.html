@@ -1,39 +1,41 @@
 <div class="discover-container">
   <mat-card class="discover-card">
-    <h2 class="title">Discover Music by Genre</h2>
+    <h2 class="title">
+      <mat-icon>library_music</mat-icon> Discover Music by Genre
+    </h2>
 
     <!-- Genre Select -->
-    <mat-form-field appearance="fill" class="genre-select">
+    <mat-form-field appearance="outline" class="genre-select">
       <mat-label>Select Genre</mat-label>
       <mat-select [(value)]="selectedGenre" (selectionChange)="onGenreChange()">
-        <mat-option *ngFor="let genre of genres" [value]="genre">
-          {{ genre }}
+        <mat-option style="color: black !important;" *ngFor="let genre of genres" [value]="genre.name" class="option-text">
+          {{ genre.name }}
         </mat-option>
       </mat-select>
     </mat-form-field>
 
     <!-- Songs Section -->
-    <div *ngIf="songs.length > 0" class="results-section">
+    <div *ngIf="artists.length > 0" class="results-section">
       <h3>Artists</h3>
       <mat-list>
-        <mat-list-item *ngFor="let song of songs" (click)="navigateToSong(song.id)" class="clickable-item">
-          🎵 {{ song.fileName }}
+        <mat-list-item *ngFor="let artist of artists" (click)="navigateToArtist(artist.id)" class="clickable-item">
+          <mat-icon color="primary">spatial_audio</mat-icon> {{ artist.name }}
         </mat-list-item>
       </mat-list>
     </div>
 
     <!-- Authors Section -->
-    <div *ngIf="authors.length > 0" class="results-section">
+    <div *ngIf="albums.length > 0" class="results-section">
       <h3>Authors</h3>
       <mat-list>
-        <mat-list-item *ngFor="let author of authors" (click)="navigateToAuthor(author.id)" class="clickable-item">
-          👤 {{ author.name }}
+        <mat-list-item *ngFor="let album of albums" (click)="navigateToAlbum(album.id)" class="clickable-item">
+          <mat-icon>queue_music</mat-icon> {{ album.name }}
         </mat-list-item>
       </mat-list>
     </div>
 
     <!-- Empty State -->
-    <p *ngIf="selectedGenre && songs.length === 0 && authors.length === 0" class="empty-message">
+    <p *ngIf="selectedGenre && artists.length === 0 && albums.length === 0" class="empty-message">
       No results found for <strong>{{ selectedGenre }}</strong>.
     </p>
   </mat-card>

@@ -21,22 +21,37 @@
       <br>
 
       <!-- Song Name -->
-      <mat-form-field class="full-width" appearance="fill">
+      <mat-form-field appearance="outline" class="full-width">
         <mat-label>Song Title</mat-label>
         <input matInput [(ngModel)]="song.name" placeholder="e.g. Lost in Sound" />
       </mat-form-field>
 
-      <!-- Genres -->
-      <mat-form-field class="full-width" appearance="fill">
-        <mat-label>Genres (comma-separated)</mat-label>
+      <p style="font-size: 1rem; font-style: oblique;font-weight: bold"  >Genres</p>
+      <div class="genre-container">
+        <div class="genre-buttons">
+          <button
+            type="button"
+            *ngFor="let genre of availableGenres"
+            mat-raised-button
+            [ngClass]="{'selected-genre': isGenreSelected(song, genre)}"
+            (click)="toggleGenre(song, genre)">
+            {{ genre.name }}
+          </button>
+
+        </div>
+      </div>
+
+      <!-- New Genres -->
+      <mat-form-field class="full-width" appearance="outline" style="margin-bottom:1rem; ">
+        <mat-label>New Genres (comma-separated)</mat-label>
         <input matInput [(ngModel)]="song.genresText" (blur)="updateGenres(i)" placeholder="e.g. Rock, Pop" />
       </mat-form-field>
 
       <!-- Artist Dropdown -->
-      <mat-form-field class="full-width" appearance="fill">
+      <mat-form-field class="full-width" appearance="outline">
         <mat-label>Artists</mat-label>
         <mat-select multiple [(ngModel)]="song.artists">
-          <mat-option *ngFor="let artist of artists" [value]="artist.id">
+          <mat-option *ngFor="let artist of artists" [value]="artist.id" style="background-color: #333333">
             {{ artist.name }}
           </mat-option>
         </mat-select>
@@ -55,7 +70,8 @@
       </div>
 
       <!-- Remove Song -->
-      <button mat-stroked-button color="warn" *ngIf="uploads.length > 1" (click)="removeSong(i)">
+      <button mat-stroked-button color="warn" *ngIf="uploads.length > 1" (click)="removeSong(i)" style="margin: 1rem">
+        <mat-icon>delete</mat-icon>
         Remove Song
       </button>
 
