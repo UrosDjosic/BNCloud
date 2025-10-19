@@ -57,3 +57,19 @@ class AlbumApi(Construct):
         album_resource.add_method(
             "POST", create_album_integration
         )
+
+        #GET
+        album_id_resource = album_resource.add_resource("{albumId}")
+
+        get_album_lambda = _lambda.Function(
+            self, "GetAlbumLambda",
+            layers=util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="get_album.get",  # fajl get_album.py i funkcija get(event, context)
+            code=_lambda.Code.from_asset("lambda/album"),
+            environment=env,
+            role=lambda_role
+        )
+
+        get_album_integration = apigw.LambdaIntegration(get_album_lambda)
+        album_id_resource.add_method("GET", get_album_integration)

@@ -4,18 +4,17 @@
 
     <p><strong>Artist:</strong>
       <a (click)="navigateToArtist(album.author.id)">
-        {{ album.author.name }}
+        {{ artistNames[album.author.id] || album.author.name }}
       </a>
     </p>
 
     <div class="songs-list">
       <h3>Songs:</h3>
       <mat-list>
-        <mat-list-item
-          *ngFor="let song of album.songs"
-          (click)="navigateToSong(song.id)"
-          class="song-item">
-          {{ song.fileName }}
+        <mat-list-item *ngFor="let song of album.songs" class="song-item">
+          <div (click)="navigateToSong(song.id)">
+            {{ song.fileName }}
+          </div>
         </mat-list-item>
       </mat-list>
     </div>
