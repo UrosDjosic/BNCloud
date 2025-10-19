@@ -144,6 +144,6 @@ export class Song implements OnInit {
   }
 
   navigateToArtist(artistId: string) {
-    this.router.navigate([`/author/${artistId}`]);
+    this.router.navigate([`/artist/${artistId}`]);
   }
 }

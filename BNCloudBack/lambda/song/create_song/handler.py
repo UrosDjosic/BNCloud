@@ -8,6 +8,7 @@ from boto3.dynamodb.conditions import Key
 dynamodb = boto3.resource('dynamodb')
 songs_table = dynamodb.Table('Songs')
 genre_table = dynamodb.Table('Genres')
+artists_table = dynamodb.Table('Artists')
 s3_bucket_name = 'songs-bucket-1'
 s3_client = boto3.client('s3')
 
@@ -68,6 +69,24 @@ def create(event, context):
         'modificationTime': data.get('modificationTime', datetime.utcnow().isoformat()),
         'ratings': data.get('ratings', [])
     }
+
+    for artist in data.get('artists', []):
+        artist_id = artist.get('id')
+        artist_name = artist.get('name')
+
+        if not artist_id:
+            continue 
+
+        # Update artist record to add the new song to its "Songs" attribute
+        #ADDING SONG TO ARTIST!!
+        artists_table.update_item(
+            Key={'id': artist_id},
+            UpdateExpression="SET Songs = list_append(if_not_exists(Songs, :empty_list), :new_song)",
+            ExpressionAttributeValues={
+                ':new_song': [{'id': song_id, 'name': data['name']}],
+                ':empty_list': []
+            }
+        )
 
     # Save to DynamoDB
     songs_table.put_item(Item=item)

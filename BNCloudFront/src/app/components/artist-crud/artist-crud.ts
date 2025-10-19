@@ -171,11 +171,10 @@ export class ArtistCrud implements OnInit {
 
   deleteArtist() {
     if (!this.selectedArtist) return;
-
-    // this.artistService.delete(this.selectedArtist.id).subscribe({ ... });
-    this.snackBar.open(`Pretend we deleted artist "${this.selectedArtist.name}" ❌`, 'Close', { duration: 3000 });
-    this.selectedArtist = undefined;
-    this.fetchArtists();
+    this.artistService.delete(this.selectedArtist.id).subscribe(res => {
+      this.snackBar.open('Successfully deleted artist !', 'Close', { duration: 3000 });
+    });
+    this.displayedArtists = this.displayedArtists.filter(a => a.id !== this.selectedArtist!.id);
   }
   onScroll(event: any) {
     const element = event.target;

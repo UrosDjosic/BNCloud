@@ -9,6 +9,7 @@ from boto3.dynamodb.conditions import Key
 dynamodb = boto3.resource('dynamodb')
 albums_table = dynamodb.Table('Albums')
 genre_table = dynamodb.Table('Genres')
+artist_table = dynamodb.Table('Artists')
 
 def create(event, context):
     data = json.loads(event['body'])
@@ -45,6 +46,24 @@ def create(event, context):
         )
 
         genres_full.append({'id': genre_id, 'name': genre_name})
+    
+    for artist in data.get('artists', []):
+        artist_id = artist.get('id')
+        if not artist_id:
+            continue
+
+        try:
+            artist_table.update_item(
+                Key={'id': artist_id},
+                UpdateExpression="SET Albums = list_append(if_not_exists(Albums, :empty_list), :new_album)",
+                ExpressionAttributeValues={
+                    ':new_album': [{'id': album_id, 'name': data['name']}],
+                    ':empty_list': []
+                }
+            )
+        except Exception as e:
+            print(f"Failed to update artist {artist_id}: {str(e)}")
+
     item = {
         'id': album_id,
         'name': data['name'],

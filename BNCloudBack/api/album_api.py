@@ -1,7 +1,7 @@
 from constructs import Construct
 from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb
 class AlbumApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,genre_table, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,other_tables, **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Albums'
@@ -35,8 +35,9 @@ class AlbumApi(Construct):
                 ],
                 resources=[
                     table.table_arn,
-                    f"{genre_table.table_arn}/index/EntityTypeIndex",
-                    genre_table.table_arn
+                    f"{other_tables['genre'].table_arn}/index/EntityTypeIndex",
+                    other_tables['genre'].table_arn,
+                    other_tables['artist'].table_arn
                 ]
             )
         )
