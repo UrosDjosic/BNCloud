@@ -53,7 +53,8 @@ class ApiStack(Stack):
             self,
             "AlbumApi",
             api = root_api,
-            table = tables['album']
+            table = tables['album'],
+            genre_table = tables['genre'],
         )
         genre_api = GenreApi(
             self,

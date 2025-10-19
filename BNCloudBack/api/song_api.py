@@ -8,9 +8,14 @@ class SongApi(Construct):
         }   
         song_resource = api.add_resource("song")
 
-
+        util_layer =[ _lambda.LayerVersion(
+            self, "UtilLambdaLayer",
+            code=_lambda.Code.from_asset("libs"), 
+            compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
+            description="Shared utilities"
+        )]
         lambda_role = iam.Role(
-            self, "LambdaRole",
+            self, "SongsLambdaRole",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com")
         )
         lambda_role.add_managed_policy(
@@ -35,6 +40,7 @@ class SongApi(Construct):
         #CREATE
         create_song_lambda = _lambda.Function(
             self, "CreateSongLambda",
+            layers = util_layer,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="song.create_song.handler.create",
             code=_lambda.Code.from_asset("lambda"),

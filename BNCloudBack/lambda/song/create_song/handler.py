@@ -3,9 +3,12 @@ import uuid
 import boto3
 from datetime import datetime
 from helpers.create_response import create_response
+from boto3.dynamodb.conditions import Key
+
 
 dynamodb = boto3.resource('dynamodb')
 songs_table = dynamodb.Table('Songs')
+genre_table = dynamodb.Table('Genres')
 s3_bucket_name = 'songs-bucket-1'
 s3_client = boto3.client('s3')
 
@@ -19,11 +22,46 @@ def create(event, context):
     audio_key = f"{song_id}/audio/{data['audioFileName']}"
     image_key = f"{song_id}/image/{data['imageFileName']}"
 
+    genres_input = data.get('genres', [])
+    genres_full = []
+
+    for genre in genres_input:
+        if isinstance(genre, dict):
+            genre_name = genre.get('name')
+            genre_id = genre.get('id')
+        else:
+            genre_name = str(genre)
+            genre_id = None
+
+        if not genre_name:
+            continue  # skip empty genre names
+
+        # Check if genre exists
+        if not genre_id:
+            existing = genre_table.query(
+                IndexName="EntityTypeIndex",
+                KeyConditionExpression=Key('EntityType').eq('Genre') & Key('name').eq(genre_name)
+            )
+            if existing.get('Items'):
+                genre_id = existing['Items'][0]['id']
+            else:
+                # Create new genre in table
+                genre_id = str(uuid.uuid4())
+                genre_table.put_item(
+                    Item={
+                        'id': genre_id,
+                        'name': genre_name,
+                        'EntityType': 'Genre'
+                    }
+                )
+
+        genres_full.append({'id': genre_id, 'name': genre_name})
+
     # DynamoDB item
     item = {
         'id': song_id,
         'name': data['name'],
-        'genres': data.get('genres', []),
+        'genres': genres_full,
         'artists': data.get('artists', []),
         'audioKey': audio_key,
         'imageKey': image_key,

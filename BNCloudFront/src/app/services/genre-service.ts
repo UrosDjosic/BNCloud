@@ -7,6 +7,7 @@ import {environment} from '../../env/enviroment';
 import {CreateArtistRequest} from '../dto/create-artist-request';
 import {FetchArtistsResponse} from '../dto/fetch-artists-response';
 import {GenreResponse} from '../dto/genre-response';
+import {GenreDiscoverResponse} from '../dto/genre-discover-response';
 
 
 @Injectable({
@@ -18,6 +19,19 @@ export class GenreService {
 
   getAll(): Observable<any> {
     return this.http.get<any[]>(`${environment.apiHost}/genre`)
+  }
+
+
+  discover(name: string): Observable<GenreDiscoverResponse | undefined> {
+    let params = new HttpParams();
+    if (name) {
+      params = params.set('name', name);
+    }
+
+    return this.http.get<GenreDiscoverResponse>(`${environment.apiHost}/genre/discover`, { params })
+      .pipe(
+        map(res => (res as any)[0])
+      );
   }
 
 }

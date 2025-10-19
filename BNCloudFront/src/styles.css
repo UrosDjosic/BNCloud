@@ -6,3 +6,6 @@ body {overflow: hidden; margin: 0; font-family: Roboto, "Helvetica Neue", sans-s
 * {
   color: white !important;
 }
+div.mat-mdc-select-panel {
+  background-color: #1e1e1e !important;
+}

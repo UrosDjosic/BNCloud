@@ -37,7 +37,11 @@
   margin-bottom: 1rem;
   color: #ccc;
 }
-
+.file-input{
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
 .actions {
   margin-top: 1.5rem;
   display: flex;
@@ -47,4 +51,15 @@
 
 button {
   border-radius: 1rem !important;
+}
+.genre-buttons button {
+  background-color: #333333; /* light pinkish-purple */
+  color: white;
+  margin: 0.3rem;
+  width: fit-content;
+}
+
+.genre-buttons button.selected-genre {
+  background-color: #a75fff; /* darker purple when selected */
+  color: white;
 }

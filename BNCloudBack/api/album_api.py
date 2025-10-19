@@ -1,16 +1,21 @@
 from constructs import Construct
 from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb
 class AlbumApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,genre_table, **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Albums'
         }   
         album_resource = api.add_resource("album")
-
+        util_layer =[ _lambda.LayerVersion(
+            self, "UtilLambdaLayer",
+            code=_lambda.Code.from_asset("libs"), 
+            compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
+            description="Shared utilities"
+        )]
 
         lambda_role = iam.Role(
-            self, "LambdaRole",
+            self, "AlbumLambdaRole",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com")
         )
         lambda_role.add_managed_policy(
@@ -28,16 +33,22 @@ class AlbumApi(Construct):
                     "dynamodb:UpdateItem",
                     "dynamodb:DeleteItem"
                 ],
-                resources=[table.table_arn]
+                resources=[
+                    table.table_arn,
+                    f"{genre_table.table_arn}/index/EntityTypeIndex",
+                    genre_table.table_arn
+                ]
             )
         )
+
 
         #CREATE
         create_album_lambda = _lambda.Function(
             self, "CreateAlbumLambda",
+            layers=util_layer,
             runtime=_lambda.Runtime.PYTHON_3_11,
-            handler="album.create_album.handler.create",
-            code=_lambda.Code.from_asset("lambda"),
+            handler="create_album.handler.create",
+            code=_lambda.Code.from_asset("lambda/album"),
             environment=env,
             role = lambda_role
         )

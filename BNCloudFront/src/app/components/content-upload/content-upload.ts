@@ -5,6 +5,8 @@ import {ArtistService} from '../../services/artist-service';
 import {SongService} from '../../services/song-service';
 import {DynamoSongResponse} from '../../dto/dynamo-song-response';
 import {AlbumService} from '../../services/album-service';
+import {GenreResponse} from '../../dto/genre-response';
+import {GenreService} from '../../services/genre-service';
 
 @Component({
   selector: 'app-content-upload',
@@ -16,13 +18,21 @@ export class ContentUpload implements OnInit {
   uploads: SongUpload[] = [{ genres: [], artists: [], genresText: '', image: null, file: null }];
   artists: ArtistDTO[] = [];
   lastKey: string | null = null;
+  availableGenres: GenreResponse[] = [];
 
-  constructor(private snackBar: MatSnackBar, private artistService: ArtistService, private ss: SongService, private as: AlbumService) {}
+  constructor(private snackBar: MatSnackBar, private artistService: ArtistService, private ss: SongService, private as: AlbumService,
+              private genreService: GenreService) {}
 
   ngOnInit(): void {
     this.loadArtists();
+    this.fetchGenres();
   }
-
+  private fetchGenres() {
+    this.genreService.getAll().subscribe(res => {
+      this.availableGenres = res.genres;
+      console.log(res);
+    })
+  }
   /** Fetch all artists to populate dropdown */
   loadArtists(lastKey: string = '', pageSize: number = 50): void {
     this.artistService.getArtists(lastKey, pageSize).subscribe({
@@ -80,7 +90,11 @@ export class ContentUpload implements OnInit {
   updateGenres(index: number): void {
     const song = this.uploads[index];
     song.genres = song.genresText
-      ? song.genresText.split(',').map((g) => g.trim()).filter((g) => g)
+      ? song.genresText
+        .split(',')
+        .map(g => g.trim())
+        .filter(g => g !== '')
+        .map(g => ({ id: '', name: g }))
       : [];
   }
 
@@ -97,7 +111,6 @@ export class ContentUpload implements OnInit {
   async submit(): Promise<void> {
     if (this.uploads.length === 1) {
       const upload = this.uploads[0];
-
       const song = {
         name: upload.name,
         genres: upload.genres,
@@ -226,6 +239,25 @@ export class ContentUpload implements OnInit {
     });
   }
 
+  toggleGenre(song: any, genre: any): void {
+    if (!song.genres) {
+      song.genres = [];
+    }
+
+    const index = song.genres.findIndex((g: any) => g.id === genre.id);
+    if (index > -1) {
+      // Remove
+      song.genres.splice(index, 1);
+    } else {
+      // Add
+      song.genres.push({ id: genre.id, name: genre.name });
+    }
+  }
+
+
+  isGenreSelected(song: any, genre: any): boolean {
+    return song.genres?.some((g: any) => g.id === genre.id);
+  }
 }
 
 interface SongUpload {
@@ -236,7 +268,7 @@ interface SongUpload {
   creationTime?: Date;
   modificationTime?: Date;
   name?: string;
-  genres: string[];
+  genres: GenreResponse[];
   genresText?: string;
   image: File | null;
   imagePreview?: string;

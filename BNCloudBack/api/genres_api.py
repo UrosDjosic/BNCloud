@@ -6,7 +6,7 @@ class GenreApi(Construct):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Genres'
-        }   
+        }       
 
         util_layer =[ _lambda.LayerVersion(
             self, "UtilLambdaLayer",
@@ -19,7 +19,7 @@ class GenreApi(Construct):
 
 
         lambda_role = iam.Role(
-            self, "ArtistLambdaRole",
+            self, "GenresLambdaRole",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com")
         )
         lambda_role.add_managed_policy(
@@ -57,4 +57,18 @@ class GenreApi(Construct):
         get_integration = apigw.LambdaIntegration(get_lambda)
         genre_resource.add_method(
             "GET", get_integration
+        )
+
+        #DISCOVER
+        discover_lambda = _lambda.Function(self,"DiscoverLambda",
+            runtime = _lambda.Runtime.PYTHON_3_11,
+            layers = util_layer,
+            handler= "discover.handler.discover",
+            code = _lambda.Code.from_asset("lambda/genre"),
+            environment = env,
+            role = lambda_role
+        )
+        discover_integration = apigw.LambdaIntegration(discover_lambda)
+        genre_resource.add_resource("discover").add_method(
+            "GET", discover_integration
         )

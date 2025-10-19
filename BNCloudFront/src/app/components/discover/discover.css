@@ -54,3 +54,7 @@
   color: #888;
   font-style: italic;
 }
+mat-icon {
+  vertical-align: middle;
+  margin-right: .5rem;
+}
