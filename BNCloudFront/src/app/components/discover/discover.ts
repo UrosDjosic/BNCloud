@@ -45,7 +45,7 @@ export class Discover implements OnInit {
   }
 
   navigateToArtist(songId: string) {
-    this.router.navigate([`/author/${songId}`]);
+    this.router.navigate([`/artist/${songId}`]);
   }
 
   navigateToAlbum(authorId: string) {

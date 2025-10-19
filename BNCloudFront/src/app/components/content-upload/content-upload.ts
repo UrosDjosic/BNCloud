@@ -7,6 +7,7 @@ import {DynamoSongResponse} from '../../dto/dynamo-song-response';
 import {AlbumService} from '../../services/album-service';
 import {GenreResponse} from '../../dto/genre-response';
 import {GenreService} from '../../services/genre-service';
+import {DiscoverResponse} from '../../dto/discover-response';
 
 @Component({
   selector: 'app-content-upload',
@@ -16,7 +17,7 @@ import {GenreService} from '../../services/genre-service';
 })
 export class ContentUpload implements OnInit {
   uploads: SongUpload[] = [{ genres: [], artists: [], genresText: '', image: null, file: null }];
-  artists: ArtistDTO[] = [];
+  artists: DiscoverResponse[] = [];
   lastKey: string | null = null;
   availableGenres: GenreResponse[] = [];
   testMode: boolean = false;
@@ -171,24 +172,25 @@ export class ContentUpload implements OnInit {
               imageFileName: upload.image!.name,
             };
 
-            return new Promise<string>((resolve, reject) => {
+            return new Promise<{ id: string; name: string }>((resolve, reject) => {
               this.ss.uploadSongMetadata(song).subscribe({
                 next: async (response: DynamoSongResponse) => {
                   try {
                     await Promise.all([
                       this.uploadToS3(upload.file!, response.audioUploadUrl),
-                      this.uploadToS3(upload.image!, response.imageUploadUrl)
+                      this.uploadToS3(upload.image!, response.imageUploadUrl),
                     ]);
-                    resolve(response.songId);
+                    resolve({ id: response.songId, name: song.name! });
                   } catch (uploadErr) {
                     reject(uploadErr);
                   }
                 },
-                error: (err) => reject(err)
+                error: (err) => reject(err),
               });
             });
           })
         );
+
 
         // 2️⃣ Aggregate genres & artists across all uploads
         const allGenres = [
@@ -281,6 +283,11 @@ export class ContentUpload implements OnInit {
         }
       };
 
+      xhr.onerror = () => {
+        console.error('Network error during S3 upload');
+        reject(new Error('Network error during S3 upload'));
+      };
+
       xhr.onerror = () => reject(new Error('Network error during S3 upload'));
       xhr.send(file);
     });
@@ -320,5 +327,5 @@ interface SongUpload {
   genresText?: string;
   image: File | null;
   imagePreview?: string;
-  artists: string[]; // will store selected artist IDs
+  artists: DiscoverResponse[]; // will store selected artist IDs
 }
