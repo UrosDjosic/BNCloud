@@ -37,7 +37,8 @@ class AlbumApi(Construct):
                     table.table_arn,
                     f"{other_tables['genre'].table_arn}/index/EntityTypeIndex",
                     other_tables['genre'].table_arn,
-                    other_tables['artist'].table_arn
+                    other_tables['artist'].table_arn,
+                    other_tables['song'].table_arn,
                 ]
             )
         )
@@ -65,7 +66,7 @@ class AlbumApi(Construct):
             self, "GetAlbumLambda",
             layers=util_layer,
             runtime=_lambda.Runtime.PYTHON_3_11,
-            handler="get_album.get",  # fajl get_album.py i funkcija get(event, context)
+            handler="get_album.handler.get",  
             code=_lambda.Code.from_asset("lambda/album"),
             environment=env,
             role=lambda_role
