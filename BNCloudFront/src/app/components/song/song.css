@@ -1,53 +1,79 @@
 .song-container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: 2rem;
-  background: #121212; /* Dark theme */
-}
+  margin: 20px;
 
-.song-card {
-  width: 100%;
-  max-width: 700px;
-  padding: 2rem;
-  background: #1e1e2f;
-  color: #f0f0f0;
-  border: 1px solid #bb86fc;
-  border-radius: 1rem;
-  box-shadow: 0 8px 20px rgba(187, 134, 252, 0.2);
-}
+  .song-card {
+    width: 100%;
+    max-width: 800px;
+    padding: 16px;
+    background-color: #4B0082; // dark purple
+  color: #FFFFFF;            // make text white
+  border-radius: 12px;
 
-.title {
-  text-align: center;
-  color: #e1bee7;
-  margin-bottom: 1rem;
-}
+    .song-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
 
-.metadata p {
-  margin: 0.5rem 0;
-}
+      .song-image {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 16px;
+      }
 
-.metadata a {
-  cursor: pointer;
-  color: #bb86fc;
-  text-decoration: underline;
-}
+      .song-title-meta {
+        .title {
+          margin: 0;
+          font-weight: 600;
+          color: #FFFFFF;
+        }
+        .file-name {
+          color: #E0E0E0;
+          font-size: 0.9em;
+        }
+        .genres {
+          margin-top: 4px;
+          color: #CCCCCC;
+        }
+      }
+    }
 
-.action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-  justify-content: center;
-}
+    .audio-player {
+      margin-bottom: 16px;
+    }
 
-.action-buttons button {
-  background: linear-gradient(45deg, #bb86fc, #ff4081);
-  color: white;
-  font-weight: bold;
-}
+    .metadata {
+      margin-bottom: 16px;
 
-.action-buttons button:hover {
-  opacity: 0.9;
+      p {
+        margin: 4px 0;
+        color: #F0F0F0;
+      }
+
+      a {
+        cursor: pointer;
+        color: #FFD700; // golden for links
+      text-decoration: underline;
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .rating-buttons {
+        display: flex;
+        gap: 4px;
+      }
+
+      button {
+        color: #FFFFFF;
+      }
+    }
+  }
+
 }

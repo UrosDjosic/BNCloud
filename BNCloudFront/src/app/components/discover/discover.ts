@@ -1,9 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {SongDTO} from '../../models/song';
 import {ArtistDTO} from '../../models/artist';
 import {Router} from '@angular/router';
-import {AlbumDTO} from '../../models/album';
-import {GenreResponse} from '../../dto/genre-response';
 import {GenreService} from '../../services/genre-service';
 import {GenreDiscoverResponse} from '../../dto/genre-discover-response';
 import {DiscoverResponse} from '../../dto/discover-response';
@@ -18,7 +15,7 @@ export class Discover implements OnInit {
 
   selectedGenre?: string;
   currentGenre?: GenreDiscoverResponse;
-  songs: SongDTO[] = [];
+  songs: any = [];
   authors: ArtistDTO[] = [];
 
   genres: GenreDiscoverResponse[] = [];

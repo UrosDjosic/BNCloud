@@ -15,4 +15,8 @@ export class SongService {
   uploadSongMetadata(song: any): Observable<DynamoSongResponse> {
     return this.http.post<DynamoSongResponse>(`${environment.apiHost}/song`, song);
   }
+
+  getSong(songId: string): Observable<object> {
+    return this.http.get<object>(`${environment.apiHost}/song/${songId}`);
+  }
 }

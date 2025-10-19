@@ -8,6 +8,7 @@ class ArtistApi(Construct):
                 "TABLE_NAME" : 'Artists'
         }   
         artist_resource = api.add_resource("artist")
+        artist_id_resource = artist_resource.add_resource("{artistId}")
 
 
         lambda_role = iam.Role(
@@ -77,6 +78,19 @@ class ArtistApi(Construct):
         artist_resource.add_method(
             "GET",get_artists_integration
         )
+
+        get_artist_lambda = _lambda.Function(
+            self, "GetArtistLambda",
+            layers = util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="artist.get_artist.handler.get",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role = lambda_role
+        )
+
+        get_artist_integration = apigw.LambdaIntegration(get_artist_lambda)
+        artist_id_resource.add_method("GET", get_artist_integration)
 
         #UPDATE
         update_artist_lambda = _lambda.Function(

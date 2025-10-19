@@ -15,7 +15,6 @@ import { Downloads } from './downloads/downloads';
 import { Home } from './home/home';
 import { Navbar } from './navbar/navbar';
 import { Notifications } from './notifications/notifications';
-import { Player } from './player/player';
 import { Search } from './search/search';
 import { Song } from './song/song';
 import { Subscriptions } from './subscriptions/subscriptions';
@@ -52,7 +51,6 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     Home,
     Navbar,
     Notifications,
-    Player,
     Search,
     Song,
     Subscriptions,
@@ -80,7 +78,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
         MatSnackBarModule,
         FormsModule,
         MatChipsModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatChip
     ]
 })
 export class ComponentsModule { }

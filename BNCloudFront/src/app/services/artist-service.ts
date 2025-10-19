@@ -33,4 +33,8 @@ export class ArtistService {
   updateArtist(artist : ArtistDTO): Observable<ArtistDTO> {
     return this.http.put<ArtistDTO>(`${environment.apiHost}/artist`, artist)
   }
+
+  getArtist(artistId :string) : Observable<object> {
+    return this.http.get<object>(`${environment.apiHost}/artist/${artistId}`)
+  }
 }
