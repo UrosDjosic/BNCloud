@@ -1,23 +1,48 @@
-<div class="album-container" *ngIf="album">
-  <mat-card class="album-card">
-    <h2 class="title">{{ album.name }}</h2>
+<div class="album-page" *ngIf="album">
+  <div class="album-wrapper">
+    <div class="album-header">
+      <div class="album-info">
+        <h1 class="album-title">{{ album.name }}</h1>
+        <p class="album-artist">
+          <strong>by</strong>
+          <a (click)="navigateToArtist(album.author.id)" class="artist-link prominent-artist">
+            {{ artistNames[album.author.id] || album.author.name }}
+          </a>
+        </p>
 
-    <p><strong>Artist:</strong>
-      <a (click)="navigateToArtist(album.author.id)">
-        {{ album.author.name }}
-      </a>
-    </p>
-
-    <div class="songs-list">
-      <h3>Songs:</h3>
-      <mat-list>
-        <mat-list-item
-          *ngFor="let song of album.songs"
-          (click)="navigateToSong(song.id)"
-          class="song-item">
-          {{ song.fileName }}
-        </mat-list-item>
-      </mat-list>
+        <div class="album-genres" *ngIf="album.genres?.length">
+          <span *ngFor="let g of album.genres" class="genre-chip">{{ g.name }}</span>
+        </div>
+      </div>
     </div>
-  </mat-card>
+
+    <div class="songs-section">
+      <h2 class="songs-header">Tracklist</h2>
+      <div class="songs-list">
+        <div
+          *ngFor="let song of album.songs; let i = index"
+          class="song-card"
+          (click)="navigateToSong(song.id)"
+        >
+          <div class="song-index">{{ i + 1 }}</div>
+
+          <div class="song-details">
+            <div class="song-name">{{ song.name }}</div>
+            <div class="song-file">{{ song.fileName }}</div>
+
+            <div class="song-artists">
+              <span
+                *ngFor="let artist of song.artists; let last = last"
+                (click)="navigateToArtist(artist)"
+                class="artist-link song-artist"
+              >
+                {{ artistNames[artist] || artist }}
+                <span *ngIf="!last">, </span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

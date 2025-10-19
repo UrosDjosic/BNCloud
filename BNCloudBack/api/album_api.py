@@ -37,7 +37,8 @@ class AlbumApi(Construct):
                     table.table_arn,
                     f"{other_tables['genre'].table_arn}/index/EntityTypeIndex",
                     other_tables['genre'].table_arn,
-                    other_tables['artist'].table_arn
+                    other_tables['artist'].table_arn,
+                    other_tables['song'].table_arn,
                 ]
             )
         )
@@ -57,3 +58,19 @@ class AlbumApi(Construct):
         album_resource.add_method(
             "POST", create_album_integration
         )
+
+        #GET
+        album_id_resource = album_resource.add_resource("{albumId}")
+
+        get_album_lambda = _lambda.Function(
+            self, "GetAlbumLambda",
+            layers=util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="get_album.handler.get",  
+            code=_lambda.Code.from_asset("lambda/album"),
+            environment=env,
+            role=lambda_role
+        )
+
+        get_album_integration = apigw.LambdaIntegration(get_album_lambda)
+        album_id_resource.add_method("GET", get_album_integration)
