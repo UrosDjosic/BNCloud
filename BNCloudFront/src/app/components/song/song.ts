@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {SongService} from '../../services/song-service';
-import {ArtistService} from '../../services/artist-service';
 
 @Component({
   selector: 'app-song',
@@ -13,9 +12,8 @@ export class Song implements OnInit {
 
   songId?: string;
   song?: any;
-  artistNames: { [id: string]: string } = {};
 
-  constructor(private route: ActivatedRoute, private router: Router, private ss: SongService, private as: ArtistService) {}
+  constructor(private route: ActivatedRoute, private router: Router, private ss: SongService) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -56,11 +54,6 @@ export class Song implements OnInit {
         this.song.image = URL.createObjectURL(imageBlob);
 
         console.log('Audio and image loaded', this.song);
-
-        // --- Load artist names last ---
-        await this.loadArtistNames(this.song.artists);
-        console.log('Artist names loaded', this.artistNames);
-
       } catch (err) {
         console.error('Error downloading media from S3', err);
       }
@@ -99,18 +92,6 @@ export class Song implements OnInit {
 
       xhr.send(); // no body for GET
     });
-  }
-
-  async loadArtistNames(ids: string[]) {
-    // fetch all artists
-    const artists = await Promise.all(ids.map(id => this.as.getArtist(id).toPromise()));
-
-    // --- Place the snippet here ---
-    const newArtistNames: { [id: string]: string } = {};
-    artists.forEach((a: any) => {
-      newArtistNames[a.id] = a.name;
-    });
-    this.artistNames = newArtistNames; // Angular detects this change automatically
   }
 
   subscribeSong() {

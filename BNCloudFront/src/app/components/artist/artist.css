@@ -1,56 +1,60 @@
 .artist-container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: 2rem;
-  background: #121212; /* Dark theme */
+  align-items: center; /* vertically center too */
+  min-height: 100vh; /* take full screen height */
+  background-color: #2c003e; /* dark purple background */
 }
 
 .artist-card {
-  width: 100%;
-  max-width: 700px;
-  padding: 2rem;
-  background: #1e1e2f;
-  color: #f0f0f0;
-  border: 1px solid #bb86fc;
-  border-radius: 1rem;
-  box-shadow: 0 8px 20px rgba(187, 134, 252, 0.2);
+  width: 600px;
+  padding: 24px;
+  background-color: #3d0066; /* slightly lighter purple for contrast */
+  color: #f5f5f5; /* light text for readability */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
 }
 
-.title {
-  text-align: center;
-  color: #e1bee7;
-  margin-bottom: 1rem;
+.artist-section {
+  margin-top: 16px;
 }
 
-.artist-info p {
-  margin: 0.5rem 0;
+.artist-section h3 {
+  color: #d6b3ff; /* light lavender tone for headings */
+  margin-bottom: 8px;
 }
 
-.bio {
-  margin-bottom: 1rem;
-  color: #cccccc;
-  font-style: italic;
+ul {
+  list-style: none;
+  padding-left: 0;
 }
 
-.genres {
-  font-weight: bold;
-  color: #bb86fc;
+ul li::before {
+  content: "🎵 ";
 }
 
-.action-buttons {
+mat-card-title,
+mat-card-subtitle {
+  color: #ffffff;
+}
+
+mat-card-subtitle {
+  opacity: 0.8;
+}
+
+mat-card-actions {
   display: flex;
   justify-content: center;
-  margin-top: 1.5rem;
+  margin-top: 16px;
 }
 
-.action-buttons button {
-  background: linear-gradient(45deg, #bb86fc, #ff4081);
-  color: white;
-  font-weight: bold;
+button[mat-raised-button] {
+  background-color: #bb86fc; /* vivid purple */
+  color: #1a001f; /* dark text for contrast */
+  font-weight: 600;
+  transition: background-color 0.3s ease;
 }
 
-.action-buttons button:hover {
-  opacity: 0.9;
+button[mat-raised-button]:hover {
+  background-color: #d8b4ff; /* lighter hover color */
 }
