@@ -17,6 +17,7 @@ import { Navbar } from './navbar/navbar';
 import { Notifications } from './notifications/notifications';
 import { Search } from './search/search';
 import { Song } from './song/song';
+import {SongEditComponent} from './song-edit/song-edit';
 import { Subscriptions } from './subscriptions/subscriptions';
 import { Error } from './error/error';
 import {MatSelect, MatSelectModule} from '@angular/material/select';
@@ -55,6 +56,7 @@ import {MatProgressBar} from "@angular/material/progress-bar";
     Search,
     Song,
     Subscriptions,
+    SongEditComponent,
   ],
   exports: [
     Navbar

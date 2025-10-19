@@ -19,4 +19,8 @@ export class SongService {
   getSong(songId: string): Observable<object> {
     return this.http.get<object>(`${environment.apiHost}/song/${songId}`);
   }
+
+  updateSong(songId: string, updatedSong: any): Observable<DynamoSongResponse> {
+    return this.http.put<DynamoSongResponse>(`${environment.apiHost}/song/${songId}`, updatedSong);
+  }
 }
