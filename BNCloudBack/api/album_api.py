@@ -74,3 +74,17 @@ class AlbumApi(Construct):
 
         get_album_integration = apigw.LambdaIntegration(get_album_lambda)
         album_id_resource.add_method("GET", get_album_integration)
+
+        #PUT
+        update_album_lambda = _lambda.Function(
+            self, "UpdateAlbumLambda",
+            layers=util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="update_album.handler.update",
+            code=_lambda.Code.from_asset("lambda/album"),
+            environment=env,
+            role=lambda_role
+        )
+
+        update_album_integration = apigw.LambdaIntegration(update_album_lambda)
+        album_id_resource.add_method("PUT", update_album_integration)

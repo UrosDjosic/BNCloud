@@ -37,7 +37,8 @@ class SongApi(Construct):
                 resources=[
                     table.table_arn,
                     other_tables['artist'].table_arn,
-                    other_tables['genre'].table_arn
+                    other_tables['genre'].table_arn,
+                    other_tables['album'].table_arn
                 ]
             )
         )
@@ -75,3 +76,26 @@ class SongApi(Construct):
 
         get_song_integration = apigw.LambdaIntegration(get_song_lambda)
         song_id_resource.add_method("GET", get_song_integration)
+
+
+        #UPDATE
+        update_song_lambda = _lambda.Function(
+            self, "UpdateSongLambda",
+            layers=util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.update_song.handler.update", 
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+
+        songs_bucket.grant_read_write(update_song_lambda)  
+        table.grant_read_write_data(update_song_lambda)
+        other_tables['artist'].grant_read_write_data(update_song_lambda)
+        other_tables['genre'].grant_read_write_data(update_song_lambda)
+        other_tables['album'].grant_read_write_data(update_song_lambda)
+
+        update_song_integration = apigw.LambdaIntegration(update_song_lambda)
+
+        song_id_resource.add_method("PUT", update_song_integration)
+    
