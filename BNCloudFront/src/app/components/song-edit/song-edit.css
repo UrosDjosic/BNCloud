@@ -1,0 +1,108 @@
+.song-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+
+  .song-card {
+    width: 100%;
+    max-width: 800px;
+    padding: 16px;
+    background-color: #4B0082;
+    color: #FFFFFF;
+    border-radius: 12px;
+
+    .song-header {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 16px;
+
+      .song-image {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 16px;
+      }
+
+      .song-title-meta {
+        width: 100%;
+
+        mat-form-field.full-width {
+          width: 100%;
+          margin-bottom: 8px;
+
+          input.mat-input-element {
+            color: #FFFFFF;
+          }
+
+          mat-label {
+            color: #FFD700;
+          }
+        }
+
+        .file-name {
+          color: #E0E0E0;
+          font-size: 0.9em;
+          margin-bottom: 8px;
+        }
+
+        .genres {
+          margin-top: 4px;
+
+          button {
+            margin: 2px;
+            &.selected-genre {
+              background-color: #FFD700;
+              color: #4B0082;
+            }
+          }
+        }
+      }
+    }
+
+    .audio-player {
+      margin-bottom: 16px;
+    }
+
+    .metadata {
+      margin-bottom: 16px;
+
+      p {
+        margin: 4px 0;
+        color: #F0F0F0;
+      }
+
+      mat-form-field.full-width {
+        width: 100%;
+        margin-bottom: 8px;
+
+        mat-label {
+          color: #FFD700;
+        }
+
+        select.mat-select {
+          color: #FFFFFF;
+        }
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      button {
+        color: #FFFFFF;
+      }
+    }
+  }
+}
+.media-upload-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+
+  button {
+    font-weight: 600;
+  }
+}

@@ -18,6 +18,7 @@ import { Album } from './components/album/album';
 import {UserList} from './user/user-list/user-list';
 import { VerifyAccComponent } from './user/verify-acc/verify-acc.component';
 import { Subscriptions } from './components/subscriptions/subscriptions';
+import {SongEditComponent} from './components/song-edit/song-edit';
 
 
 const routes: Routes = [
@@ -26,6 +27,7 @@ const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'subscriptions', component: Subscriptions },
   { path: 'song/:songId', component: Song },
+  { path: 'song/:songId/edit', component: SongEditComponent },
   { path: 'search', component: Search },
   { path: 'profile', component: Profile },
   { path: 'notifications', component: Notifications },

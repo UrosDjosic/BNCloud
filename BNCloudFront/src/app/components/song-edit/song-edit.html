@@ -1,0 +1,82 @@
+<div class="song-container" *ngIf="song">
+  <mat-card class="song-card mat-elevation-z4">
+
+    <!-- Song Header -->
+    <div class="song-header">
+      <img *ngIf="song.image" [src]="song.image" alt="{{ song.name }}" class="song-image" />
+      <div class="song-title-meta">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Song Title</mat-label>
+          <input matInput [(ngModel)]="song.name" placeholder="Song Title" />
+        </mat-form-field>
+
+        <p class="file-name">{{ song.fileName }}</p>
+
+        <p class="genres" *ngIf="availableGenres?.length">
+          <strong>Genres:</strong>
+          <span *ngFor="let genre of availableGenres">
+            <button mat-stroked-button
+                    type="button"
+                    [ngClass]="{'selected-genre': isGenreSelected(genre)}"
+                    (click)="toggleGenre(genre)">
+              {{ genre.name }}
+            </button>
+          </span>
+        </p>
+
+        <mat-form-field class="full-width" appearance="outline" style="margin-top:1rem">
+          <mat-label>New Genres (comma-separated)</mat-label>
+          <input matInput [(ngModel)]="song.genresText" (blur)="updateGenres()" placeholder="e.g. Rock, Pop" />
+        </mat-form-field>
+
+        <div class="media-upload-buttons">
+          <button mat-stroked-button color="accent" (click)="uploadPicture()">
+            Upload Picture
+          </button>
+          <button mat-stroked-button color="accent" (click)="uploadSong()">
+            Upload Song
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio Player (read-only) -->
+    <div class="audio-player" *ngIf="song.audio">
+      <audio [src]="song.audio" controls></audio>
+    </div>
+
+    <!-- Metadata -->
+    <div class="metadata mat-subheading-1">
+      <p><strong>Created At:</strong> {{ song.creationTime | date:'medium' }}</p>
+      <p><strong>Last Modified:</strong> {{ song.modificationTime | date:'medium' }}</p>
+
+      <p><strong>Artists:</strong></p>
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-label>Artists</mat-label>
+        <mat-select multiple [(ngModel)]="song.artists">
+          <mat-option *ngFor="let artist of artists" [value]="artist.id">
+            {{ artist.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <p><strong>Ratings:</strong>
+        <span *ngIf="song.ratings?.length; else noRatings">
+          {{ song.ratings.join(', ') }}
+        </span>
+        <ng-template #noRatings>Not rated yet</ng-template>
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button mat-stroked-button color="primary" (click)="saveSong()">
+        Save Changes
+      </button>
+      <button mat-stroked-button color="warn" (click)="cancelEdit()">
+        Cancel
+      </button>
+    </div>
+
+  </mat-card>
+</div>

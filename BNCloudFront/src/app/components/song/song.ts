@@ -117,7 +117,7 @@ export class Song implements OnInit {
 
   editSong() {
     // Navigate to song edit page or open dialog
-    this.router.navigate(['content-rud']);
+    this.router.navigate([`song/${this.songId}/edit`]);
   }
 
   deleteSong() {

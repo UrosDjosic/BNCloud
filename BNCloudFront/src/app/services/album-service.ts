@@ -19,4 +19,8 @@ export class AlbumService {
   getAlbum(albumId: string): Observable<AlbumDTO> {
     return this.http.get<AlbumDTO>(`${environment.apiHost}/album/${albumId}`);
   }
+
+  updateAlbum(albumId: string, data: { name: string }): Observable<any> {
+    return this.http.put(`${environment.apiHost}/album/${albumId}`, data);
+  }
 }

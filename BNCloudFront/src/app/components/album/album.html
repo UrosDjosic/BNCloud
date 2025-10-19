@@ -2,7 +2,20 @@
   <div class="album-wrapper">
     <div class="album-header">
       <div class="album-info">
-        <h1 class="album-title">{{ album.name }}</h1>
+
+        <!-- Album Title + Edit -->
+        <div class="album-title-wrapper">
+          <h1 class="album-title" *ngIf="!editingName">{{ album.name }}</h1>
+          <input *ngIf="editingName" [(ngModel)]="editedName" class="album-name-input" />
+
+          <div class="edit-buttons">
+            <button *ngIf="!editingName" (click)="startEditing()" class="edit-btn">Edit</button>
+            <button *ngIf="editingName" (click)="saveName()" class="save-btn">Save</button>
+            <button *ngIf="editingName" (click)="cancelEditing()" class="cancel-btn">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Artist -->
         <p class="album-artist">
           <strong>by</strong>
           <a (click)="navigateToArtist(album.author.id)" class="artist-link prominent-artist">
@@ -10,12 +23,14 @@
           </a>
         </p>
 
+        <!-- Genres -->
         <div class="album-genres" *ngIf="album.genres?.length">
           <span *ngFor="let g of album.genres" class="genre-chip">{{ g.name }}</span>
         </div>
       </div>
     </div>
 
+    <!-- Songs Section -->
     <div class="songs-section">
       <h2 class="songs-header">Tracklist</h2>
       <div class="songs-list">

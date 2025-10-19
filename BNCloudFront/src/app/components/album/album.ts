@@ -15,6 +15,8 @@ export class Album implements OnInit {
   albumId?: string;
   album?: AlbumDTO;
   artistNames: { [id: string]: string } = {};
+  editingName = false;
+  editedName = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -82,6 +84,31 @@ export class Album implements OnInit {
     const newArtistNames: { [id: string]: string } = {};
     artists.forEach((a: any) => newArtistNames[a.id] = a.name);
     this.artistNames = newArtistNames;
+  }
+
+  startEditing() {
+    this.editingName = true;
+    this.editedName = this.album?.name || '';
+  }
+
+  cancelEditing() {
+    this.editingName = false;
+  }
+
+  saveName() {
+    if (!this.album || !this.albumId) return;
+
+    const newName = this.editedName.trim();
+    if (!newName) return;
+
+    this.albumService.updateAlbum(this.albumId, { name: newName }).subscribe({
+      next: () => {
+        if (this.album) this.album.name = newName;
+        this.editingName = false;
+        console.log('Album name updated successfully');
+      },
+      error: (err) => console.error('Error updating album:', err)
+    });
   }
 
   navigateToArtist(artistId: string) {
