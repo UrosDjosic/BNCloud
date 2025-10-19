@@ -10,8 +10,8 @@
         <p class="genres" *ngIf="song.genres?.length">
           <strong>Genres:</strong>
           <span *ngFor="let g of song.genres; let last = last">
-    {{ g.name }}<span *ngIf="!last">, </span>
-  </span>
+            {{ g.name }}<span *ngIf="!last">, </span>
+          </span>
         </p>
       </div>
     </div>
@@ -26,10 +26,14 @@
       <p><strong>Created At:</strong> {{ song.creationTime | date:'medium' }}</p>
       <p><strong>Last Modified:</strong> {{ song.modificationTime | date:'medium' }}</p>
       <p><strong>Artists:</strong>
-        <span *ngFor="let artistId of song.artists; let last = last">
-  <a [routerLink]="['/author', artistId]">
-    {{ artistNames[artistId] || 'Loading...' }}
-  </a>{{ last ? '' : ', ' }}
+        <span *ngFor="let artist of song.artists; let last = last">
+          <a *ngIf="artist.name !== undefined" [routerLink]="['/artist', artist.id]">
+            {{artist.name}}
+          </a>{{ last ? '' : ', ' }}
+          <p *ngIf="artist.name === undefined">
+            UNKNOWN
+          </p>{{ last ? '' : ', ' }}
+
 </span>
       </p>
       <p><strong>Ratings:</strong>

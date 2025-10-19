@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {ArtistDTO} from '../../models/artist';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {ArtistService} from '../../services/artist-service';
 
 @Component({
   selector: 'app-artist',
@@ -12,14 +12,28 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 export class Artist implements OnInit {
 
   artistId?: string;
-  artist?: ArtistDTO;
+  artist?: any;
 
-  constructor(private route: ActivatedRoute, private snackBar: MatSnackBar) {}
+  constructor(private route: ActivatedRoute, private snackBar: MatSnackBar, private as: ArtistService) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.artistId = params.get('artistId') || undefined;
       if (this.artistId) {
+        this.loadArtist(this.artistId);
+      }
+    });
+  }
+
+  loadArtist(artistId: string) {
+    this.as.getArtist(artistId).subscribe({
+      next: (artist: any) => {
+        console.log(artist.Songs);
+        this.artist = artist; // ✅ assign response to artist
+      },
+      error: (err) => {
+        console.error(err);
+        this.snackBar.open('Failed to load artist 😞', 'Close', { duration: 3000 });
       }
     });
   }
