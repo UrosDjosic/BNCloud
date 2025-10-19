@@ -24,9 +24,9 @@
       </mat-list>
     </div>
 
-    <!-- Authors Section -->
+    <!-- Albums Section -->
     <div *ngIf="albums.length > 0" class="results-section">
-      <h3>Authors</h3>
+      <h3>Albums</h3>
       <mat-list>
         <mat-list-item *ngFor="let album of albums" (click)="navigateToAlbum(album.id)" class="clickable-item">
           <mat-icon>queue_music</mat-icon> {{ album.name }}

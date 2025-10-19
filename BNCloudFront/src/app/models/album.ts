@@ -1,9 +1,10 @@
 import {ArtistDTO} from './artist';
+import {AlbumSongDTO} from './album-song';
 
 export interface AlbumDTO {
   id: string,
   name: string,
   author: ArtistDTO,
-  songs: any,
+  songs: AlbumSongDTO[],
   genres: string[]
 }
