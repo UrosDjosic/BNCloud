@@ -2,7 +2,6 @@ import json
 import uuid
 import boto3
 from datetime import datetime
-from helpers.create_response import create_response
 from boto3.dynamodb.conditions import Key
 
 

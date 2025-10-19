@@ -1,8 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AlbumDTO} from '../../models/album';
 import {ActivatedRoute, Router} from '@angular/router';
-import {SongDTO} from '../../models/song';
-import {ArtistDTO} from '../../models/artist';
 
 @Component({
   selector: 'app-album',
@@ -28,50 +26,6 @@ export class Album implements OnInit {
 
   loadAlbum(id: string) {
     // this.albumService.getAlbumById(id).subscribe(res => this.album = res);
-
-    // Dummy data
-    this.album = {
-      id: id,
-      name: 'Echoes of Tomorrow',
-      genres: [],
-      author: {
-        id: 'a1', name: 'The Midnight Beats',
-        biography: '',
-        genres: []
-      },
-      songs: [
-        {
-          id: 's1', fileName: 'Rising Dawn',
-          fileType: '',
-          size: '',
-          createdAt: '',
-          updatedAt: '',
-          genres: [''],
-          authors: [],
-          image: ""
-        },
-        {
-          id: 's2', fileName: 'Fading Lights',
-          fileType: '',
-          size: '',
-          createdAt: '',
-          updatedAt: '',
-          genres: [''],
-          authors: [],
-          image: ""
-        },
-        {
-          id: 's3', fileName: 'Electric Dreams',
-          fileType: '',
-          size: '',
-          createdAt: '',
-          updatedAt: '',
-          genres: [''],
-          authors: [],
-          image: ""
-        }
-      ]
-    };
   }
 
   navigateToArtist(artistId: string) {

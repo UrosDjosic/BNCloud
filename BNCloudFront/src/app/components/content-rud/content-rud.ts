@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {SongDTO} from '../../models/song';
 
 @Component({
   selector: 'app-content-rud',
@@ -10,8 +9,8 @@ import {SongDTO} from '../../models/song';
 })
 export class ContentRud implements OnInit {
 
-  songs: SongDTO[] = [];
-  selectedSong?: SongDTO;
+  songs: any = [];
+  selectedSong?: any;
   editedGenres: string = '';
 
   constructor(private snackBar: MatSnackBar) {}
@@ -23,36 +22,9 @@ export class ContentRud implements OnInit {
   loadSongs() {
     // this.contentService.getAllSongs().subscribe(res => this.songs = res);
 
-    // Dummy data
-    this.songs = [
-      {
-        id: 's1', fileName: 'Rising Dawn', genres: ['Rock', 'Indie'], authors: [],
-        fileType: '',
-        size: '',
-        createdAt: '',
-        updatedAt: '',
-        image: ""
-      },
-      {
-        id: 's2', fileName: 'Fading Lights', genres: ['Rock'], authors: [],
-        fileType: '',
-        size: '',
-        createdAt: '',
-        updatedAt: '',
-        image: ""
-      },
-      {
-        id: 's3', fileName: 'Electric Dreams', genres: ['Electronic'], authors: [],
-        fileType: '',
-        size: '',
-        createdAt: '',
-        updatedAt: '',
-        image: ""
-      }
-    ];
   }
 
-  selectSong(song: SongDTO) {
+  selectSong(song: any) {
     this.selectedSong = { ...song }; // copy to avoid direct mutation
     this.editedGenres = song.genres.join(', ');
   }

@@ -1,8 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {SongDTO} from '../../models/song';
-import {AlbumDTO} from '../../models/album';
-import {ArtistDTO} from '../../models/artist';
 import {ActivatedRoute, Router} from '@angular/router';
+import {SongService} from '../../services/song-service';
+import {ArtistService} from '../../services/artist-service';
 
 @Component({
   selector: 'app-song',
@@ -13,9 +12,10 @@ import {ActivatedRoute, Router} from '@angular/router';
 export class Song implements OnInit {
 
   songId?: string;
-  song?: SongDTO;
+  song?: any;
+  artistNames: { [id: string]: string } = {};
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(private route: ActivatedRoute, private router: Router, private ss: SongService, private as: ArtistService) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -26,22 +26,91 @@ export class Song implements OnInit {
     });
   }
 
-  loadSong(id: string) {
-    // this.songService.getSongById(id).subscribe(res => this.song = res);
+  async loadSong(id: string) {
+    this.ss.getSong(id).subscribe(async (res: any) => {
+      console.log(res);
 
-    // Dummy data
-    this.song = {
-      id: id,
-      fileName: 'AmazingSong.mp3',
-      fileType: 'audio/mp3',
-      size: '5.2 MB',
-      createdAt: '2024-05-10 12:00',
-      updatedAt: '2024-08-15 15:30',
-      authors: [],
-      ratings: [2],
-      genres: [''],
-      image: ""
-    };
+      const audioKey = res.audioKey;
+
+      // Step 1: Load basic metadata
+      this.song = {
+        name: res.name,
+        ratings: res.ratings,
+        genres: res.genres,
+        id: id,
+        creationTime: res.creationTime,
+        modificationTime: res.modificationTime,
+        artists: res.artists,
+        fileName: audioKey.split('/').at(-1), // safely get filename
+        audio: null,  // placeholder
+        image: null   // placeholder
+      };
+
+      try {
+        const [audioBlob, imageBlob] = await Promise.all([
+          this.downloadFromS3(res.audioUrl),
+          this.downloadFromS3(res.imageUrl)
+        ]);
+
+        this.song.audio = URL.createObjectURL(audioBlob);
+        this.song.image = URL.createObjectURL(imageBlob);
+
+        console.log('Audio and image loaded', this.song);
+
+        // --- Load artist names last ---
+        await this.loadArtistNames(this.song.artists);
+        console.log('Artist names loaded', this.artistNames);
+
+      } catch (err) {
+        console.error('Error downloading media from S3', err);
+      }
+    });
+  }
+
+  async downloadFromS3(presignedUrl: string): Promise<Blob> {
+    return new Promise<Blob>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      xhr.open('GET', presignedUrl, true);
+      xhr.responseType = 'blob'; // ensures we get a Blob
+
+      // Optional progress listener
+      xhr.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          console.log(`Download progress: ${percent}%`);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          console.log('Download succeeded:', xhr.status);
+          resolve(xhr.response); // this is the Blob
+        } else {
+          console.error('Download failed:', xhr.status, xhr.responseText);
+          reject(new Error(`S3 download failed with status ${xhr.status}`));
+        }
+      };
+
+      xhr.onerror = () => {
+        console.error('Network error during S3 download');
+        reject(new Error('Network error during S3 download'));
+      };
+
+      xhr.send(); // no body for GET
+    });
+  }
+
+  async loadArtistNames(ids: string[]) {
+    // fetch all artists
+    const artists = await Promise.all(ids.map(id => this.as.getArtist(id).toPromise()));
+
+    // --- Place the snippet here ---
+    const newArtistNames: { [id: string]: string } = {};
+    artists.forEach((a: any) => {
+      newArtistNames[a.id] = a.name;
+    });
+    this.artistNames = newArtistNames; // Angular detects this change automatically
   }
 
   subscribeSong() {
@@ -72,15 +141,9 @@ export class Song implements OnInit {
 
   deleteSong() {
     // this.songService.deleteSong(this.songId).subscribe(...)
-    console.log('Deleted song');
-    this.router.navigate(['/search']);
   }
 
   navigateToArtist(artistId: string) {
     this.router.navigate([`/author/${artistId}`]);
-  }
-
-  navigateToAlbum(albumId: string) {
-    this.router.navigate([`/album/${albumId}`]);
   }
 }

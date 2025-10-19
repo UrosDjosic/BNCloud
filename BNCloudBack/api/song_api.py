@@ -7,6 +7,7 @@ class SongApi(Construct):
                 "TABLE_NAME" : 'Songs'
         }   
         song_resource = api.add_resource("song")
+        song_id_resource = song_resource.add_resource("{songId}")
 
         util_layer =[ _lambda.LayerVersion(
             self, "UtilLambdaLayer",
@@ -54,3 +55,19 @@ class SongApi(Construct):
         song_resource.add_method(
             "POST", create_song_integration
         )
+
+        #GET
+        get_song_lambda = _lambda.Function(
+            self, "GetSongLambda",
+            layers = util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.get_song.handler.get",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role = lambda_role
+        )
+
+        songs_bucket.grant_read(get_song_lambda)
+
+        get_song_integration = apigw.LambdaIntegration(get_song_lambda)
+        song_id_resource.add_method("GET", get_song_integration)

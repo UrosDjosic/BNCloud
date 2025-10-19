@@ -53,11 +53,18 @@ export class AuthService {
 
       const helper = new JwtHelperService();
       const decoded = helper.decodeToken(idToken);
-      //getting user
-      return decoded['cognito:groups'][0];
+
+      const groups = decoded?.['cognito:groups'];
+      if (!groups || !Array.isArray(groups) || groups.length === 0) {
+        console.warn('No groups found in decoded token', decoded);
+        return '';
+      }
+
+      return groups[0];
     }
     return '';
   }
+
 
   isLoggedIn(): boolean {
     return localStorage.getItem('accessToken') != null && localStorage.getItem('idToken') != null;
