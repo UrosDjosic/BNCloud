@@ -18,6 +18,7 @@ import {UserList} from './user/user-list/user-list';
 import { VerifyAccComponent } from './user/verify-acc/verify-acc.component';
 import { Subscriptions } from './components/subscriptions/subscriptions';
 import {SongEditComponent} from './components/song-edit/song-edit';
+import {AdvancedEdit} from './components/advanced-edit/advanced-edit';
 
 
 const routes: Routes = [
@@ -38,7 +39,8 @@ const routes: Routes = [
   { path: 'album/:albumId', component: Album },
   { path: 'user-list/:userListId', component: UserList },
   { path: 'verify',component: VerifyAccComponent},
-  { path: '**', component: Error }
+  { path: 'advanced-edit/:songId/:audioUrl/:imageUrl', component: AdvancedEdit},
+  { path: '**', component: Error },
 ];
 
 @NgModule({

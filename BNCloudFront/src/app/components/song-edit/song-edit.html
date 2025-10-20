@@ -78,5 +78,16 @@
       </button>
     </div>
 
+    <!-- Confirmation Popup -->
+    <div class="confirm-popup" *ngIf="showConfirmPopup">
+      <div class="confirm-popup-content">
+        <p>Are you sure you want to discard all changes and move to the advanced editing stage?</p>
+        <div class="confirm-popup-buttons">
+          <button mat-stroked-button (click)="cancelConfirm()">No</button>
+          <button mat-stroked-button color="primary" (click)="confirmNavigate()">Yes</button>
+        </div>
+      </div>
+    </div>
+
   </mat-card>
 </div>

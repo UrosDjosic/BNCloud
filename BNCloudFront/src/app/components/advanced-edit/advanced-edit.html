@@ -1,0 +1,35 @@
+<div class="song-container">
+  <mat-card class="song-card mat-elevation-z6">
+    <div>
+      <h1>Original audio:</h1>
+      <p>{{audio}}</p>
+      <h1>Change audio:</h1>
+      <div class="file-input">
+        <label>Audio File:</label>
+        <input type="file" (change)="onFileSelected($event)" accept="audio/*" />
+      </div>
+
+      <div *ngIf="song.fileName" class="file-info">
+        <p><strong>File Name:</strong> {{ song.fileName }}</p>
+        <p><strong>Type:</strong> {{ song.fileType }}</p>
+        <p><strong>Size:</strong> {{ (song.fileSize || 0) / 1000 | number:'1.0-0' }} KB</p>
+        <p><strong>Modified:</strong> {{ song.modificationTime | date:'short' }}</p>
+      </div>
+      <br>
+      <form (ngSubmit)="updateAudio()">
+        <input type="submit" style="color: black !important;">
+      </form>
+      <br>
+      <hr>
+      <h1>Original cover:</h1>
+      <img [src]="image" alt="original image" style="height: 90px; width: 400px">
+      <br>
+      <h1>Change cover:</h1>
+      <form (ngSubmit)="updateImage()">
+        <input #fileInput type="file" accept="image/*">
+        <br><br>
+        <input type="submit" style="color: black !important;">
+      </form>
+    </div>
+  </mat-card>
+</div>
