@@ -23,4 +23,12 @@ export class SongService {
   updateSong(songId: string, updatedSong: any): Observable<DynamoSongResponse> {
     return this.http.put<DynamoSongResponse>(`${environment.apiHost}/song/${songId}`, updatedSong);
   }
+
+  audioUpdate(newAudio: any): Observable<object> {
+    return this.http.put<object>(`${environment.apiHost}/song/audio`, newAudio);
+  }
+
+  imageUpdate(newImage: any): Observable<object> {
+    return this.http.put<object>(`${environment.apiHost}/song/image`, newImage)
+  }
 }

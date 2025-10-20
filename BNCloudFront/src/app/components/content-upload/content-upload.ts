@@ -68,7 +68,7 @@ export class ContentUpload implements OnInit {
       song.fileType = file.type;
       song.fileSize = file.size;
       song.creationTime = new Date();
-      song.modificationTime = file.lastModified ? new Date(file.lastModified) : new Date();
+      song.modificationTime = song.creationTime; //intial
     }
     else {
       this.snackBar.open("You must upload a file smaller than 10MB!")

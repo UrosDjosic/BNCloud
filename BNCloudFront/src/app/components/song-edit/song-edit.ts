@@ -15,13 +15,16 @@ export class SongEditComponent implements OnInit {
   songId?: string;
   artists: any[] = [];
   availableGenres: any[] = [];
+  showConfirmPopup = false;
+  audioUrl?: string;
+  imageUrl?: string;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private ss: SongService,
     private as: ArtistService,
-    private gs: GenreService
+    private gs: GenreService,
   ) {}
 
   ngOnInit() {
@@ -36,6 +39,8 @@ export class SongEditComponent implements OnInit {
   loadSong(id: string) {
     this.ss.getSong(id).subscribe((res: any) => {
       this.song = { ...res, genresText: res.genres?.map((g: any) => g.name).join(', ') };
+      this.audioUrl = res.audioUrl;
+      this.imageUrl = res.imageUrl;
     });
   }
 
@@ -78,10 +83,21 @@ export class SongEditComponent implements OnInit {
   }
 
   uploadPicture() {
-
+    this.showConfirmPopup = true;
   }
 
   uploadSong() {
+    this.showConfirmPopup = true;
+  }
 
+  // User clicks "No"
+  cancelConfirm() {
+    this.showConfirmPopup = false;
+  }
+
+  // User clicks "Yes"
+  confirmNavigate() {
+    this.showConfirmPopup = false;
+    this.router.navigate([`/advanced-edit/${this.songId}/${encodeURIComponent(this.song.audioKey)}/${encodeURIComponent(this.imageUrl!)}`]);
   }
 }

@@ -8,7 +8,6 @@ import {HttpClientModule} from '@angular/common/http';
 import { Album } from './album/album';
 import { Artist } from './artist/artist';
 import { ArtistCrud } from './artist-crud/artist-crud';
-import { ContentRud } from './content-rud/content-rud';
 import { ContentUpload } from './content-upload/content-upload';
 import { Discover } from './discover/discover';
 import { Downloads } from './downloads/downloads';
@@ -45,7 +44,6 @@ import {MatProgressBar} from "@angular/material/progress-bar";
     Album,
     Artist,
     ArtistCrud,
-    ContentRud,
     ContentUpload,
     Discover,
     Downloads,

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ContentRud } from './content-rud';
+import { AdvancedEdit } from './advanced-edit';
 
-describe('ContentRud', () => {
-  let component: ContentRud;
-  let fixture: ComponentFixture<ContentRud>;
+describe('AdvancedEdit', () => {
+  let component: AdvancedEdit;
+  let fixture: ComponentFixture<AdvancedEdit>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ContentRud]
+      imports: [AdvancedEdit]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ContentRud);
+    fixture = TestBed.createComponent(AdvancedEdit);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -112,6 +112,46 @@ class SongApi(Construct):
 
         song_id_resource.add_method("PUT", update_song_integration)
 
+        # PUT /song/audio
+        song_audio_resource = song_resource.add_resource("audio")
+
+        update_song_audio_lambda = _lambda.Function(
+            self, "UpdateSongAudioLambda",
+            layers=util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.update_audio.handler.update_audio",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+
+        # Allow Lambda to upload to S3 and update DynamoDB
+        songs_bucket.grant_read_write(update_song_audio_lambda)
+        table.grant_read_write_data(update_song_audio_lambda)
+
+        update_song_audio_integration = apigw.LambdaIntegration(update_song_audio_lambda)
+        song_audio_resource.add_method("PUT", update_song_audio_integration)
+
+        # PUT /song/image
+        song_image_resource = song_resource.add_resource("image")
+
+        update_song_image_lambda = _lambda.Function(
+            self, "UpdateSongImageLambda",
+            layers=util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.update_image.handler.update_image",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+
+        # Allow Lambda to upload to S3 and update DynamoDB
+        songs_bucket.grant_read_write(update_song_image_lambda)
+        table.grant_read_write_data(update_song_image_lambda)
+
+        update_song_image_integration = apigw.LambdaIntegration(update_song_image_lambda)
+        song_image_resource.add_method("PUT", update_song_image_integration)
+
 
         # TRANSCRIBE (containerized faster-whisper)
         transcribe_lambda = _lambda.DockerImageFunction(
