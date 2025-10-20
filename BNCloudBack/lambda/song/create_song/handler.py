@@ -3,9 +3,11 @@ import uuid
 import boto3
 from datetime import datetime
 from boto3.dynamodb.conditions import Key
+import os
 
 
 dynamodb = boto3.resource('dynamodb')
+sqs = boto3.client('sqs')
 songs_table = dynamodb.Table('Songs')
 genre_table = dynamodb.Table('Genres')
 artists_table = dynamodb.Table('Artists')
@@ -117,6 +119,18 @@ def create(event, context):
         'audioKey': audio_key,
         'imageKey': image_key
     }
+
+    sqs.send_message(
+        QueueUrl=os.environ['QUEUE_URL'],
+        MessageBody=json.dumps({
+            "event_type": "new_song",
+            "song": {
+                'name': data['name'],
+                'genres': genres_full,
+                'artists': data.get('artists', []),
+            },
+        })
+    )
 
     return {
         'statusCode': 200,

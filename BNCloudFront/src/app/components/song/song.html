@@ -1,72 +1,83 @@
 <div class="song-container" *ngIf="song">
-  <mat-card class="song-card mat-elevation-z4">
+  <mat-card class="song-card mat-elevation-z6">
 
-    <!-- Song Header -->
-    <div class="song-header">
-      <img *ngIf="song.image" [src]="song.image" alt="{{ song.name }}" class="song-image" />
-      <div class="song-title-meta">
-        <h2 class="title">{{ song.name }}</h2>
-        <p class="file-name">{{ song.fileName }}</p>
-        <p class="genres" *ngIf="song.genres?.length">
-          <strong>Genres:</strong>
-          <span *ngFor="let g of song.genres; let last = last">
-            {{ g.name }}<span *ngIf="!last">, </span>
-          </span>
-        </p>
+    <div class="song-content">
+      <!-- LEFT SIDE -->
+      <div class="song-left">
+        <!-- Header -->
+        <div class="song-header">
+          <img
+            *ngIf="song.image"
+            [src]="song.image"
+            alt="{{ song.name }}"
+            class="song-image"
+          />
+          <div class="song-title-meta">
+            <h2 class="title">{{ song.name }}</h2>
+            <p class="file-name">{{ song.fileName }}</p>
+            <p class="genres" *ngIf="song.genres?.length">
+              <strong>Genres:</strong>
+              <span *ngFor="let g of song.genres; let last = last">
+                {{ g.name }}<span *ngIf="!last">, </span>
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Player -->
+        <div class="audio-player" *ngIf="song.audio">
+          <audio [src]="song.audio" controls></audio>
+        </div>
+
+        <!-- Metadata -->
+        <div class="metadata mat-subheading-1">
+          <p><strong>Created At:</strong> {{ song.creationTime | date:'medium' }}</p>
+          <p><strong>Last Modified:</strong> {{ song.modificationTime | date:'medium' }}</p>
+          <p>
+            <strong>Artists:</strong>
+            <span *ngFor="let artist of song.artists; let last = last">
+              <a *ngIf="artist.name" [routerLink]="['/artist', artist.id]">
+                {{ artist.name }}
+              </a>
+              <span *ngIf="!artist.name">UNKNOWN</span>{{ last ? '' : ', ' }}
+            </span>
+          </p>
+          <p>
+            <strong>Ratings:</strong>
+            <span *ngIf="song.ratings?.length; else noRatings">
+              {{ song.ratings.join(', ') }}
+            </span>
+            <ng-template #noRatings>Not rated yet</ng-template>
+          </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="action-buttons">
+          <button mat-stroked-button color="primary" (click)="subscribeSong()">Subscribe</button>
+          <button mat-stroked-button color="accent" (click)="addToUserList()">Add to My List</button>
+          <button mat-stroked-button color="warn" (click)="downloadSong()">Download</button>
+          <div class="crud-buttons">
+            <button mat-icon-button color="primary" (click)="editSong()">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteSong()">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-
-    <!-- Audio Player -->
-    <div class="audio-player" *ngIf="song.audio">
-      <audio [src]="song.audio" controls></audio>
+    <!-- RIGHT SIDE -->
+    <div class="song-right" *ngIf="song.transcript">
+      <div class="transcription-box">
+        <h3>Transcription</h3>
+        <textarea
+          class="transcription-textarea"
+          [value]="song.transcript || ''"
+          readonly
+          placeholder="Song lyrics or transcription will appear here...">
+          </textarea>
+      </div>
     </div>
-
-    <!-- Metadata -->
-    <div class="metadata mat-subheading-1">
-      <p><strong>Created At:</strong> {{ song.creationTime | date:'medium' }}</p>
-      <p><strong>Last Modified:</strong> {{ song.modificationTime | date:'medium' }}</p>
-      <p><strong>Artists:</strong>
-        <span *ngFor="let artist of song.artists; let last = last">
-          <a *ngIf="artist.name !== undefined" [routerLink]="['/artist', artist.id]">
-            {{artist.name}}
-          </a>{{ last ? '' : ', ' }}
-          <p *ngIf="artist.name === undefined">
-            UNKNOWN
-          </p>{{ last ? '' : ', ' }}
-
-</span>
-      </p>
-      <p><strong>Ratings:</strong>
-        <span *ngIf="song.ratings?.length; else noRatings">
-          {{ song.ratings.join(', ') }}
-        </span>
-        <ng-template #noRatings>Not rated yet</ng-template>
-      </p>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-      <button mat-stroked-button color="primary" (click)="subscribeSong()">
-        Subscribe
-      </button>
-      <button mat-stroked-button color="accent" (click)="addToUserList()">
-        Add to My List
-      </button>
-      <button mat-stroked-button color="warn" (click)="downloadSong()">
-        Download
-      </button>
-      <span class="rating-buttons">
-        <button mat-stroked-button *ngFor="let s of [1,2,3,4,5]" (click)="rateSong(s)">
-          {{ s }} Star{{ s > 1 ? 's' : '' }}
-        </button>
-      </span>
-      <button mat-stroked-button color="primary" (click)="editSong()">
-        Edit
-      </button>
-      <button mat-stroked-button color="warn" (click)="deleteSong()">
-        Delete
-      </button>
-    </div>
-
   </mat-card>
 </div>

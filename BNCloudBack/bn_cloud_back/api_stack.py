@@ -11,9 +11,11 @@ from api.auth_api import AuthApi
 from api.artist_api import ArtistApi
 from api.song_api import SongApi
 from api.genres_api import GenreApi
+from api.subscriptions_api import SubscriptionsApi
 
 class ApiStack(Stack):
-    def __init__(self, scope: Construct, id: str, *, user_pool : cognito.UserPool, user_pool_client,tables, songs_bucket, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, user_pool : cognito.UserPool, user_pool_client,tables, songs_bucket, transcribe_queue,
+                 notification_queue, **kwargs):
         super().__init__(scope, id, **kwargs)
 
         api = apigw.RestApi(
@@ -48,7 +50,9 @@ class ApiStack(Stack):
             api = root_api,
             table = tables['song'],
             other_tables= tables,
-            songs_bucket = songs_bucket
+            songs_bucket = songs_bucket,
+            transcribe_queue = transcribe_queue,
+            notification_queue= notification_queue
         )
         album_api = AlbumApi(
             self,
@@ -62,4 +66,11 @@ class ApiStack(Stack):
             "GenreApi",
             api = root_api,
             table = tables['genre']
+        )
+        subscriptions_api = SubscriptionsApi(
+            self,
+            "SubscriptionsApi",
+            api = root_api,
+            table = tables['subscription'],
+            notification_queue= notification_queue
         )
