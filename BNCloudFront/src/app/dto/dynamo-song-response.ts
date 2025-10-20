@@ -4,5 +4,6 @@ export interface DynamoSongResponse {
   imageUploadUrl: string,
   s3Bucket: string,
   audioKey: string,
-  imageKey: string
+  imageKey: string,
+  newGenres?: { id: string; name: string }[];
 }
