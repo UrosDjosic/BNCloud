@@ -11,7 +11,6 @@ import { Error } from './components/error/error';
 import { Downloads } from './components/downloads/downloads';
 import { Discover } from './components/discover/discover';
 import { ContentUpload } from './components/content-upload/content-upload';
-import { ContentRud } from './components/content-rud/content-rud';
 import { ArtistCrud } from './components/artist-crud/artist-crud';
 import { Artist } from './components/artist/artist';
 import { Album } from './components/album/album';
@@ -34,7 +33,6 @@ const routes: Routes = [
   { path: 'downloads', component: Downloads },
   { path: 'discover', component: Discover },
   { path: 'content-upload', component: ContentUpload },
-  { path: 'content-rud', component: ContentRud },
   { path: 'artist-crud', component: ArtistCrud },
   { path: 'artist/:artistId', component: Artist },
   { path: 'album/:albumId', component: Album },

@@ -120,7 +120,7 @@ def create(event, context):
         'imageKey': image_key
     }
 
-    sqs.send_message(
+    '''''sqs.send_message(
         QueueUrl=os.environ['QUEUE_URL'],
         MessageBody=json.dumps({
             "event_type": "new_song",
@@ -130,7 +130,7 @@ def create(event, context):
                 'artists': data.get('artists', []),
             },
         })
-    )
+    )'''''
 
     return {
         'statusCode': 200,
