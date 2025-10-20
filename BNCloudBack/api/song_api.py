@@ -58,7 +58,10 @@ class SongApi(Construct):
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="song.create_song.handler.create",
             code=_lambda.Code.from_asset("lambda"),
-            environment=env,
+            environment={
+                "QUEUE_URL": notification_queue.queue_url,
+                "TABLE_NAME": "Songs",
+            },
             role = lambda_role
         )
 

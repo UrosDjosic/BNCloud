@@ -26,6 +26,7 @@ def create(event, context):
 
     genres_input = data.get('genres', [])
     genres_full = []
+    new_genres = []
 
     for genre in genres_input:
         if isinstance(genre, dict):
@@ -38,16 +39,14 @@ def create(event, context):
         if not genre_name:
             continue  # skip empty genre names
 
-        # Check if genre exists
+        # If ID is missing, check if genre already exists by scanning (safer)
         if not genre_id:
-            existing = genre_table.query(
-                IndexName="EntityTypeIndex",
-                KeyConditionExpression=Key('EntityType').eq('Genre') & Key('name').eq(genre_name)
+            existing = genre_table.scan(
+                FilterExpression=Key('EntityType').eq('Genre') & Key('name').eq(genre_name)
             )
             if existing.get('Items'):
                 genre_id = existing['Items'][0]['id']
             else:
-                # Create new genre in table
                 genre_id = str(uuid.uuid4())
                 genre_table.put_item(
                     Item={
@@ -56,8 +55,11 @@ def create(event, context):
                         'EntityType': 'Genre'
                     }
                 )
+                print(f"✅ Created new genre: {genre_name} ({genre_id})")
+                new_genres.append({'id': genre_id, 'name': genre_name})
 
         genres_full.append({'id': genre_id, 'name': genre_name})
+
 
     # DynamoDB item
     item = {
@@ -117,7 +119,8 @@ def create(event, context):
         'imageUploadUrl': image_url,
         's3Bucket': s3_bucket_name,
         'audioKey': audio_key,
-        'imageKey': image_key
+        'imageKey': image_key,
+        'newGenres' : new_genres
     }
 
     '''''sqs.send_message(
