@@ -16,9 +16,8 @@ from faster_whisper import WhisperModel
 s3 = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
 
-# Model config (download to /tmp to avoid read-only FS)
 MODEL_NAME = os.environ.get('WHISPER_MODEL', 'base')
-COMPUTE_TYPE = os.environ.get('WHISPER_COMPUTE', 'int8_float16')  # int8 / int8_float16
+COMPUTE_TYPE = os.environ.get('WHISPER_COMPUTE', 'int8_float16')  
 # Optional decoding/config hints
 WHISPER_LANGUAGE = os.environ.get('WHISPER_LANGUAGE','')  # e.g., 'sr' for Serbian
 WHISPER_TASK = os.environ.get('WHISPER_TASK', 'transcribe')  # 'transcribe' or 'translate'
@@ -56,7 +55,6 @@ def _transcribe(local_path: str):
         flush=True,
     )
     
-    # Build kwargs dynamically so unset envs don’t override library defaults
     kwargs = dict(
         task=WHISPER_TASK,
         vad_filter=WHISPER_VAD,
@@ -101,7 +99,6 @@ def _collapse_repeats(text: str, max_word_repeat: int = 3) -> str:
             prev = tok
         if run <= max_word_repeat:
             out.append(tok)
-    # Join and normalize spaces
     return " ".join(out)
 
 

@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {ArtistDTO} from '../../models/artist';
 import {ArtistService} from '../../services/artist-service';
 import {SongService} from '../../services/song-service';
 import {DynamoSongResponse} from '../../dto/dynamo-song-response';
@@ -94,15 +93,20 @@ export class ContentUpload implements OnInit {
   /** Convert comma-separated text to array */
   updateGenres(index: number): void {
     const song = this.uploads[index];
-    song.genres = song.genresText
+
+    const newGenres = song.genresText
       ? song.genresText
         .split(',')
         .map(g => g.trim())
         .filter(g => g !== '')
         .map(g => ({ id: '', name: g }))
       : [];
+    const merged = [...song.genres, ...newGenres];
+    song.genres = merged.filter(
+      (g, i, arr) => arr.findIndex(x => x.name.toLowerCase() === g.name.toLowerCase()) === i
+    );
+    console.log(song.genres);
   }
-
   /** Add another song input block */
   addAnotherSong(): void {
     this.uploads.push({ genres: [], artists: [], genresText: '', image: null, file: null});
@@ -176,6 +180,13 @@ export class ContentUpload implements OnInit {
               this.ss.uploadSongMetadata(song).subscribe({
                 next: async (response: DynamoSongResponse) => {
                   try {
+                    console.log(response.newGenres);
+                    upload.genres = upload.genres.map((g) => {
+                      const match = response.newGenres!.find(
+                        (ng) => ng.name.toLowerCase() === g.name.toLowerCase()
+                      );
+                      return match ? match : g; // REPLACING WITH OBJECT!
+                    });
                     await Promise.all([
                       this.uploadToS3(upload.file!, response.audioUploadUrl),
                       this.uploadToS3(upload.image!, response.imageUploadUrl),
@@ -192,7 +203,6 @@ export class ContentUpload implements OnInit {
         );
 
 
-        // 2️⃣ Aggregate genres & artists across all uploads
         const allGenres = [
           ...new Set(this.uploads.flatMap((u) => u.genres))
         ];
@@ -200,7 +210,7 @@ export class ContentUpload implements OnInit {
           ...new Set(this.uploads.flatMap((u) => u.artists))
         ];
 
-        // 3️⃣ Create album object
+        // Album object with aggregated genres!
         const album = {
           name: this.uploads[0].name || 'Untitled Album',
           genres: allGenres,
