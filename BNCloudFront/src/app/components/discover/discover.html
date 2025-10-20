@@ -3,6 +3,18 @@
     <h2 class="title">
       <mat-icon>library_music</mat-icon> Discover Music by Genre
     </h2>
+    <button *ngIf="this.selectedGenre && this.email"
+            style="background: #333333 !important;
+            color: whitesmoke;
+            max-width: 20rem;
+            justify-self: center;
+            align-self: center;
+            margin: 1rem;"
+            mat-raised-button
+            (click)="subscribeToGenre()">
+      <mat-icon>subscriptions</mat-icon>
+      Subscribe to {{this.selectedGenre}}
+    </button>
 
     <!-- Genre Select -->
     <mat-form-field appearance="outline" class="genre-select">

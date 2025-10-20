@@ -6,9 +6,12 @@
       <mat-list>
         <mat-list-item
           *ngFor="let item of subscriptions"
-          (click)="navigate(item)"
           class="subscription-item">
-          <span class="item-type">{{ item.type | titlecase }}:</span> {{ item.name }}
+          <span (click)="navigate(item)" class="item-type">{{ item.sub_type | titlecase }}:</span> {{ item.subject_name }}
+          <button (click)="unsubscribeClick(item)" class="unsubscribe-btn" mat-raised-button>
+            <mat-icon>unsubscribe</mat-icon>
+            Unsubscribe
+          </button>
         </mat-list-item>
       </mat-list>
     </div>

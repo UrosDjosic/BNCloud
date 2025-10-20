@@ -1,0 +1,26 @@
+.dialog-container {
+  background-color: #121212;
+  color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+h2[mat-dialog-title] {
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+mat-dialog-content {
+  color: #cccccc;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+mat-dialog-actions button {
+  color: #fff;
+}
+
+mat-dialog-actions button[mat-raised-button] {
+  background-color: #d32f2f; /* red accent for 'Yes' */
+}

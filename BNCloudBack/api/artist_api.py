@@ -159,8 +159,8 @@ class ArtistApi(Construct):
             role=lambda_role
         )
         delete_artist_integration = apigw.LambdaIntegration(delete_artist_lambda)
-        artist_resource.add_method(
-            "DELETE",delete_artist_integration
+        artist_id_resource.add_method(
+            "PUT",delete_artist_integration
         )
 
         delete_song_artist_lambda.grant_invoke(delete_artist_lambda)

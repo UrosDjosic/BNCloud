@@ -34,6 +34,8 @@
 .subscription-item {
   cursor: pointer;
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
 }
 
 .subscription-item:hover {
@@ -43,4 +45,13 @@
 .item-type {
   font-weight: bold;
   margin-right: 0.5rem;
+}
+
+.unsubscribe-btn {
+  margin-left: auto;            /* pushes it to the far right */
+  background: #333333 !important;
+  color: whitesmoke;
+  max-width: 20rem;
+  justify-self: center;
+  align-self: center;
 }

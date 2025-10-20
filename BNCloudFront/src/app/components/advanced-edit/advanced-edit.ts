@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {DatePipe, DecimalPipe, NgForOf, NgIf} from '@angular/common';
+import {CommonModule, DatePipe, DecimalPipe, NgForOf, NgIf} from '@angular/common';
 import {MatCard} from '@angular/material/card';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {SongService} from '../../services/song-service';
@@ -13,7 +13,8 @@ import {FormsModule} from '@angular/forms';
     MatCard,
     DatePipe,
     DecimalPipe,
-    FormsModule
+    FormsModule,
+    CommonModule
   ],
   templateUrl: './advanced-edit.html',
   styleUrl: './advanced-edit.css'

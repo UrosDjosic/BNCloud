@@ -19,7 +19,7 @@ class SubscriptionsApi(Construct):
 
 
         lambda_role = iam.Role(
-            self, "SongsLambdaRole",
+            self, "SubscriptionsLambdaRole",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com")
         )
         lambda_role.add_managed_policy(
@@ -35,10 +35,19 @@ class SubscriptionsApi(Construct):
                     "dynamodb:GetItem",
                     "dynamodb:PutItem",
                     "dynamodb:UpdateItem",
-                    "dynamodb:DeleteItem"
+                    "dynamodb:DeleteItem",
+                    "sns:CreateTopic",
+                    "sns:Subscribe",
+                    "sns:Publish",
+                    "sns:GetTopicAttributes",
+                    "sns:ListSubscriptionsByTopic",
+                    "sns:Unsubscribe"   
+
                 ],
                 resources=[
-                    table.table_arn
+                    table.table_arn,
+                    f"{table.table_arn}/index/user_email-index",
+                    "arn:aws:sns:eu-central-1:971422704654:*"
                 ]
             )
         )
@@ -49,6 +58,7 @@ class SubscriptionsApi(Construct):
             compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
             description="Shared utilities"
         )]
+
 
         #SUBSCRIBE
         subscribe_lambda = _lambda.Function(
@@ -66,6 +76,38 @@ class SubscriptionsApi(Construct):
             "POST",subscribe_integration
         )
 
+        #UNSUBSCRIBE
+        unsubscribe_lambda = _lambda.Function(
+            self, "UnsubscribeLambda",
+            layers = util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="subscription.unsubscribe.handler.unsubscribe",
+            code=_lambda.Code.from_asset("lambda"),
+            role = lambda_role
+        )
+        unsubscribe_integration = apigw.LambdaIntegration(
+            unsubscribe_lambda
+        )
+        subscription_resource.add_method(
+            "PUT",unsubscribe_integration
+        )
+
+
+        #GET USER SUBSCRIPTIONS
+        get_subscriptions_lambda = _lambda.Function(
+            self,"GetSubscriptions",
+            layers = util_layer,
+            runtime = _lambda.Runtime.PYTHON_3_11,
+            handler="subscription.get_subscriptions.handler.get",
+            code=_lambda.Code.from_asset("lambda"),
+            role = lambda_role
+        )
+        get_subscriptions_integration = apigw.LambdaIntegration(
+            get_subscriptions_lambda
+        )
+        subscription_resource.add_resource("{userEmail}").add_method(
+            "GET",get_subscriptions_integration
+        )
 
         #NOTIFY
         notify_lambda = _lambda.Function(
@@ -73,5 +115,9 @@ class SubscriptionsApi(Construct):
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="subscription.notify.handler.notify",
             code=_lambda.Code.from_asset("lambda"),
+            environment = {
+                'AWS_ACCOUNT_ID' : '971422704654',
+            },
+            role = lambda_role
         )
         notify_lambda.add_event_source(lambda_events.SqsEventSource(notification_queue))

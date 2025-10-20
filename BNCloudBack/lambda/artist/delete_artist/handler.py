@@ -7,8 +7,8 @@ lambda_client = boto3.client('lambda')
 dynamodb = boto3.resource('dynamodb')
 
 def delete(event, context):
-    body = json.loads(event.get("body", "{}"))
-    artist_id = body.get("artist_id")
+    path_params = event.get('pathParameters') or {}
+    artist_id = path_params.get('artistId')
 
     if not artist_id:
         return create_response(400, {"error": "artist_id is required"})
