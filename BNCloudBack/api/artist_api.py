@@ -116,7 +116,7 @@ class ArtistApi(Construct):
         delete_song_artist_lambda = _lambda.Function(
             self, "DeleteArtistFromSongs",
             runtime=_lambda.Runtime.PYTHON_3_11,
-            handler="delete_artist._from_songs.handler.delete",
+            handler="delete_artist.from_songs.handler.delete",
             code=_lambda.Code.from_asset("lambda/artist"),
             environment=env,
         )

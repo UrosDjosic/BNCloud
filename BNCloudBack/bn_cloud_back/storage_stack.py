@@ -9,6 +9,7 @@ from aws_cdk import (
     aws_dynamodb as dynamodb,
     aws_apigateway as apigateway,
     aws_s3 as s3,
+    aws_s3_notifications as s3n,
     RemovalPolicy
 )
 
@@ -105,6 +106,26 @@ class StorageStack(Stack):
         self.tables['genre'] = genre_table
 
 
+        #--------------- SUBSCRIPTIONS TABLE -------------------------
+        subscription_table = dynamodb.Table(
+            self, "Subscriptions",
+            table_name="Subscriptions",
+            partition_key=dynamodb.Attribute(
+                name="subject_id",  
+                type=dynamodb.AttributeType.STRING
+            ),
+            sort_key=dynamodb.Attribute(
+                name="user_email",  
+                type=dynamodb.AttributeType.STRING
+            ),
+            billing_mode=dynamodb.BillingMode.PROVISIONED,
+            read_capacity=1,
+            write_capacity=1
+        )
+        self.tables['subscription'] = subscription_table
+
+
+
 
         #--------------- S3 BUCKET CREATION WITH CORS ----------------
         bucket = s3.Bucket(
@@ -146,4 +167,17 @@ class StorageStack(Stack):
             ]
         )
         self.songs_bucket = bucket
+
+        transcribe_queue = sqs.Queue(
+            self,
+            "SongsTranscribeQueue",
+            visibility_timeout=Duration.minutes(15),
+            retention_period=Duration.days(2),
+        )
+        self.transcribe_queue = transcribe_queue
+
+        bucket.add_event_notification(
+            s3.EventType.OBJECT_CREATED,
+            s3n.SqsDestination(transcribe_queue),
+        )
 

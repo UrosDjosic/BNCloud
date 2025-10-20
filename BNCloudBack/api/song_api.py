@@ -1,7 +1,15 @@
 from constructs import Construct
-from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb
+from aws_cdk import (aws_lambda as _lambda,
+                     aws_apigateway as apigw,
+                     aws_iam as iam,
+                     aws_dynamodb as dynamodb,
+                     aws_s3 as s3,
+                     Duration,
+                     Size)
+from aws_cdk import aws_lambda_event_sources as lambda_event_sources
 class SongApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,other_tables, songs_bucket, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,other_tables, 
+                 songs_bucket, transcribe_queue,notification_queue, **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Songs'
@@ -54,6 +62,8 @@ class SongApi(Construct):
             role = lambda_role
         )
 
+        notification_queue.grant_send_messages(create_song_lambda)
+
         songs_bucket.grant_put(create_song_lambda)
 
         create_song_integration = apigw.LambdaIntegration(create_song_lambda)
@@ -83,13 +93,13 @@ class SongApi(Construct):
             self, "UpdateSongLambda",
             layers=util_layer,
             runtime=_lambda.Runtime.PYTHON_3_11,
-            handler="song.update_song.handler.update", 
+            handler="song.update_song.handler.update",
             code=_lambda.Code.from_asset("lambda"),
             environment=env,
             role=lambda_role
         )
 
-        songs_bucket.grant_read_write(update_song_lambda)  
+        songs_bucket.grant_read_write(update_song_lambda)
         table.grant_read_write_data(update_song_lambda)
         other_tables['artist'].grant_read_write_data(update_song_lambda)
         other_tables['genre'].grant_read_write_data(update_song_lambda)
@@ -98,4 +108,33 @@ class SongApi(Construct):
         update_song_integration = apigw.LambdaIntegration(update_song_lambda)
 
         song_id_resource.add_method("PUT", update_song_integration)
-    
+
+
+        # TRANSCRIBE (containerized faster-whisper)
+        transcribe_lambda = _lambda.DockerImageFunction(
+            self,
+            "TranscribeSongLambda",
+            code=_lambda.DockerImageCode.from_image_asset(
+                "lambda/song/transcribe_container"
+            ),
+            role=lambda_role,
+            environment={
+                "TABLE_NAME": 'Songs',
+                "S3_BUCKET_NAME": songs_bucket.bucket_name,
+                "WHISPER_MODEL": "medium",
+                "WHISPER_COMPUTE": "int8",
+                "WHISPER_BEAM_SIZE": "5",
+                "WHISPER_BEST_OF": "5",
+            },
+            memory_size=3008,
+            timeout=Duration.minutes(15),
+            ephemeral_storage_size=Size.gibibytes(10),
+        )
+        # Allow Lambda to read audio objects
+        songs_bucket.grant_read(transcribe_lambda)
+        # Ensure Lambda can poll and delete messages from the queue
+        transcribe_queue.grant_consume_messages(transcribe_lambda)
+        # Consume S3 events via SQS to avoid cross-stack cycle
+        transcribe_lambda.add_event_source(
+            lambda_event_sources.SqsEventSource(transcribe_queue, batch_size=1)
+        )

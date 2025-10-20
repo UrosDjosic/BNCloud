@@ -9,3 +9,12 @@ def invoke_target(fn, payload):
     )
     result = json.loads(response['Payload'].read())
     return result
+
+def invoke_target_async(fn, payload):
+    # Fire-and-forget invocation; do not read Payload
+    lambda_client.invoke(
+        FunctionName=fn,
+        InvocationType='Event',  # async
+        Payload=json.dumps(payload)
+    )
+    return {"invoked": True}

@@ -39,6 +39,7 @@ export class Song implements OnInit {
         creationTime: res.creationTime,
         modificationTime: res.modificationTime,
         artists: res.artists,
+        transcript : res.transcript,
         fileName: audioKey.split('/').at(-1), // safely get filename
         audio: null,  // placeholder
         image: null   // placeholder

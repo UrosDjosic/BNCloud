@@ -1,8 +1,5 @@
 import boto3, json, os
-
-import boto3, json, os
-from concurrent.futures import ThreadPoolExecutor
-from helpers.invoke_lambda import invoke_target
+from helpers.invoke_lambda import invoke_target_async
 from helpers.create_response import create_response
 
 
@@ -12,6 +9,9 @@ dynamodb = boto3.resource('dynamodb')
 def delete(event, context):
     body = json.loads(event.get("body", "{}"))
     artist_id = body.get("artist_id")
+
+    if not artist_id:
+        return create_response(400, {"error": "artist_id is required"})
 
     table_name = os.environ["TABLE_NAME"]
     table = dynamodb.Table(table_name)
@@ -37,7 +37,8 @@ def delete(event, context):
         (os.environ["DELETE_ARTIST_FROM_GENRES"], {"artist_id": artist_id, "genres": genres}),
     ]
     for fn, payload in target_payloads:
-        invoke_target(fn, payload)
+        # Asynchronous invoke; do not block
+        invoke_target_async(fn, payload)
     table.delete_item(Key={"id": artist_id})
 
     return create_response(200,{'message' : 'Deleted artist and references successfully!'})
