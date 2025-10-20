@@ -38,10 +38,8 @@ export class ArtistService {
     return this.http.get<object>(`${environment.apiHost}/artist/${artistId}`)
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${environment.apiHost}/artist`, {
-      body: { artist_id: id }
-    });
+  delete(artistId: string) {
+    return this.http.put(`${environment.apiHost}/artist/${artistId}`,{});
   }
 
 }

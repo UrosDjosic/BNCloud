@@ -120,7 +120,17 @@ class StorageStack(Stack):
             ),
             billing_mode=dynamodb.BillingMode.PROVISIONED,
             read_capacity=1,
-            write_capacity=1
+            write_capacity=1,
+        )
+        subscription_table.add_global_secondary_index(
+            index_name="user_email-index",
+            partition_key=dynamodb.Attribute(
+                name="user_email",
+                type=dynamodb.AttributeType.STRING
+            ),
+            projection_type=dynamodb.ProjectionType.ALL,
+            read_capacity=5,
+            write_capacity=5
         )
         self.tables['subscription'] = subscription_table
 

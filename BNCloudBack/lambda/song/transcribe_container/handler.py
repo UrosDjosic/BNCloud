@@ -117,10 +117,23 @@ def _iter_s3_records(event):
             if rec.get('s3'):
                 yield rec
 
+def has_lyrics(local_path: str, model) -> bool:
+    # Run a quick segment analysis
+    segments, info = model.transcribe(local_path, beam_size=1, best_of=1, word_timestamps=False)
+    total_speech = sum(seg.end - seg.start for seg in segments)
+    duration = info.duration
+    speech_ratio = total_speech / duration
+    print(f"Speech ratio: {speech_ratio:.2f}")
+
+    # If less than 10% of the file has detected speech, treat it as instrumental
+    return speech_ratio > 0.1
+
 
 def transcribe(event, context):
     table = dynamodb.Table(os.environ.get('TABLE_NAME', 'Songs'))
     bucket = os.environ.get('S3_BUCKET_NAME')
+
+    model = _get_model()
 
     processed = 0
     for rec in _iter_s3_records(event):
@@ -151,7 +164,11 @@ def transcribe(event, context):
 
             print("Downloading audio to", local_path, flush=True)
             s3.download_file(bucket, key, local_path)
-            text = _transcribe(local_path)
+            if has_lyrics(local_path,model):
+                text = _transcribe(local_path)
+            else:
+                print("No lyrics detected — skipping transcription.")
+                text = ""
             print(f"Transcription complete. chars={len(text)}", flush=True)
 
             table.update_item(
