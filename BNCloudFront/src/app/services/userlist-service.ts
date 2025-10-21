@@ -12,7 +12,7 @@ export class UserlistService {
   constructor(private http: HttpClient) {}
 
   getUsersUserlists(userId: string): Observable<object> {
-    return this.http.get(`${environment.apiHost}/userlist/user/${userId}`)
+    return this.http.get<object>(`${environment.apiHost}/userlist/user/${userId}`)
   }
 
   createUserlist(request: any): Observable<object> {
@@ -24,6 +24,8 @@ export class UserlistService {
   }
 
   updateUserlist(userlistId: string, song: string): Observable<object> {
-    return this.http.put<object>(`${environment.apiHost}/userlist/${userlistId}`, song);
+    return this.http.put<object>(`${environment.apiHost}/userlist/${userlistId}`, {
+      song: song
+    });
   }
 }

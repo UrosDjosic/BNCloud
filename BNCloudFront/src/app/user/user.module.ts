@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatListModule } from '@angular/material/list';
-import { MatDialogModule } from '@angular/material/dialog';
+import {MatDialogActions, MatDialogContent, MatDialogModule} from '@angular/material/dialog';
 import {Register} from './register/register';
 import {Login} from './login/login';
 import {Profile} from './profile/profile';
@@ -40,6 +40,8 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     MatSnackBarModule,
     MatDatepickerModule,
     FormsModule,
+    MatDialogContent,
+    MatDialogActions,
   ]
 })
 export class UserModule {}

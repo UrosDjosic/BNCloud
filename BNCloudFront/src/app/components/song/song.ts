@@ -24,6 +24,10 @@ export class Song implements OnInit {
   hoverRating = 0;
   avgRating = 0;
 
+  showUserListDropdown = false;
+  userlistId?: string;
+  usersLists?: any;
+
   constructor(private route: ActivatedRoute, private router: Router, private ss: SongService, private us: UserlistService, private snackbar: MatSnackBar) {}
 
   ngOnInit() {
@@ -31,6 +35,9 @@ export class Song implements OnInit {
     if (token) {
       const claims = jwtDecode<JwtClaims>(token);
       this.user = claims.sub;
+      if (this.user) {
+        this.loadUsersLists();
+      }
     }
     this.route.paramMap.subscribe(params => {
       this.songId = params.get('songId') || undefined;
@@ -128,8 +135,25 @@ export class Song implements OnInit {
     });
   }
 
+  loadUsersLists() {
+    this.us.getUsersUserlists(this.user).subscribe({
+      next: (res: any) => {this.usersLists = res.usersLists; console.log(this.usersLists);},
+      error: (err) => {console.log(err)}
+    })
+  }
+
+  selectUserList() {
+    this.showUserListDropdown = true;
+  }
+
+  onUserListSelected(selectedId: string) {
+    this.userlistId = selectedId;
+    this.showUserListDropdown = false;
+    this.addToUserList();
+  }
+
   addToUserList() {
-    this.us.updateUserlist(this.userlistId, this.songId).subscribe({
+    this.us.updateUserlist(this.userlistId!, this.songId!).subscribe({
       next: result => {this.snackbar.open("Added.", 'OK')},
       error: err => {this.snackbar.open("Failed to add.", ":(")}
     });

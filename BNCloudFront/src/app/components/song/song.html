@@ -53,7 +53,7 @@
 
         <!-- Actions -->
         <div class="action-buttons">
-          <button mat-stroked-button color="accent" (click)="addToUserList()">Add to My List</button>
+          <button mat-stroked-button color="accent" (click)="selectUserList()">Add to My List</button>
           <button mat-stroked-button color="warn" (click)="downloadSong()">Download</button>
           <div class="crud-buttons">
             <button mat-icon-button color="primary" (click)="editSong()">
@@ -85,6 +85,16 @@
         </p>
       </div>
     </div>
+      <div *ngIf="showUserListDropdown" class="userlist-dropdown">
+        <mat-form-field appearance="fill" color="accent">
+          <mat-label>Select a list</mat-label>
+          <mat-select (selectionChange)="onUserListSelected($event.value)">
+            <mat-option *ngFor="let list of usersLists" [value]="list.id">
+              {{ list.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
   </div>
     <!-- RIGHT SIDE -->
     <div class="song-right" *ngIf="song.transcript">

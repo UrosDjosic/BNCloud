@@ -12,7 +12,7 @@ def create(event, context):
     # Generate a unique ID for the userlist
     userlist_id = str(uuid.uuid4())
 
-    if not data.get('name') or not data.get('user') or not data.get('songs'):
+    if 'name' not in data or 'user' not in data or 'songs' not in data:
         return {
             'statusCode': 400,
             'body': json.dumps({'message': 'Missing required fields: name, user, songs'}),

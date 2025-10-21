@@ -12,7 +12,7 @@ class UserlistApi(Construct):
         }   
         userlist_resource = api.add_resource("userlist")
         userlist_id_resource = userlist_resource.add_resource("{userlistId}")
-        userlist_user_resource = userlist_id_resource.add_resource("user")
+        userlist_user_resource = userlist_resource.add_resource("user")
         userlist_user_id_resource = userlist_user_resource.add_resource("{userId}")
 
         util_layer =[ _lambda.LayerVersion(

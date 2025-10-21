@@ -14,6 +14,19 @@
     <button mat-raised-button (click)="createList()" style="margin-bottom: 0.5rem; margin-top: 0.5rem; width: fit-content; align-self: center">
       +
     </button>
+    <ng-template #newListDialog>
+      <h2 mat-dialog-title>Create New List</h2>
+      <mat-dialog-content>
+        <mat-form-field appearance="fill" style="width: 100%;">
+          <mat-label>List Name</mat-label>
+          <input matInput [(ngModel)]="newListName" />
+        </mat-form-field>
+      </mat-dialog-content>
+      <mat-dialog-actions align="end">
+        <button mat-button (click)="closeDialog()">Cancel</button>
+        <button mat-button color="primary" [disabled]="!newListName" (click)="confirmDialog()">Create</button>
+      </mat-dialog-actions>
+    </ng-template>
     <div class="lists-container">
       <mat-list>
         <mat-list-item *ngFor="let list of userLists" (click)="goToList(list.id)" class="list-item">
