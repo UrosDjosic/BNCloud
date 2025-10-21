@@ -4,6 +4,7 @@ import {SongService} from '../../services/song-service';
 import {jwtDecode} from 'jwt-decode';
 import {JwtClaims} from '../../models/jwt-claims';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {UserlistService} from '../../services/userlist-service';
 
 @Component({
   selector: 'app-song',
@@ -23,13 +24,20 @@ export class Song implements OnInit {
   hoverRating = 0;
   avgRating = 0;
 
-  constructor(private route: ActivatedRoute, private router: Router, private ss: SongService, private snackbar: MatSnackBar) {}
+  showUserListDropdown = false;
+  userlistId?: string;
+  usersLists?: any;
+
+  constructor(private route: ActivatedRoute, private router: Router, private ss: SongService, private us: UserlistService, private snackbar: MatSnackBar) {}
 
   ngOnInit() {
     const token = localStorage.getItem('idToken');
     if (token) {
       const claims = jwtDecode<JwtClaims>(token);
       this.user = claims.sub;
+      if (this.user) {
+        this.loadUsersLists();
+      }
     }
     this.route.paramMap.subscribe(params => {
       this.songId = params.get('songId') || undefined;
@@ -127,15 +135,28 @@ export class Song implements OnInit {
     });
   }
 
-  subscribeSong() {
-    // Placeholder
-    // this.userService.subscribeSong(this.songId).subscribe(...)
-    console.log('Subscribed to song');
+  loadUsersLists() {
+    this.us.getUsersUserlists(this.user).subscribe({
+      next: (res: any) => {this.usersLists = res.usersLists; console.log(this.usersLists);},
+      error: (err) => {console.log(err)}
+    })
+  }
+
+  selectUserList() {
+    this.showUserListDropdown = true;
+  }
+
+  onUserListSelected(selectedId: string) {
+    this.userlistId = selectedId;
+    this.showUserListDropdown = false;
+    this.addToUserList();
   }
 
   addToUserList() {
-    // Placeholder
-    console.log('Added to user list');
+    this.us.updateUserlist(this.userlistId!, this.songId!).subscribe({
+      next: result => {this.snackbar.open("Added.", 'OK')},
+      error: err => {this.snackbar.open("Failed to add.", ":(")}
+    });
   }
 
   downloadSong() {

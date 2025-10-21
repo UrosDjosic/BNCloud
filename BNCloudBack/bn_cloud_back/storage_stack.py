@@ -134,6 +134,19 @@ class StorageStack(Stack):
         )
         self.tables['subscription'] = subscription_table
 
+        #----------- USERLISTS TABLE --------------------
+        userlist_table = dynamodb.Table(
+            self, "userlists",
+            table_name="Userlists",
+            partition_key=dynamodb.Attribute(
+                name="id",
+                type=dynamodb.AttributeType.STRING
+            ),
+            billing_mode=dynamodb.BillingMode.PROVISIONED,
+            read_capacity=1,
+            write_capacity=1
+        )
+        self.tables['userlist'] = userlist_table
 
 
 

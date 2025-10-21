@@ -1,18 +1,28 @@
-import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { SongService } from '../../services/song-service';
+import { forkJoin, Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import {UserlistService} from '../../services/userlist-service';
 
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.html',
-  styleUrl: './user-list.css',
+  styleUrls: ['./user-list.css'],
   standalone: false
 })
 export class UserList implements OnInit {
 
   userListId?: string;
-  userSongs: S[] = [];
+  userListName: string = '';
+  userSongs: Song[] = [];
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private songService: SongService,
+    private us: UserlistService
+  ) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -24,34 +34,43 @@ export class UserList implements OnInit {
   }
 
   loadUserList(listId: string) {
-    // this.userListService.getUserSongs(listId).subscribe(res => this.userSongs = res);
+    this.getUserlist(listId).pipe(
+      switchMap((res: any) => {
+        this.userListName = res.name || 'Unnamed List';
+        const songObservables: Observable<any>[] = res.songs.map((songId: string) =>
+          this.songService.getSong(songId)
+        );
+        return forkJoin(songObservables);
+      })
+    ).subscribe({
+      next: (songs: any[]) => {
+        this.userSongs = songs.map(s => ({
+          id: s.id,
+          name: s.name,
+          artists: s.artists || []
+        }));
+      },
+      error: err => {
+        console.error('Failed to load user list or songs', err);
+        this.userSongs = [];
+      }
+    });
+  }
 
-    // Dummy data depending on listId
-    if (listId === '1') {
-      this.userSongs = [
-        { id: 's1', name: 'Rising Dawn', artists: [{ id: 'a1', name: 'The Midnight Beats' }] },
-        { id: 's2', name: 'Fading Lights', artists: [{ id: 'a2', name: 'Luna Waves' }] }
-      ];
-    } else if (listId === '2') {
-      this.userSongs = [
-        { id: 's3', name: 'Electric Dreams', artists: [{ id: 'a3', name: 'Solar Echoes' }] },
-        { id: 's4', name: 'Starlit Skies', artists: [{ id: 'a1', name: 'The Midnight Beats' }, { id: 'a2', name: 'Luna Waves' }] }
-      ];
-    } else {
-      this.userSongs = [];
-    }
+  getUserlist(userlistId: string): Observable<object> {
+    return this.us.getUserlist(userlistId);
   }
 
   navigateToSong(songId: string) {
-    this.router.navigate([`/song/${songId}`]);
+    this.router.navigate(['/song', songId]);
   }
 
   navigateToArtist(artistId: string) {
-    this.router.navigate([`/author/${artistId}`]);
+    this.router.navigate(['/artist', artistId]);
   }
 }
 
-interface S {
+interface Song {
   id: string;
   name: string;
   artists: { id: string; name: string }[];
