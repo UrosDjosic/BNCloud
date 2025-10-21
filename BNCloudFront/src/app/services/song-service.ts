@@ -31,4 +31,8 @@ export class SongService {
   imageUpdate(newImage: any): Observable<object> {
     return this.http.put<object>(`${environment.apiHost}/song/image`, newImage)
   }
+
+  rateSong(rating: any): Observable<object> {
+    return this.http.put<object>(`${environment.apiHost}/song/rate`, rating);
+  }
 }

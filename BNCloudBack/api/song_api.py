@@ -152,6 +152,21 @@ class SongApi(Construct):
         update_song_image_integration = apigw.LambdaIntegration(update_song_image_lambda)
         song_image_resource.add_method("PUT", update_song_image_integration)
 
+        # PUT /song/rate
+        rate_song_resource = song_resource.add_resource("rate")
+        rate_song_lambda = _lambda.Function(
+            self, "RateSongLambda",
+            layers=util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.rate_song.handler.rate",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+        table.grant_read_write_data(rate_song_lambda)
+        rate_song_integration = apigw.LambdaIntegration(rate_song_lambda)
+        rate_song_resource.add_method("PUT", rate_song_integration)
+
 
         # TRANSCRIBE (containerized faster-whisper)
         transcribe_lambda = _lambda.DockerImageFunction(
