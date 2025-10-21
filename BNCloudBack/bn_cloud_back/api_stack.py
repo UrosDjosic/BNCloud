@@ -12,6 +12,7 @@ from api.artist_api import ArtistApi
 from api.song_api import SongApi
 from api.genres_api import GenreApi
 from api.subscriptions_api import SubscriptionsApi
+from api.userlist_api import UserlistApi
 
 class ApiStack(Stack):
     def __init__(self, scope: Construct, id: str, *, user_pool : cognito.UserPool, user_pool_client,tables, songs_bucket, transcribe_queue,
@@ -73,4 +74,10 @@ class ApiStack(Stack):
             api = root_api,
             table = tables['subscription'],
             notification_queue= notification_queue
+        )
+        userlist_api = UserlistApi(
+            self,
+            "UserlistApi",
+            api = root_api,
+            table = tables['userlist']
         )
