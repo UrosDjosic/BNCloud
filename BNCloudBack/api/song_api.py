@@ -212,3 +212,64 @@ class SongApi(Construct):
         transcribe_lambda.add_event_source(
             lambda_event_sources.SqsEventSource(transcribe_queue, batch_size=1)
         )
+
+
+        # Delete workers
+        delete_song_from_artists_lambda = _lambda.Function(
+            self, "DeleteSongFromArtistsLambda",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.delete_song.from_artists.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+        other_tables['artist'].grant_read_write_data(delete_song_from_artists_lambda)
+
+        delete_song_from_albums_lambda = _lambda.Function(
+            self, "DeleteSongFromAlbumsLambda",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.delete_song.from_albums.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+        other_tables['album'].grant_read_write_data(delete_song_from_albums_lambda)
+
+        delete_song_from_s3_lambda = _lambda.Function(
+            self, "DeleteSongFromS3Lambda",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.delete_song.from_s3.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+        songs_bucket.grant_read_write(delete_song_from_s3_lambda)
+
+        # DELETE /song/{songId}
+        delete_song_lambda = _lambda.Function(
+            self, "DeleteSongLambda",
+            layers=util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.delete_song.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment={
+                "TABLE_NAME": "Songs",
+                "DELETE_SONG_FROM_ARTISTS": delete_song_from_artists_lambda.function_arn,
+                "DELETE_SONG_FROM_ALBUMS": delete_song_from_albums_lambda.function_arn,
+                "DELETE_SONG_FROM_S3": delete_song_from_s3_lambda.function_arn,
+                "SONGS_BUCKET_NAME": songs_bucket.bucket_name,
+            },
+            role=lambda_role
+        )
+
+        delete_song_from_artists_lambda.grant_invoke(delete_song_lambda)
+        delete_song_from_albums_lambda.grant_invoke(delete_song_lambda)
+        delete_song_from_s3_lambda.grant_invoke(delete_song_lambda)
+
+        songs_bucket.grant_read_write(delete_song_lambda)
+        table.grant_read_write_data(delete_song_lambda)
+        other_tables['artist'].grant_read_write_data(delete_song_lambda)
+        other_tables['album'].grant_read_write_data(delete_song_lambda)
+
+        delete_song_integration = apigw.LambdaIntegration(delete_song_lambda)
+        song_id_resource.add_method("DELETE", delete_song_integration)
