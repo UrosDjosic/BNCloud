@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormBuilder, Validators} from '@angular/forms';
 import {SearchResult} from '../../models/search-result';
 import {ActivatedRoute, Router} from '@angular/router';
+import {SongService} from '../../services/song-service';
 
 @Component({
   selector: 'app-search',
@@ -12,12 +13,12 @@ import {ActivatedRoute, Router} from '@angular/router';
 export class Search implements OnInit {
 
   searchForm: any;
-  results: SearchResult[] = [];
+  results: any = [];
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private route: ActivatedRoute
+    private ss: SongService
   ) {}
 
   ngOnInit() {
@@ -26,16 +27,6 @@ export class Search implements OnInit {
       type: ['song', Validators.required],
       query: ['', Validators.required]
     });
-
-    this.route.queryParams.subscribe(params => {
-      const type = params['type'];
-      const query = params[type];
-
-      if (type && query) {
-        this.searchForm.patchValue({ type, query });
-        this.fetchResults(type, query);
-      }
-    });
   }
 
   onSearch() {
@@ -43,39 +34,20 @@ export class Search implements OnInit {
 
     const { type, query } = this.searchForm.value;
 
-    // Update URL
-    this.router.navigate(['/search'], { queryParams: { type, [type]: query } });
+    console.log(query)
 
     // Fetch results
-    this.fetchResults(type, query);
+    this.fetchResults(query);
   }
 
-  fetchResults(type: string, query: string) {
-    // Example: fetch from backend
-    // this.searchService.search(type, query).subscribe(res => this.results = res);
-
-    // Dummy data
-    this.results = [
-      { id: '1', type: type as any, name: `${query} Result 1` },
-      { id: '2', type: type as any, name: `${query} Result 2` },
-      { id: '3', type: type as any, name: `${query} Result 3` }
-    ];
-  }
-
-  navigate(item: SearchResult) {
-    switch (item.type) {
-      case 'song':
-        this.router.navigate([`/song/${item.id}`]);
-        break;
-      case 'album':
-        this.router.navigate([`/album/${item.id}`]);
-        break;
-      case 'artist':
-        this.router.navigate([`/author/${item.id}`]);
-        break;
-      case 'genre':
-        this.router.navigate(['/search'], { queryParams: { genre: item.name } });
-        break;
-    }
+  fetchResults(query: string) {
+    this.ss.searchSong(query).subscribe({
+      next: (res: any) => {
+        this.results = res.result;
+      },
+      error: err => {
+        console.log(err);
+      }
+    });
   }
 }

@@ -35,4 +35,8 @@ export class SongService {
   rateSong(rating: any): Observable<object> {
     return this.http.put<object>(`${environment.apiHost}/song/rate`, rating);
   }
+
+  searchSong(name: string): Observable<object> {
+    return this.http.get<object>(`${environment.apiHost}/song/search/${name}`);
+  }
 }

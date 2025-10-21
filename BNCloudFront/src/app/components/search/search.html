@@ -7,9 +7,6 @@
         <mat-label>Type</mat-label>
         <mat-select formControlName="type">
           <mat-option value="song">Song</mat-option>
-          <mat-option value="album">Album</mat-option>
-          <mat-option value="artist">Artist</mat-option>
-          <mat-option value="genre">Genre</mat-option>
         </mat-select>
       </mat-form-field>
 
@@ -20,14 +17,19 @@
 
       <button mat-raised-button color="primary" type="submit">Search</button>
     </form>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div *ngFor="let song of results" class="bg-white shadow-md rounded-2xl overflow-hidden hover:shadow-xl transition-shadow duration-300">
+        <a [routerLink]="['/song', song.id]" target="_blank" class="block p-4">
+          <!-- Optional song image -->
+          <img *ngIf="song.cover" [src]="song.cover" alt="{{ song.name }}" class="w-full h-40 object-cover rounded-xl mb-4">
 
-    <div class="results-container" *ngIf="results.length > 0">
-      <h3>Results:</h3>
-      <mat-list>
-        <mat-list-item *ngFor="let item of results" (click)="navigate(item)" class="result-item">
-          <span class="item-type">{{ item.type | titlecase }}:</span> {{ item.name }}
-        </mat-list-item>
-      </mat-list>
+          <!-- Song name -->
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ song.name }}</h3>
+
+          <!-- Optional artist name -->
+          <p class="text-gray-500 text-sm">{{ song.artist }}</p>
+        </a>
+      </div>
     </div>
   </mat-card>
 </div>

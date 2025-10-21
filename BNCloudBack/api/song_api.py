@@ -16,6 +16,8 @@ class SongApi(Construct):
         }   
         song_resource = api.add_resource("song")
         song_id_resource = song_resource.add_resource("{songId}")
+        song_search_resource = song_resource.add_resource("search")
+        song_name_resource = song_search_resource.add_resource("{name}")
 
         util_layer =[ _lambda.LayerVersion(
             self, "UtilLambdaLayer",
@@ -89,6 +91,20 @@ class SongApi(Construct):
 
         get_song_integration = apigw.LambdaIntegration(get_song_lambda)
         song_id_resource.add_method("GET", get_song_integration)
+
+        #GET /search/{name}
+        search_song_lambda = _lambda.Function(
+            self, "SearchSongLambda",
+            layers = util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.search_song.handler.search",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role = lambda_role
+        )
+
+        search_song_integration = apigw.LambdaIntegration(search_song_lambda)
+        song_name_resource.add_method("GET", search_song_integration)
 
 
         #UPDATE
