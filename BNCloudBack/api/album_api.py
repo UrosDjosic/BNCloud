@@ -88,3 +88,64 @@ class AlbumApi(Construct):
 
         update_album_integration = apigw.LambdaIntegration(update_album_lambda)
         album_id_resource.add_method("PUT", update_album_integration)
+
+
+         #DELETE 
+
+        delete_album_from_artists_lambda = _lambda.Function(
+            self, "DeleteAlbumFromArtistsLambda",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="album.delete_album.from_artists.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+        other_tables['artist'].grant_read_write_data(delete_album_from_artists_lambda)
+
+        delete_album_from_genres_lambda = _lambda.Function(
+            self, "DeleteAlbumFromGenresLambda",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="album.delete_album.from_genres.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+        other_tables['genre'].grant_read_write_data(delete_album_from_genres_lambda)
+
+        delete_album_from_songs_lambda = _lambda.Function(
+            self, "DeleteAlbumFromSongsLambda",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="album.delete_album.from_songs.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+        other_tables['song'].grant_read_write_data(delete_album_from_songs_lambda)
+
+
+        delete_album_lambda = _lambda.Function(
+            self, "DeleteAlbumLambda",
+            layers=util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="album.delete_album.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment={
+                "TABLE_NAME": "Albums",
+                "DELETE_ALBUM_FROM_ARTISTS": delete_album_from_artists_lambda.function_arn,
+                "DELETE_ALBUM_FROM_GENRES": delete_album_from_genres_lambda.function_arn,
+                "DELETE_ALBUM_FROM_SONGS": delete_album_from_songs_lambda.function_arn
+            },
+            role=lambda_role
+        )
+
+        delete_album_from_artists_lambda.grant_invoke(delete_album_lambda)
+        delete_album_from_genres_lambda.grant_invoke(delete_album_lambda)
+        delete_album_from_songs_lambda.grant_invoke(delete_album_lambda)
+
+        table.grant_read_write_data(delete_album_lambda)
+        other_tables['artist'].grant_read_write_data(delete_album_lambda)
+        other_tables['genre'].grant_read_write_data(delete_album_lambda)
+        other_tables['song'].grant_read_write_data(delete_album_lambda)
+
+        delete_album_integration = apigw.LambdaIntegration(delete_album_lambda)
+        album_id_resource.add_method("DELETE", delete_album_integration)
