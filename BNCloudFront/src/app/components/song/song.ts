@@ -1,6 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {SongService} from '../../services/song-service';
+import {jwtDecode} from 'jwt-decode';
+import {JwtClaims} from '../../models/jwt-claims';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-song',
@@ -12,10 +15,22 @@ export class Song implements OnInit {
 
   songId?: string;
   song?: any;
+  user?: any;
 
-  constructor(private route: ActivatedRoute, private router: Router, private ss: SongService) {}
+  // ⭐ rating logic
+  stars = [1, 2, 3, 4, 5];
+  currentRating = 0;
+  hoverRating = 0;
+  avgRating = 0;
+
+  constructor(private route: ActivatedRoute, private router: Router, private ss: SongService, private snackbar: MatSnackBar) {}
 
   ngOnInit() {
+    const token = localStorage.getItem('idToken');
+    if (token) {
+      const claims = jwtDecode<JwtClaims>(token);
+      this.user = claims.sub;
+    }
     this.route.paramMap.subscribe(params => {
       this.songId = params.get('songId') || undefined;
       if (this.songId) {
@@ -24,7 +39,7 @@ export class Song implements OnInit {
     });
   }
 
-  async loadSong(id: string) {
+  loadSong(id: string) {
     this.ss.getSong(id).subscribe(async (res: any) => {
       console.log(res);
 
@@ -44,6 +59,23 @@ export class Song implements OnInit {
         audio: null,  // placeholder
         image: null   // placeholder
       };
+
+      //load ratings
+      if (this.user) {
+        for (const rating of this.song.ratings) {
+          if (rating.user === this.user) {
+            this.currentRating = rating.stars;
+            break;
+          }
+        }
+        let sum = 0;
+        let total = 0;
+        for (const stars of this.song.ratings) {
+          sum += Number(stars.stars);
+          total++;
+        }
+        this.avgRating = sum/total;
+      }
 
       try {
         const [audioBlob, imageBlob] = await Promise.all([
@@ -111,9 +143,27 @@ export class Song implements OnInit {
     console.log('Downloading song file');
   }
 
-  rateSong(stars: number) {
-    if (this.song) this.song.ratings?.push(stars);
-    // this.songService.rateSong(this.songId, stars).subscribe(...)
+  setRating(rating: number) {
+    this.currentRating = rating;
+    console.log(`User rated this song: ${rating} stars`);
+
+    if (this.user) {
+      const request = {
+        song: this.songId,
+        user: this.user,
+        stars: rating.toString()
+      };
+
+      this.ss.rateSong(request).subscribe({
+        next: () => {
+          window.location.reload();
+        },
+        error: (err: Error) => {
+          console.error('Error rating song:', err);
+          this.snackbar.open('Failed to rate the song.', 'Close', { duration: 3000 });
+        }
+      });
+    }
   }
 
   editSong() {

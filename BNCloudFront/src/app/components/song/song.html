@@ -45,7 +45,7 @@
           <p>
             <strong>Ratings:</strong>
             <span *ngIf="song.ratings?.length; else noRatings">
-              {{ song.ratings.join(', ') }}
+              {{ avgRating }}
             </span>
             <ng-template #noRatings>Not rated yet</ng-template>
           </p>
@@ -65,8 +65,28 @@
             </button>
           </div>
         </div>
+        <div class="ratings">
+          <p class="ratings-label"><strong>Rate this song:</strong></p>
+          <div class="stars">
+            <mat-icon
+              *ngFor="let star of stars; let i = index"
+              (click)="setRating(i + 1)"
+              (mouseenter)="hoverRating = i + 1"
+              (mouseleave)="hoverRating = 0"
+              [ngClass]="{
+                'filled': (hoverRating || currentRating) > i,
+                'unfilled': (hoverRating || currentRating) <= i
+              }"
+            >
+              star
+            </mat-icon>
+          </div>
+        <p *ngIf="currentRating" class="rating-text">
+          You selected {{ currentRating }} {{ currentRating === 1 ? 'star' : 'stars' }}.
+        </p>
       </div>
     </div>
+  </div>
     <!-- RIGHT SIDE -->
     <div class="song-right" *ngIf="song.transcript">
       <div class="transcription-box">

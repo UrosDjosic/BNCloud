@@ -38,6 +38,7 @@
 
         .song-title-meta {
           flex: 1;
+
           .title {
             margin: 0;
             font-weight: 700;
@@ -96,22 +97,59 @@
           }
         }
 
-        .rating-buttons {
+        .crud-buttons {
           display: flex;
-          gap: 4px;
+          gap: 6px;
+          margin-left: auto;
+        }
+      }
 
-          mat-icon {
-            cursor: pointer;
-            transition: color 0.2s ease;
-          }
+      .ratings {
+        margin-top: 1rem;
+        text-align: left;
 
-          .active-star {
-            color: #FFD700;
-          }
+        .ratings-label {
+          margin-bottom: 0.3rem;
+          font-weight: 600;
+          color: #FFD700;
+        }
 
-          .inactive-star {
-            color: rgba(255, 255, 255, 0.4);
-          }
+        .stars {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+          overflow: visible; /* ✅ allow hovered/large stars to show fully */
+        }
+
+        mat-icon {
+          font-size: 32px;
+          cursor: pointer;
+          transition: transform 0.2s ease, color 0.2s ease;
+          user-select: none;
+          line-height: 1; /* ✅ removes clipping caused by inline height */
+          display: inline-flex; /* ✅ ensures correct bounding box */
+          vertical-align: middle;
+          overflow: visible; /* ✅ prevent cutting off bottom/right edges */
+        }
+
+        mat-icon.filled {
+          color: #FFD700;
+          filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.6));
+        }
+
+        mat-icon.unfilled {
+          color: rgba(255, 255, 255, 0.35);
+        }
+
+        mat-icon:hover {
+          transform: scale(1.2);
+        }
+
+        .rating-text {
+          margin-top: 6px;
+          font-size: 0.9rem;
+          color: #E0E0E0;
+          font-style: italic;
         }
       }
     }
@@ -177,6 +215,12 @@
 
       .transcription-box {
         height: auto;
+      }
+
+      .ratings {
+        .stars {
+          justify-content: center;
+        }
       }
     }
   }
