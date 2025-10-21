@@ -26,8 +26,8 @@ def create(event, context):
     # DynamoDB item
     item = {
         'id': userlist_id,
-        'name': data['name'],
-        'user': data['user'],
+        'name': data.get('name'),
+        'user': data.get('user'),
         'songs': data.get('songs', [])
     }
 

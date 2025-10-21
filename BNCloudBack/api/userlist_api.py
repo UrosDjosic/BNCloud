@@ -12,6 +12,8 @@ class UserlistApi(Construct):
         }   
         userlist_resource = api.add_resource("userlist")
         userlist_id_resource = userlist_resource.add_resource("{userlistId}")
+        userlist_user_resource = userlist_id_resource.add_resource("user")
+        userlist_user_id_resource = userlist_user_resource.add_resource("{userId}")
 
         util_layer =[ _lambda.LayerVersion(
             self, "UtilLambdaLayer",
@@ -71,6 +73,20 @@ class UserlistApi(Construct):
 
         get_userlist_integration = apigw.LambdaIntegration(get_userlist_lambda)
         userlist_id_resource.add_method("GET", get_userlist_integration)
+
+        #GET
+        get_user_userlist_lambda = _lambda.Function(
+            self, "GetUserUserlistLambda",
+            layers = util_layer,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="userlist.get_users.handler.get",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role = lambda_role
+        )
+
+        get_user_userlist_integration = apigw.LambdaIntegration(get_user_userlist_lambda)
+        userlist_user_id_resource.add_method("GET", get_user_userlist_integration)
 
 
         #UPDATE
