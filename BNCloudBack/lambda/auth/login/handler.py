@@ -25,10 +25,6 @@ def main(event, context):
             }
         )
         auth_result = response.get("AuthenticationResult", {})
-        cookie_header = ""
-        refresh_token = auth_result.get("RefreshToken")
-        if refresh_token:
-            cookie_header = f"RefreshToken={refresh_token}; HttpOnly; Secure; Path=/prod/api/refresh; SameSite=Strict; MaxAge = 2592000"
 
         return create_response(
             200,
@@ -36,10 +32,6 @@ def main(event, context):
                 "message": "Login successful",
                 "tokens": auth_result
             },
-            headers={
-                "Set-Cookie": cookie_header,
-                "Access-Control-Allow-Credentials": "true"
-            }
         )
     except client.exceptions.NotAuthorizedException:
         return create_response(401, {"error": "Invalid username or password"})

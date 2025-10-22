@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {map, Observable} from 'rxjs';
 import {environment} from '../../env/enviroment';
 import {DynamoSongResponse} from '../dto/dynamo-song-response';
+import {UserFeedResponse} from '../dto/user-feed-response';
 
 
 @Injectable({
@@ -42,5 +43,13 @@ export class SongService {
 
   deleteSong(songId: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiHost}/song/${songId}`);
+  }
+
+  initFeed(userId: string): Observable<UserFeedResponse> {
+    return this.http
+      .get<UserFeedResponse[]>(`${environment.apiHost}/feed/${userId}`)
+      .pipe(
+        map(res => res[0]) // ✅ take only the first object from the array
+      );
   }
 }

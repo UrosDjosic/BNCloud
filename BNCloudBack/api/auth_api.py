@@ -92,8 +92,11 @@ class AuthApi(Construct):
             },
         )
         refresh_integration = apigw.LambdaIntegration(refresh_lambda)
-        api.add_resource("refresh").add_method(
-            "PUT",refresh_integration
+        refresh_resource = api.add_resource("refresh")
+        refresh_resource.add_method(
+            "PUT",refresh_integration,
+            authorization_type=apigw.AuthorizationType.NONE
         )
-        
+
+                
 

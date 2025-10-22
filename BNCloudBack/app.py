@@ -13,7 +13,7 @@ auth_stack = AuthStack(app, "AuthStack", env=enviroment)
 storage_stack = StorageStack(app, "StorageStack", env=enviroment)
 sqs_stack = SQStack(app, "SQStack", env=enviroment)
 step_fn_stack = StepFunctionStack(app,"StepFunctionStack",env=enviroment,feed_queue=sqs_stack.feed_queue,
-                                  tables = storage_stack.tables)
+                                  tables = storage_stack.tables,songs_bucket=storage_stack.songs_bucket)
 api_stack = ApiStack(
     app, "ApiStack",
     user_pool=auth_stack.user_pool,

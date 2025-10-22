@@ -106,7 +106,8 @@ def get(event, context):
                         "entity": genre,
                         "song": {
                             "id": song["id"],
-                            "name": song["name"]
+                            "name": song["name"],
+                            "imageKey" : song['imageKey']
                         }
                     })
                 )

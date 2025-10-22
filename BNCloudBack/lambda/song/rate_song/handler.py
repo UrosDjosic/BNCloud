@@ -4,10 +4,13 @@ from datetime import datetime
 from boto3.dynamodb.conditions import Key
 from pre_authorize import pre_authorize
 from decimal import Decimal
+import os
 
 dynamodb = boto3.resource('dynamodb')
+sqs = boto3.client("sqs")
 songs_table = dynamodb.Table('Songs')
 ratings_table = dynamodb.Table('Ratings')
+
 
 @pre_authorize(['User'])
 def rate(event, context):
@@ -36,9 +39,14 @@ def rate(event, context):
     existing = ratings_table.get_item(Key={'user': user_sub, 'song_id': song_id})
     now = datetime.utcnow().isoformat()
 
+    #sending this to sqs
+    final_rating = 0
+
     if 'Item' in existing:
         old_rating = int(existing['Item']['stars'])
         diff = int(rating) - old_rating
+
+        final_rating = diff
 
         # Update user's rating
         ratings_table.update_item(
@@ -65,6 +73,7 @@ def rate(event, context):
         message = 'Rating updated successfully'
 
     else:
+        final_rating = rating
         # New rating — increment count, add to sum, recalc average
         ratings_table.put_item(
             Item={
@@ -89,6 +98,20 @@ def rate(event, context):
             }
         )
         message = 'Rating added successfully'
+
+        sqs.send_message(
+            QueueUrl=os.environ["FEED_QUEUE_URL"],
+            MessageBody=json.dumps({
+                "event_type": "user_rated_song",
+                "user_id": event["userId"],
+                "song": {
+                    "id": song_id,
+                    "name": song_item['Item']["name"],
+                    "imageKey" : song_item['Item']["imageKey"]
+                },
+                "rating" : rating
+            })
+        )
 
 
     return {

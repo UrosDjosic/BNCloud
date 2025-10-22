@@ -1,10 +1,50 @@
-<div class="home-container">
-  <mat-card class="home-card">
-    <h1 class="title">Welcome to Our Music App</h1>
-    <p class="subtitle">Discover, listen, and connect with your favorite artists.</p>
-  </mat-card>
+<div class="home-wrapper">
+  <!-- LISTEN AGAIN -->
+  <div class="section-header">
+    <h2 class="section-title">Listen Again</h2>
+  </div>
 
-  <p class="footer-text">
-    [IF ALEXANDER, VICTOR, AND UROS DECIDE TO FEEL SLIGHTLY MASOCHISTIC, THIS IS WHERE THE OPTIONAL FEED FEATURE COULD BE IMPLANTED]
-  </p>
+  <div class="feed-grid songs">
+    <mat-card (click)="songClicked(item)" class="song-card" *ngFor="let item of songs">
+      <div class="song-image-wrapper">
+        <img [src]="item.imageUrl" alt="{{ item.name }}" class="song-image" />
+        <hr>
+        <button mat-icon-button class="play-button">
+          <mat-icon>play_arrow</mat-icon>
+        </button>
+      </div>
+      <h3 class="song-name">{{item.name}}</h3>
+    </mat-card>
+  </div>
+
+  <!-- ARTISTS SECTION -->
+  <div class="section-header">
+    <h2 class="section-title">Favourite Artists</h2>
+  </div>
+
+  <div class="feed-row artists no-image">
+    <mat-card class="artist-card" *ngFor="let artist of artists">
+      <div class="artist-body">
+        <h3 class="artist-name">{{ artist.name }}</h3>
+      </div>
+    </mat-card>
+  </div>
+
+
+  <!-- QUICK PICKS -->
+  <div class="section-header">
+    <h2 class="section-title">{{ this.getTimeBucket() }} Vibes</h2>
+  </div>
+
+  <div class="feed-grid songs">
+    <mat-card class="song-card" *ngFor="let item of genreSongs">
+      <div class="song-image-wrapper">
+        <img [src]="item.imageUrl" alt="{{ item.name }}" class="song-image" />
+        <button mat-icon-button class="play-button">
+          <mat-icon>play_arrow</mat-icon>
+        </button>
+      </div>
+    </mat-card>
+  </div>
+
 </div>
