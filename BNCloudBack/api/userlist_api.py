@@ -5,7 +5,7 @@ from aws_cdk import (aws_lambda as _lambda,
                      aws_dynamodb as dynamodb)
 from aws_cdk import aws_lambda_event_sources as lambda_event_sources
 class UserlistApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,  **kwargs):
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table, layers,  **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Userlists'
@@ -15,12 +15,6 @@ class UserlistApi(Construct):
         userlist_user_resource = userlist_resource.add_resource("user")
         userlist_user_id_resource = userlist_user_resource.add_resource("{userId}")
 
-        util_layer =[ _lambda.LayerVersion(
-            self, "UtilLambdaLayer",
-            code=_lambda.Code.from_asset("libs"), 
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
-            description="Shared utilities"
-        )]
         lambda_role = iam.Role(
             self, "UserlistsLambdaRole",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com")
@@ -49,7 +43,7 @@ class UserlistApi(Construct):
         #CREATE
         create_userlist_lambda = _lambda.Function(
             self, "CreateUserlistLambda",
-            layers = util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="userlist.create_userlist.handler.create",
             code=_lambda.Code.from_asset("lambda"),
@@ -63,7 +57,7 @@ class UserlistApi(Construct):
         #GET
         get_userlist_lambda = _lambda.Function(
             self, "GetUserlistLambda",
-            layers = util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="userlist.get_userlist.handler.get",
             code=_lambda.Code.from_asset("lambda"),
@@ -77,7 +71,7 @@ class UserlistApi(Construct):
         #GET
         get_user_userlist_lambda = _lambda.Function(
             self, "GetUserUserlistLambda",
-            layers = util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="userlist.get_users.handler.get",
             code=_lambda.Code.from_asset("lambda"),
@@ -92,7 +86,7 @@ class UserlistApi(Construct):
         #UPDATE
         update_userlist_lambda = _lambda.Function(
             self, "UpdateUserlistLambda",
-            layers=util_layer,
+            layers=layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="userlist.update_userlist.handler.update",
             code=_lambda.Code.from_asset("lambda"),
