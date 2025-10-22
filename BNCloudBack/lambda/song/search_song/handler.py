@@ -1,6 +1,7 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Attr
+from pre_authorize import pre_authorize
 
 # Initialize AWS clients
 dynamodb = boto3.resource('dynamodb')
@@ -13,6 +14,7 @@ CORS_HEADERS = {
     'Access-Control-Allow-Headers': '*'
 }
 
+@pre_authorize(['User'])
 def search(event, context):
     try:
         path_params = event.get('pathParameters') or {}

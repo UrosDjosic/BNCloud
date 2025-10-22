@@ -4,6 +4,7 @@ import boto3
 from datetime import datetime
 from boto3.dynamodb.conditions import Key
 import os
+from pre_authorize import pre_authorize
 
 
 dynamodb = boto3.resource('dynamodb')
@@ -14,6 +15,7 @@ artists_table = dynamodb.Table('Artists')
 s3_bucket_name = 'songs-bucket-1'
 s3_client = boto3.client('s3')
 
+@pre_authorize(['Administrator'])
 def create(event, context):
     data = json.loads(event['body'])
 

@@ -4,12 +4,14 @@ import boto3
 import uuid
 from boto3.dynamodb.conditions import Key
 from helpers.create_response import create_response
+from pre_authorize import pre_authorize
 
 # Environment setup
 table_name = os.environ['TABLE_NAME']  # Artist table
 genre_table_name = os.environ['GENRE_TABLE_NAME']  # Genre table
 dynamodb = boto3.resource('dynamodb')
 
+@pre_authorize(['Administrator'])
 def create(event, context):
     body = json.loads(event['body'])
     artist_id = str(uuid.uuid4())

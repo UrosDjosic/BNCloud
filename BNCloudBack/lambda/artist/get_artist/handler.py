@@ -1,6 +1,8 @@
 import json
 import boto3
 import logging
+from pre_authorize import pre_authorize
+
 
 # Configure logging for CloudWatch
 logger = logging.getLogger()
@@ -17,6 +19,7 @@ CORS_HEADERS = {
     'Access-Control-Allow-Headers': '*'
 }
 
+@pre_authorize(['Administrator','User'])
 def get(event, context):
     try:
         # Ensure songId is provided

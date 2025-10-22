@@ -1,18 +1,13 @@
 from constructs import Construct
 from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb
 class AlbumApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,other_tables, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,other_tables,
+                 layers, **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Albums'
         }   
         album_resource = api.add_resource("album")
-        util_layer =[ _lambda.LayerVersion(
-            self, "UtilLambdaLayer",
-            code=_lambda.Code.from_asset("libs"), 
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
-            description="Shared utilities"
-        )]
 
         lambda_role = iam.Role(
             self, "AlbumLambdaRole",
@@ -47,7 +42,7 @@ class AlbumApi(Construct):
         #CREATE
         create_album_lambda = _lambda.Function(
             self, "CreateAlbumLambda",
-            layers=util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="create_album.handler.create",
             code=_lambda.Code.from_asset("lambda/album"),
@@ -64,7 +59,7 @@ class AlbumApi(Construct):
 
         get_album_lambda = _lambda.Function(
             self, "GetAlbumLambda",
-            layers=util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="get_album.handler.get",  
             code=_lambda.Code.from_asset("lambda/album"),
@@ -78,7 +73,7 @@ class AlbumApi(Construct):
         #PUT
         update_album_lambda = _lambda.Function(
             self, "UpdateAlbumLambda",
-            layers=util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="update_album.handler.update",
             code=_lambda.Code.from_asset("lambda/album"),

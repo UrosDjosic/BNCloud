@@ -10,7 +10,8 @@ from aws_cdk import (aws_lambda as _lambda,
 
 
 class SubscriptionsApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,notification_queue, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,notification_queue, 
+                 layers ,feed_queue,**kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Subscriptions'
@@ -52,21 +53,18 @@ class SubscriptionsApi(Construct):
             )
         )
 
-        util_layer =[ _lambda.LayerVersion(
-            self, "UtilLambdaLayer",
-            code=_lambda.Code.from_asset("libs"), 
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
-            description="Shared utilities"
-        )]
 
 
         #SUBSCRIBE
         subscribe_lambda = _lambda.Function(
             self, "SubscribeLambda",
-            layers = util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="subscription.add_subscription.handler.add",
             code=_lambda.Code.from_asset("lambda"),
+            environment={
+                'FEED_QUEUE_URL' : feed_queue.queue_url
+            },
             role = lambda_role
         )
         subscribe_integration = apigw.LambdaIntegration(
@@ -79,10 +77,13 @@ class SubscriptionsApi(Construct):
         #UNSUBSCRIBE
         unsubscribe_lambda = _lambda.Function(
             self, "UnsubscribeLambda",
-            layers = util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="subscription.unsubscribe.handler.unsubscribe",
             code=_lambda.Code.from_asset("lambda"),
+            environment={
+                'FEED_QUEUE_URL' : feed_queue.queue_url
+            },
             role = lambda_role
         )
         unsubscribe_integration = apigw.LambdaIntegration(
@@ -96,7 +97,7 @@ class SubscriptionsApi(Construct):
         #GET USER SUBSCRIPTIONS
         get_subscriptions_lambda = _lambda.Function(
             self,"GetSubscriptions",
-            layers = util_layer,
+            layers = layers,
             runtime = _lambda.Runtime.PYTHON_3_11,
             handler="subscription.get_subscriptions.handler.get",
             code=_lambda.Code.from_asset("lambda"),

@@ -4,6 +4,8 @@ import boto3
 from datetime import datetime
 from helpers.create_response import create_response
 from boto3.dynamodb.conditions import Key
+from pre_authorize import pre_authorize
+
 
 
 dynamodb = boto3.resource('dynamodb')
@@ -11,6 +13,7 @@ albums_table = dynamodb.Table('Albums')
 genre_table = dynamodb.Table('Genres')
 artist_table = dynamodb.Table('Artists')
 
+@pre_authorize(['Administrator'])
 def create(event, context):
     data = json.loads(event['body'])
 

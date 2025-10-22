@@ -2,13 +2,14 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Key
 from helpers.create_response import create_response
+from pre_authorize import pre_authorize
 import os
 
 table_name = os.environ['TABLE_NAME']
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(table_name)
 
-
+@pre_authorize(['User'])
 def discover(event, context):
     """
     Returns all distinct genres from DynamoDB where EntityType='genre'

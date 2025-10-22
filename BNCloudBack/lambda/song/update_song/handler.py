@@ -1,6 +1,7 @@
 import json
 import boto3
 from datetime import datetime
+from pre_authorize import pre_authorize
 
 dynamodb = boto3.resource('dynamodb')
 songs_table = dynamodb.Table('Songs')
@@ -8,7 +9,7 @@ artists_table = dynamodb.Table('Artists')
 genres_table = dynamodb.Table('Genres')
 albums_table = dynamodb.Table('Albums')
 
-
+@pre_authorize(['Administrator'])
 def update(event, context):
     try:
         data = json.loads(event['body'])

@@ -1,6 +1,8 @@
 import json
 import boto3
 import logging
+from pre_authorize import pre_authorize
+import os
 
 # Configure logging for CloudWatch
 logger = logging.getLogger()
@@ -8,7 +10,9 @@ logger.setLevel(logging.INFO)
 
 # Initialize AWS clients
 dynamodb = boto3.resource('dynamodb')
+sqs = boto3.client('sqs')
 songs_table = dynamodb.Table('Songs')
+ratings_table = dynamodb.Table('Ratings')
 s3_client = boto3.client('s3')
 
 S3_BUCKET_NAME = 'songs-bucket-1'
@@ -20,6 +24,7 @@ CORS_HEADERS = {
     'Access-Control-Allow-Headers': '*'
 }
 
+@pre_authorize(['Administrator','User'])
 def get(event, context):
     try:
         # Ensure songId is provided
@@ -64,20 +69,56 @@ def get(event, context):
                 ExpiresIn=3600
             )
 
-        # Build response object
-        response_body = {
-            **song,
-            'audioUrl': audio_url,
-            'imageUrl': image_url
-        }
+        existing = ratings_table.get_item(Key={'user': event['userId'], 'song_id': song_id})
+        if 'Item' in existing:
+            # Build response object
+            response_body = {
+                **song,
+                'audioUrl': audio_url,
+                'imageUrl': image_url,
+                'userRating' : existing['Item']['stars']
+            }
+            rated_positive = existing['Item']['stars'] >= 3
+        else:
+            # Build response object
+            response_body = {
+                **song,
+                'audioUrl': audio_url,
+                'imageUrl': image_url
+            }
+            rated_positive = False
 
         logger.info(f"Successfully retrieved song: {song_id}")
 
+    
+        genres = song.get("genres", [])
+        if event['userRole'] == 'User':
+            if not genres:
+                genres = [song.get("genre", "unknown")]
+            for genre in genres:
+                sqs.send_message(
+                    QueueUrl=os.environ["FEED_QUEUE_URL"],
+                    MessageBody=json.dumps({
+                        "event_type": "user_listening",
+                        "user_id": event["userId"],
+                        "entity_type": "genre",
+                        "rated_positive": rated_positive,
+                        "entity": genre,
+                        "song": {
+                            "id": song["id"],
+                            "name": song["name"]
+                        }
+                    })
+                )
+
+
         return {
             'statusCode': 200,
-            'body': json.dumps(response_body),
+            'body': json.dumps(response_body,default=str),
             'headers': CORS_HEADERS
         }
+        
+    
 
     except Exception as e:
         logger.exception("Error fetching song")

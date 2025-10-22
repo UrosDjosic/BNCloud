@@ -1,5 +1,6 @@
 import json
 import boto3
+from pre_authorize import pre_authorize
 
 # Initialize AWS clients
 dynamodb = boto3.resource('dynamodb')
@@ -11,7 +12,7 @@ CORS_HEADERS = {
     'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT',
     'Access-Control-Allow-Headers': '*'
 }
-
+@pre_authorize(['User'])
 def get(event, context):
     try:
         # Ensure songId is provided

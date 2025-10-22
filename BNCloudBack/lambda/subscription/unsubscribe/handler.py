@@ -2,11 +2,14 @@ import os
 import json
 import boto3
 from helpers.create_response import create_response
+from pre_authorize import pre_authorize
 
 TABLE_NAME = os.environ.get('TABLE_NAME', 'Subscriptions')
 dynamodb = boto3.resource('dynamodb')
 sns = boto3.client('sns')
 
+
+@pre_authorize(['User'])
 def unsubscribe(event, context):
     """Unsubscribe user from SNS topic and remove record from DynamoDB."""
     try:
