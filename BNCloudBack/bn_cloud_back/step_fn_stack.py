@@ -11,7 +11,7 @@ from constructs import Construct
 
 
 class StepFunctionStack(Stack):
-    def __init__(self, scope: Construct,id: str,feed_queue: sqs.Queue,tables, **kwargs):
+    def __init__(self, scope: Construct,id: str,feed_queue: sqs.Queue,tables,songs_bucket, **kwargs):
         super().__init__(scope, id, **kwargs)
         #Define tasks!
 
@@ -41,23 +41,27 @@ class StepFunctionStack(Stack):
             }
         )
         feed_scores_table.grant_read_data(update_user_feed_lambda)
+        tables['song'].grant_read_data(update_user_feed_lambda)
         tables["users_feed"].grant_read_write_data(update_user_feed_lambda)
+        songs_bucket.grant_read(update_user_feed_lambda)
     
         def make_chain(base_lambda_id: str, handler_path: str):
+            base_lambda = _lambda.Function(
+                self, f"{base_lambda_id}Lambda",
+                runtime=_lambda.Runtime.PYTHON_3_11,
+                handler=handler_path,
+                code=_lambda.Code.from_asset("lambda"),
+                environment={
+                    "FEED_SCORES_TABLE": feed_scores_table.table_name,
+                },
+            )
+
+            feed_scores_table.grant_read_write_data(base_lambda)
             base_task = tasks.LambdaInvoke(
                 self, f"{base_lambda_id}Task",
-                lambda_function=_lambda.Function(
-                    self, f"{base_lambda_id}Lambda",
-                    runtime=_lambda.Runtime.PYTHON_3_11,
-                    handler=handler_path,
-                    code=_lambda.Code.from_asset("lambda"),
-                    environment = {
-                        "FEED_SCORES_TABLE" : feed_scores_table.table_name,
-                    }
-                ),
-                output_path="$.Payload"
+                lambda_function=base_lambda,
+                output_path="$.Payload",
             )
-            # Create unique tasks per branch
             update_feed_scores = tasks.LambdaInvoke(
                 self, f"UpdateFeedScoresTask_{base_lambda_id}",
                 lambda_function=update_feed_scores_lambda,
@@ -75,10 +79,23 @@ class StepFunctionStack(Stack):
 
         # Step Function router (Choice)
         choice = sfn.Choice(self, "WhatEvent?")
-        choice.when(sfn.Condition.string_equals("$.event_type", "user_rated_song"), rate_song_chain)
-        choice.when(sfn.Condition.string_equals("$.event_type", "user_subscribed"), subscribe_chain)
-        choice.when(sfn.Condition.string_equals("$.event_type", "user_listening"), listening_chain)
+        choice.when(
+            sfn.Condition.string_equals("$.event_type", "user_rated_song"),
+            rate_song_chain
+        )
+        choice.when(
+            sfn.Condition.or_(
+                sfn.Condition.string_equals("$.event_type", "user_subscribed"),
+                sfn.Condition.string_equals("$.event_type", "user_unsubscribed")
+            ),
+            subscribe_chain
+        )
+        choice.when(
+            sfn.Condition.string_equals("$.event_type", "user_listening"),
+            listening_chain
+        )
         choice.otherwise(sfn.Fail(self, "UnknownEvent"))
+
 
 
         # Create the state machine

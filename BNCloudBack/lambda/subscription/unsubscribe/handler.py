@@ -6,6 +6,7 @@ from pre_authorize import pre_authorize
 
 TABLE_NAME = os.environ.get('TABLE_NAME', 'Subscriptions')
 dynamodb = boto3.resource('dynamodb')
+sqs = boto3.client('sqs')
 sns = boto3.client('sns')
 
 
@@ -19,6 +20,7 @@ def unsubscribe(event, context):
 
         subject_id = body.get('subject_id') or body.get('subjectId') or body.get('subject')
         user_email = body.get('user_email') or body.get('email')
+        subject_name = body.get('subject_name')
         sub_type = body.get('sub_type')
 
         if not subject_id or not user_email or not sub_type:
@@ -47,6 +49,20 @@ def unsubscribe(event, context):
                 'subject_id': str(subject_id),
                 'user_email': str(user_email)
             }
+        )
+
+
+        sqs.send_message(
+            QueueUrl=os.environ["FEED_QUEUE_URL"],
+            MessageBody=json.dumps({
+                "event_type": "user_subscribed",
+                "user_id": event["userId"],
+                "entity_type": sub_type,
+                "entity": {
+                    'id' : subject_id,
+                    'name' : subject_name
+                }
+            })
         )
 
         message = f"Unsubscribed {user_email} and removed record from table." if unsubscribed \

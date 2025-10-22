@@ -13,7 +13,7 @@ def subscribed(event, context):
     }
     """
     user_id = event.get("user_id")
-    sub_type = event.get("sub_type", "artist")
+    sub_type = event.get("entity_type", "artist")
     entity = event.get("entity")
     event_type = event.get("event_type")
     POINTS = {

@@ -50,6 +50,7 @@ export class Login implements OnInit {
         this.tokenService.setAccessToken(res.tokens.AccessToken);
         this.tokenService.setIdToken(res.tokens.IdToken);
         this.authService.setUser();
+        localStorage.setItem('refreshToken', res.tokens.RefreshToken);
       },
       error: (err) => {
         if(err.status == 403){

@@ -35,11 +35,11 @@ export class AuthService {
   verifyCode(verifyRequest : VerificationRequest) : Observable<void> {
     return this.http.put<void>(`${environment.apiHost}/verify`,verifyRequest)
   }
-  refresh(): Observable<RefreshResponse> {
+
+  refresh(refreshToken: string | null): Observable<RefreshResponse> {
     return this.http.put<RefreshResponse>(
-      environment.apiHost + '/login/refresh',
-      {},
-      { withCredentials: true }
+      environment.apiHost + `/refresh`,
+      {'refreshToken': refreshToken},
     );
   }
   logout() {

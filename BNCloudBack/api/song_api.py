@@ -183,9 +183,13 @@ class SongApi(Construct):
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="song.rate_song.handler.rate",
             code=_lambda.Code.from_asset("lambda"),
-            environment=env,
+            environment={
+                "FEED_QUEUE_URL": feed_queue.queue_url,
+                "TABLE_NAME": "Songs",
+            },
             role=lambda_role
         )
+        feed_queue.grant_send_messages(rate_song_lambda)
         table.grant_read_write_data(rate_song_lambda)
         rate_song_integration = apigw.LambdaIntegration(rate_song_lambda)
         rate_song_resource.add_method("PUT", rate_song_integration)
@@ -289,3 +293,26 @@ class SongApi(Construct):
         delete_song_integration = apigw.LambdaIntegration(delete_song_lambda)
         song_id_resource.add_method("DELETE", delete_song_integration)
         self.delete_song_lambda = delete_song_lambda
+
+
+        #INIT FEED API
+        
+        init_feed_lambda = _lambda.Function(
+            self, "InitFeedLambda",
+            layers=layers,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.init_feed.handler.init",
+            code=_lambda.Code.from_asset("lambda"),
+            environment={
+                "TABLE_NAME": "UsersFeed",
+            },
+            role=lambda_role
+        )
+        other_tables['users_feed'].grant_read_data(init_feed_lambda)
+        init_feed_integration = apigw.LambdaIntegration(
+            init_feed_lambda
+        )
+        feed_resource = api.add_resource('feed').add_resource("{userId}")
+        feed_resource.add_method(
+            "GET", init_feed_integration
+        )

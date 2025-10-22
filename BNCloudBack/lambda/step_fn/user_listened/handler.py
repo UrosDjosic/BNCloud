@@ -18,14 +18,15 @@ def get_time_bucket():
     else:
         return "night"
 
-def handler(event, context):
+def listened(event, context):
     user_id = event["user_id"]
-    genre = event["genre"]
+    genre = event["entity"]
+    song = event['song']
     time_bucket = get_time_bucket()
 
     # Scoring heuristic:
     LISTEN_POINTS = 1          # baseline for listening
-    RATING_BONUS = 3 if event.get("rated_positive") else 0
+    RATING_BONUS = 1 if event.get("rated_positive") else 0
     TOTAL_POINTS = LISTEN_POINTS + RATING_BONUS
 
     # Current timestamp
@@ -34,24 +35,24 @@ def handler(event, context):
 
     # DECAY SCORE. OLD ITEMS TEND TO BE DELETED IF DECAYED TO MUCH
     resp = table.query(
-        KeyConditionExpression=Key("user_id").eq(user_id)
+        KeyConditionExpression=Key("username").eq(user_id)
     )
 
     for item in resp.get("Items", []):
-        sort_key = item["sort_key"]
-        if not sort_key.startswith(f"genre#{time_bucket}#"):
+        sort_key = item["entity_type"]
+        if not sort_key.startswith(f"genre#{time_bucket}"):
             continue  # only same time bucket
-        if sort_key == f"genre#{time_bucket}#{genre}":
+        if sort_key == f"genre#{time_bucket}":
             continue  # skip current genre
 
         old_score = item.get("score", 0)
         new_score = int(old_score * 0.9)
 
         if new_score < 1:
-            table.delete_item(Key={"username": user_id, "sort_key": sort_key})
+            table.delete_item(Key={"username": user_id, "entity_type": sort_key})
         else:
             table.update_item(
-                Key={"user_id": user_id, "sort_key": sort_key},
+                Key={"user_id": user_id, "entity_type": sort_key},
                 UpdateExpression="SET score = :s, last_updated=:u",
                 ExpressionAttributeValues={":s": new_score, ":u": now}
             )
@@ -59,7 +60,9 @@ def handler(event, context):
     return {
         "user_id": user_id,
         "entity_type" : "genre",
+        "userListened" : True,
         "entity": genre,
+        "song" : song,
         "points": TOTAL_POINTS,
         "time_bucket": time_bucket
     }

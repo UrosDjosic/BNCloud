@@ -3,34 +3,33 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpInterceptor, HttpResponse, HttpErrorResponse,
+  HttpInterceptor,
+  HttpResponse,
+  HttpErrorResponse
 } from '@angular/common/http';
-import {catchError, Observable, switchMap, tap, throwError} from 'rxjs';
+import { catchError, Observable, switchMap, tap, throwError } from 'rxjs';
 import { AuthService } from './services/auth-service';
-import {TokenService} from './services/token-service';
-
+import { TokenService } from './services/token-service';
 
 @Injectable()
 export class Interceptor implements HttpInterceptor {
-  constructor(private authService: AuthService,
-              private tokenService: TokenService,) {}
+  constructor(private authService: AuthService, private tokenService: TokenService) {}
 
-  intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const isRefreshRequest = req.url.includes('/api/login/refresh');
 
-    const idToken: any = localStorage.getItem('idToken');
-
+    // Skip adding token for refresh request
     let clonedReq = req;
-    if (idToken) {
-      clonedReq = req.clone({
-        headers: req.headers.set('Authorization', "Bearer " + idToken),
-      });
+    if (!isRefreshRequest) {
+      const idToken = localStorage.getItem('idToken');
+      if (idToken) {
+        clonedReq = req.clone({
+          headers: req.headers.set('Authorization', 'Bearer ' + idToken),
+        });
+      }
     }
 
     return next.handle(clonedReq).pipe(
-      // Optional: log responses
       tap(event => {
         if (event instanceof HttpResponse) {
           console.log('Response intercepted:', event);
@@ -38,15 +37,19 @@ export class Interceptor implements HttpInterceptor {
       }),
       catchError((error: HttpErrorResponse) => {
 
-        // If 401, try refreshing the token
-        if (error.status === 0) {
+        if (
+          !isRefreshRequest &&
+          (error.status === 0 ||
+            (error.status === 401 && error.error?.message === 'The incoming token has expired'))
+        ) {
           const decodedToken = this.tokenService.decodeIdToken();
 
           if (decodedToken?.isExpired) {
             console.log('🔑 Token expired — attempting refresh...');
 
-            return this.authService.refresh().pipe(
+            return this.authService.refresh(localStorage.getItem('refreshToken')).pipe(
               switchMap((response: any) => {
+                console.log('✅ Token refresh successful:', response);
                 localStorage.setItem('accessToken', response.accessToken);
                 localStorage.setItem('idToken', response.idToken);
 
@@ -58,7 +61,7 @@ export class Interceptor implements HttpInterceptor {
               }),
               catchError(refreshError => {
                 console.error('❌ Refresh failed. Logging out...', refreshError);
-                this.authService.logout();
+                // this.authService.logout();
                 return throwError(() => refreshError);
               })
             );
@@ -67,7 +70,6 @@ export class Interceptor implements HttpInterceptor {
           }
         }
 
-        // For other errors, just pass them along
         return throwError(() => error);
       })
     );

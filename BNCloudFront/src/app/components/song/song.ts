@@ -86,6 +86,8 @@ export class Song implements OnInit {
         image: null,   // placeholder
         userRating : res.userRating,
         avgRating: res.avgRating,
+        sumRatings: res.sumRatings,
+        numRatings: res.numRatings,
       };
 
       //load ratings
@@ -194,7 +196,10 @@ export class Song implements OnInit {
 
       this.ss.rateSong(request).subscribe({
         next: () => {
-          window.location.reload();
+          this.avgRating = parseFloat((
+            (this.song.sumRatings + this.currentRating) /
+            (this.song.numRatings + 1)
+          ).toFixed(2));
         },
         error: (err: Error) => {
           console.error('Error rating song:', err);
