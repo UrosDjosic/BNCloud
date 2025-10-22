@@ -1,12 +1,8 @@
 import json
 import uuid
 import boto3
-from datetime import datetime
 from helpers.create_response import create_response
-from boto3.dynamodb.conditions import Key
 from pre_authorize import pre_authorize
-
-
 
 dynamodb = boto3.resource('dynamodb')
 albums_table = dynamodb.Table('Albums')
@@ -16,7 +12,6 @@ artist_table = dynamodb.Table('Artists')
 @pre_authorize(['Administrator'])
 def create(event, context):
     data = json.loads(event['body'])
-
     album_id = str(uuid.uuid4())
 
     genres_input = data.get('genres', [])
@@ -25,31 +20,22 @@ def create(event, context):
     genres_full = []
 
     for genre in genres_input:
-        if isinstance(genre, dict):
-            genre_name = genre.get('name')
-            genre_id = genre.get('id')
-        else:
-            genre_name = str(genre)
-            genre_id = None
+        genre_id = genre.get('id')
+        genre_name = genre.get('name')
+        if not genre_id or not genre_name:
+            continue
 
-        if not genre_name or not genre_id:
-            continue  # skip empty genres or missing IDs
-
-        # Add album to genre's Albums list
         genre_table.update_item(
             Key={'id': genre_id},
-            UpdateExpression="SET #A = list_append(if_not_exists(#A, :empty_list), :new_album)",
-            ConditionExpression="attribute_not_exists(#A) OR NOT contains(#A_ids, :album_id)",
-            ExpressionAttributeNames={'#A': 'Albums', '#A_ids': 'AlbumIds'},
+            UpdateExpression="SET Albums = list_append(if_not_exists(Albums, :empty_list), :new_album)",
             ExpressionAttributeValues={
                 ':new_album': [{'id': album_id, 'name': data['name']}],
-                ':empty_list': [],
-                ':album_id': album_id
+                ':empty_list': []
             }
         )
 
         genres_full.append({'id': genre_id, 'name': genre_name})
-    
+
     for artist in data.get('artists', []):
         artist_id = artist.get('id')
         if not artist_id:
@@ -57,20 +43,13 @@ def create(event, context):
 
         try:
             artist_table.update_item(
-            Key={'id': artist_id},
-            UpdateExpression="""
-                SET Albums = list_append(if_not_exists(Albums, :empty_list), :new_album),
-                    AlbumIds = list_append(if_not_exists(AlbumIds, :empty_id_list), :new_album_id)
-            """,
-            ConditionExpression="attribute_not_exists(AlbumIds) OR NOT contains(AlbumIds, :album_id)",
-            ExpressionAttributeValues={
-                ':new_album': [{'id': album_id, 'name': data['name']}],
-                ':new_album_id': [album_id],
-                ':album_id': album_id,
-                ':empty_list': [],
-                ':empty_id_list': []
-            }
-        )
+                Key={'id': artist_id},
+                UpdateExpression="SET Albums = list_append(if_not_exists(Albums, :empty_list), :new_album)",
+                ExpressionAttributeValues={
+                    ':new_album': [{'id': album_id, 'name': data['name']}],
+                    ':empty_list': []
+                }
+            )
         except Exception as e:
             print(f"Failed to update artist {artist_id}: {str(e)}")
 
@@ -84,12 +63,4 @@ def create(event, context):
 
     albums_table.put_item(Item=item)
 
-    return {
-        'statusCode': 200,
-        'body': json.dumps({'albumId': album_id, 'message': 'Album created successfully'}),
-        'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT',
-            'Access-Control-Allow-Headers': '*'
-        }
-    }
+    return create_response(200, {'albumId': album_id, 'message': 'Album created successfully'})

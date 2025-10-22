@@ -9,6 +9,8 @@ songs_table = dynamodb.Table('Songs')
 
 
 def delete(event, context):
+    print("DeleteSongLambda triggered!")
+    print("Event received:", json.dumps(event))
     path_params = event.get('pathParameters') or {}
     song_id = path_params.get('songId')
 

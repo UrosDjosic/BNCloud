@@ -1,8 +1,8 @@
 from constructs import Construct
 from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb, Stack
 class AlbumApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,other_tables,
-                 layers, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,other_tables, 
+                 layers, other_lambdas, **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Albums'
@@ -136,7 +136,8 @@ class AlbumApi(Construct):
                 "TABLE_NAME": "Albums",
                 "DELETE_ALBUM_FROM_ARTISTS": delete_album_from_artists_lambda.function_arn,
                 "DELETE_ALBUM_FROM_GENRES": delete_album_from_genres_lambda.function_arn,
-                "DELETE_ALBUM_FROM_SONGS": delete_album_from_songs_lambda.function_arn
+                "DELETE_ALBUM_FROM_SONGS": delete_album_from_songs_lambda.function_arn,
+                "DELETE_SONG": other_lambdas["delete_song_lambda"].function_name
             },
             role=lambda_role
         )
@@ -144,7 +145,7 @@ class AlbumApi(Construct):
         for fn in [
             delete_album_from_artists_lambda,
             delete_album_from_genres_lambda,
-            delete_album_from_songs_lambda
+            other_lambdas["delete_song_lambda"]
         ]:
             fn.add_permission(
                 "AllowInvokeFromLambda",
@@ -152,6 +153,7 @@ class AlbumApi(Construct):
                 action="lambda:InvokeFunction",
                 source_account=Stack.of(self).account
             )
+    
 
         table.grant_read_write_data(delete_album_lambda)
         other_tables['artist'].grant_read_write_data(delete_album_lambda)
