@@ -2,11 +2,12 @@ import os
 import boto3
 from boto3.dynamodb.conditions import Key
 from helpers.create_response import create_response
+from pre_authorize import pre_authorize
 
 dynamodb = boto3.resource("dynamodb")
 
 table_name = os.environ.get('TABLE_NAME','Subscriptions')
-
+@pre_authorize(['User'])
 def get(event,context):
     path_params = event.get('pathParameters') or {}
     user_email = path_params.get('userEmail')

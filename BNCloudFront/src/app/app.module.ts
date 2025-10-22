@@ -15,9 +15,10 @@ import {MatDivider, MatList} from '@angular/material/list';
 import {MatListItem} from '@angular/material/list';
 import {MatOption} from '@angular/material/core';
 import {MatSelect} from '@angular/material/select';
-import { HttpClientModule } from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { ComponentsModule } from './components/components.module';
 import {UserModule} from './user/user.module';
+import {Interceptor} from './interceptor';
 
 
 @NgModule({
@@ -45,6 +46,13 @@ import {UserModule} from './user/user.module';
     MatSelect,
     MatDivider,
     FormsModule
+  ],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: Interceptor,
+      multi: true,
+    },
   ],
   bootstrap: [App]
 })

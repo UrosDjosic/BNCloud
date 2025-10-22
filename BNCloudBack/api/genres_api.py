@@ -2,18 +2,12 @@ from constructs import Construct
 from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb
 
 class GenreApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table, **kwargs):
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table, 
+                 layers, **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Genres'
         }       
-
-        util_layer =[ _lambda.LayerVersion(
-            self, "UtilLambdaLayer",
-            code=_lambda.Code.from_asset("libs"), 
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
-            description="Shared utilities"
-        )]
 
         genre_resource = api.add_resource("genre")
 
@@ -48,21 +42,21 @@ class GenreApi(Construct):
         get_lambda = _lambda.Function(
             self,"GetGenreLambda",
             runtime = _lambda.Runtime.PYTHON_3_11,
-            layers = util_layer,
+            layers = layers,
             handler= "get_genres.handler.get",
             code = _lambda.Code.from_asset("lambda/genre"),
             environment = env,
-            role = lambda_role
+            role = lambda_role,
         )
         get_integration = apigw.LambdaIntegration(get_lambda)
         genre_resource.add_method(
-            "GET", get_integration
+            "GET", get_integration,
         )
 
         #DISCOVER
         discover_lambda = _lambda.Function(self,"DiscoverLambda",
             runtime = _lambda.Runtime.PYTHON_3_11,
-            layers = util_layer,
+            layers = layers,
             handler= "discover.handler.discover",
             code = _lambda.Code.from_asset("lambda/genre"),
             environment = env,

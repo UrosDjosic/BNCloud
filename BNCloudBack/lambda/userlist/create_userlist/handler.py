@@ -1,11 +1,13 @@
 import json
 import uuid
 import boto3
+from pre_authorize import pre_authorize
 
 
 dynamodb = boto3.resource('dynamodb')
 userlist_table = dynamodb.Table('Userlists')
 
+@pre_authorize(['User'])
 def create(event, context):
     data = json.loads(event['body'])
 

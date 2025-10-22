@@ -1,9 +1,11 @@
 import json
 import boto3
+from pre_authorize import pre_authorize
 
 dynamodb = boto3.resource('dynamodb')
 userlist_table = dynamodb.Table('Userlists')
 
+@pre_authorize(['User'])
 def update(event, context):
     data = json.loads(event['body'])
     path_params = event.get('pathParameters') or {}

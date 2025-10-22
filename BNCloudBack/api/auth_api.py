@@ -9,7 +9,7 @@ class AuthApi(Construct):
                  , **kwargs):
         super().__init__(scope, id, **kwargs)
 
-        util_layer =[ _lambda.LayerVersion(
+        util_layer = [_lambda.LayerVersion(
             self, "UtilLambdaLayer",
             code=_lambda.Code.from_asset("libs"), 
             compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
@@ -26,7 +26,7 @@ class AuthApi(Construct):
             environment={
                 "USER_POOL_ID": user_pool.user_pool_id,
                 "CLIENT_ID": user_pool_client.user_pool_client_id
-            }
+            },
         )
         register_lambda.add_to_role_policy(
             iam.PolicyStatement(
@@ -37,7 +37,8 @@ class AuthApi(Construct):
         user_pool.grant(register_lambda, "cognito-idp:SignUp")
         register_integration = apigw.LambdaIntegration(register_lambda)
         api.add_resource("register").add_method(
-            "POST",register_integration
+            "POST",register_integration,
+            authorization_type=apigw.AuthorizationType.NONE
         )
 
         #Login lambda
@@ -56,7 +57,8 @@ class AuthApi(Construct):
         #Login!
         login_integration = apigw.LambdaIntegration(login_lambda)
         api.add_resource("login").add_method(
-            "POST", login_integration
+            "POST", login_integration,
+            authorization_type=apigw.AuthorizationType.NONE
         )
 
         #Verify function lambda
@@ -73,7 +75,8 @@ class AuthApi(Construct):
         user_pool.grant(verify_lambda,"cognito-idp:ConfirmSignUp")
         verify_integration = apigw.LambdaIntegration(verify_lambda)
         api.add_resource("verify").add_method(
-            "PUT",verify_integration
+            "PUT",verify_integration,
+            authorization_type=apigw.AuthorizationType.NONE
         )
 
 

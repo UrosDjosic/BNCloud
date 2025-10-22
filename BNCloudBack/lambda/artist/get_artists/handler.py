@@ -3,12 +3,14 @@ import os
 import boto3
 from boto3.dynamodb.conditions import Key
 from helpers.create_response import create_response
+from pre_authorize import pre_authorize
+
 
 # Environment variable for table name
 TABLE_NAME = os.environ['TABLE_NAME']
 dynamodb = boto3.resource('dynamodb')
 
-
+@pre_authorize(['Administrator','User'])
 def get(event, context):
     try:
         table = dynamodb.Table(TABLE_NAME)

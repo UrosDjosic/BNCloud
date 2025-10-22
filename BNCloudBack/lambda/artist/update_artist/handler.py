@@ -3,12 +3,15 @@ import os
 import boto3
 from boto3.dynamodb.conditions import Key
 from helpers.create_response import create_response
+from pre_authorize import pre_authorize
+
 import uuid
 
 table_name = os.environ['TABLE_NAME']
 genre_table_name = os.environ['GENRE_TABLE_NAME']  
 dynamodb = boto3.resource('dynamodb')
 
+@pre_authorize(['Administrator'])
 def update(event, context):
     body = json.loads(event['body'])
     artist_id = body['id']

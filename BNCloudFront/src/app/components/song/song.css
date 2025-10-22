@@ -1,7 +1,7 @@
 .song-container {
   display: flex;
-  justify-content: center;
-  margin: 20px;
+  justify-content: flex-end;
+  margin: 6rem;
 
   .song-card {
     width: 100%;
@@ -171,6 +171,9 @@
         padding: 1rem;
         backdrop-filter: blur(6px);
         box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+        width: 80%;
+        margin: 1rem;
+        margin-left: 2rem;
 
         h3 {
           margin: 0 0 0.5rem 0;
@@ -178,6 +181,15 @@
           color: #FFD700;
           text-align: center;
           font-weight: 600;
+          letter-spacing: 0.5px;
+        }
+
+        p {
+          margin: 0 0 0.5rem 0;
+          font-size: 0.8rem;
+          color: #FFD700;
+          text-align: center;
+          font-weight: 300;
           letter-spacing: 0.5px;
         }
 
