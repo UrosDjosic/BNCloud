@@ -4,7 +4,8 @@ from aws_cdk import (aws_lambda as _lambda,
                      aws_iam as iam,
                      aws_dynamodb as dynamodb,
                      aws_s3 as s3,
-                     Duration,
+                     Duration, 
+                     Stack,
                      Size)
 from aws_cdk import aws_lambda_event_sources as lambda_event_sources
 class SongApi(Construct):
@@ -46,6 +47,13 @@ class SongApi(Construct):
                     other_tables['album'].table_arn,
                     other_tables['ratings'].table_arn
                 ]
+            )
+        )
+        lambda_role.add_to_policy(
+        iam.PolicyStatement(
+            effect=iam.Effect.ALLOW,
+            actions=["lambda:InvokeFunction"],
+            resources=["*"]  # ili ograniči na konkretne funkcije ako želiš
             )
         )
 
@@ -211,3 +219,72 @@ class SongApi(Construct):
         transcribe_lambda.add_event_source(
             lambda_event_sources.SqsEventSource(transcribe_queue, batch_size=1)
         )
+
+
+        # Delete workers
+        delete_song_from_artists_lambda = _lambda.Function(
+            self, "DeleteSongFromArtistsLambda",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.delete_song.from_artists.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+        other_tables['artist'].grant_read_write_data(delete_song_from_artists_lambda)
+
+        delete_song_from_albums_lambda = _lambda.Function(
+            self, "DeleteSongFromAlbumsLambda",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.delete_song.from_albums.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+        other_tables['album'].grant_read_write_data(delete_song_from_albums_lambda)
+
+        delete_song_from_s3_lambda = _lambda.Function(
+            self, "DeleteSongFromS3Lambda",
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.delete_song.from_s3.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment=env,
+            role=lambda_role
+        )
+        songs_bucket.grant_read_write(delete_song_from_s3_lambda)
+
+        # DELETE /song/{songId}
+        delete_song_lambda = _lambda.Function(
+            self, "DeleteSongLambda",
+            layers=layers,
+            runtime=_lambda.Runtime.PYTHON_3_11,
+            handler="song.delete_song.handler.delete",
+            code=_lambda.Code.from_asset("lambda"),
+            environment={
+                "TABLE_NAME": "Songs",
+                "DELETE_SONG_FROM_ARTISTS": delete_song_from_artists_lambda.function_arn,
+                "DELETE_SONG_FROM_ALBUMS": delete_song_from_albums_lambda.function_arn,
+                "DELETE_SONG_FROM_S3": delete_song_from_s3_lambda.function_arn,
+                "SONGS_BUCKET_NAME": songs_bucket.bucket_name,
+            },
+            role=lambda_role
+        )
+
+        for fn in [
+            delete_song_from_artists_lambda,
+            delete_song_from_albums_lambda,
+            delete_song_from_s3_lambda
+        ]:
+            fn.add_permission(
+                "AllowInvokeFromLambda",
+                principal=iam.ServicePrincipal("lambda.amazonaws.com"),
+                action="lambda:InvokeFunction",
+                source_account=Stack.of(self).account
+            )
+
+        songs_bucket.grant_read_write(delete_song_lambda)
+        table.grant_read_write_data(delete_song_lambda)
+        other_tables['artist'].grant_read_write_data(delete_song_lambda)
+        other_tables['album'].grant_read_write_data(delete_song_lambda)
+
+        delete_song_integration = apigw.LambdaIntegration(delete_song_lambda)
+        song_id_resource.add_method("DELETE", delete_song_integration)

@@ -6,6 +6,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {SongService} from '../../services/song-service';
 import {ElementRef} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {MatProgressBar} from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-advanced-edit',
@@ -14,7 +15,8 @@ import {FormsModule} from '@angular/forms';
     DatePipe,
     DecimalPipe,
     FormsModule,
-    CommonModule
+    CommonModule,
+    MatProgressBar
   ],
   templateUrl: './advanced-edit.html',
   styleUrl: './advanced-edit.css'
@@ -29,6 +31,10 @@ export class AdvancedEdit {
 
   newAudio: any = {};
   newCover: any = {};
+
+  totalProgress: number = 0;
+  isUploading: boolean = false;
+  private uploadProgressMap = new Map<string, number>();
 
   constructor(private router: Router, private route: ActivatedRoute, private snackBar: MatSnackBar, private ss: SongService) {}
   ngOnInit() {
@@ -90,6 +96,10 @@ export class AdvancedEdit {
       } catch (error) {
         console.error('Error updating audio:', error);
         // Optionally, show an error message to the user
+      } finally {
+        this.isUploading = false;
+        this.uploadProgressMap.clear();
+        this.totalProgress = 0;
       }
     })
   }
@@ -126,6 +136,10 @@ export class AdvancedEdit {
       } catch (error) {
         console.error('Error updating image:', error);
         // Optionally, show an error message to the user
+      } finally {
+        this.isUploading = false;
+        this.uploadProgressMap.clear();
+        this.totalProgress = 0;
       }
     })
   }
@@ -191,36 +205,41 @@ export class AdvancedEdit {
   }
 
   async uploadToS3(presignedUrl: string, file: Blob | File): Promise<void> {
+    this.isUploading = true;
+
     return new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-
       xhr.open('PUT', presignedUrl, true);
 
-      // Optional progress listener
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           const percent = Math.round((event.loaded / event.total) * 100);
+          this.setFileProgress(file instanceof File ? file.name : 'file', percent);
           console.log(`Upload progress: ${percent}%`);
         }
       };
 
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
-          console.log('Upload succeeded:', xhr.status);
-          resolve(); // nothing returned on PUT
+          this.setFileProgress(file instanceof File ? file.name : 'file', 100);
+          resolve();
         } else {
-          console.error('Upload failed:', xhr.status, xhr.responseText);
-          reject(new Error(`S3 upload failed with status ${xhr.status}`));
+          reject(new Error(`S3 upload failed: ${xhr.status}`));
         }
       };
 
-      xhr.onerror = () => {
-        console.error('Network error during S3 upload');
-        reject(new Error('Network error during S3 upload'));
-      };
-
-      xhr.send(file); // send the Blob/File as the body
+      xhr.onerror = () => reject(new Error('Network error during S3 upload'));
+      xhr.send(file);
     });
   }
 
+
+  setFileProgress(fileName: string, percent: number) {
+    this.uploadProgressMap.set(fileName, percent);
+
+    const values = Array.from(this.uploadProgressMap.values());
+    const avgProgress = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+
+    this.totalProgress = avgProgress;
+  }
 }
