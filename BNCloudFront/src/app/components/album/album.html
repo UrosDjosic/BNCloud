@@ -12,6 +12,7 @@
             <button *ngIf="!editingName" (click)="startEditing()" class="edit-btn">Edit</button>
             <button *ngIf="editingName" (click)="saveName()" class="save-btn">Save</button>
             <button *ngIf="editingName" (click)="cancelEditing()" class="cancel-btn">Cancel</button>
+            <button class="delete-btn" (click)="deleteAlbum()">Delete</button>
           </div>
         </div>
 

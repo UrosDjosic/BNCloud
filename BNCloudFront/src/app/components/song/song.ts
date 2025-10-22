@@ -5,6 +5,8 @@ import {jwtDecode} from 'jwt-decode';
 import {JwtClaims} from '../../models/jwt-claims';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {UserlistService} from '../../services/userlist-service';
+import { MatDialog } from '@angular/material/dialog';
+import {ConfirmDialogComponent} from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-song',
@@ -28,7 +30,7 @@ export class Song implements OnInit {
   userlistId?: string;
   usersLists?: any;
 
-  constructor(private route: ActivatedRoute, private router: Router, private ss: SongService, private us: UserlistService, private snackbar: MatSnackBar) {}
+  constructor(private dialog: MatDialog, private route: ActivatedRoute, private router: Router, private ss: SongService, private us: UserlistService, private snackbar: MatSnackBar) {}
 
   ngOnInit() {
     const token = localStorage.getItem('idToken');
@@ -184,7 +186,23 @@ export class Song implements OnInit {
   }
 
   deleteSong() {
-    // this.songService.deleteSong(this.songId).subscribe(...)
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { message: 'Are you sure you want to delete this song?' }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.ss.deleteSong(this.songId!).subscribe({
+          next: () => {
+            this.snackbar.open('Song deleted successfully.', 'OK', { duration: 3000 });
+            this.router.navigate(['/songs']);
+          },
+          error: () => {
+            this.snackbar.open('Failed to delete song.', 'Close', { duration: 3000 });
+          }
+        });
+      }
+    });
   }
 
   navigateToArtist(artistId: string) {

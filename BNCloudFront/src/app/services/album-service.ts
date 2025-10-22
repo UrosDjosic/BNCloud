@@ -23,4 +23,8 @@ export class AlbumService {
   updateAlbum(albumId: string, data: { name: string }): Observable<any> {
     return this.http.put(`${environment.apiHost}/album/${albumId}`, data);
   }
+
+  deleteAlbum(albumId: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiHost}/album/${albumId}`);
+  }
 }

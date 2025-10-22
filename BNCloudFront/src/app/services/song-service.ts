@@ -39,4 +39,8 @@ export class SongService {
   searchSong(name: string): Observable<object> {
     return this.http.get<object>(`${environment.apiHost}/song/search/${name}`);
   }
+
+  deleteSong(songId: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiHost}/song/${songId}`);
+  }
 }
