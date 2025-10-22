@@ -53,7 +53,7 @@ class SongApi(Construct):
         iam.PolicyStatement(
             effect=iam.Effect.ALLOW,
             actions=["lambda:InvokeFunction"],
-            resources=["*"]  # ili ograniči na konkretne funkcije ako želiš
+            resources=["*"]  
             )
         )
 
@@ -288,3 +288,4 @@ class SongApi(Construct):
 
         delete_song_integration = apigw.LambdaIntegration(delete_song_lambda)
         song_id_resource.add_method("DELETE", delete_song_integration)
+        self.delete_song_lambda = delete_song_lambda
