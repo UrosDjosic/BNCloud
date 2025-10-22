@@ -129,5 +129,6 @@ class ApiStack(Stack):
             self,
             "UserlistApi",
             api = root_api,
-            table = tables['userlist']
+            table = tables['userlist'],
+            layers = layers
         )

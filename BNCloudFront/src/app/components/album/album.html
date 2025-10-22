@@ -16,12 +16,15 @@
           </div>
         </div>
 
-        <!-- Artist -->
+        <!-- Artists -->
         <p class="album-artist">
           <strong>by</strong>
-          <a (click)="navigateToArtist(album.author.id)" class="artist-link prominent-artist">
-            {{ artistNames[album.author.id] || album.author.name }}
-          </a>
+          <ng-container *ngFor="let a of album.author; let last = last">
+            <a (click)="navigateToArtist(a.id)" class="artist-link prominent-artist">
+              {{ a.name }}
+            </a>
+            <span *ngIf="!last">, </span>
+          </ng-container>
         </p>
 
         <!-- Genres -->
@@ -52,7 +55,7 @@
                 (click)="navigateToArtist(artist)"
                 class="artist-link song-artist"
               >
-                {{ artistNames[artist] || artist }}
+                {{ artist.name }}
                 <span *ngIf="!last">, </span>
               </span>
             </div>

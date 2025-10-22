@@ -57,13 +57,20 @@ def create(event, context):
 
         try:
             artist_table.update_item(
-                Key={'id': artist_id},
-                UpdateExpression="SET Albums = list_append(if_not_exists(Albums, :empty_list), :new_album)",
-                ExpressionAttributeValues={
-                    ':new_album': [{'id': album_id, 'name': data['name']}],
-                    ':empty_list': []
-                }
-            )
+            Key={'id': artist_id},
+            UpdateExpression="""
+                SET Albums = list_append(if_not_exists(Albums, :empty_list), :new_album),
+                    AlbumIds = list_append(if_not_exists(AlbumIds, :empty_id_list), :new_album_id)
+            """,
+            ConditionExpression="attribute_not_exists(AlbumIds) OR NOT contains(AlbumIds, :album_id)",
+            ExpressionAttributeValues={
+                ':new_album': [{'id': album_id, 'name': data['name']}],
+                ':new_album_id': [album_id],
+                ':album_id': album_id,
+                ':empty_list': [],
+                ':empty_id_list': []
+            }
+        )
         except Exception as e:
             print(f"Failed to update artist {artist_id}: {str(e)}")
 

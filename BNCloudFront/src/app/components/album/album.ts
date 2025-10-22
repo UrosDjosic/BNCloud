@@ -16,8 +16,7 @@ import {MatDialog} from '@angular/material/dialog';
 export class Album implements OnInit {
 
   albumId?: string;
-  album?: AlbumDTO;
-  artistNames: { [id: string]: string } = {};
+  album?: any;
   editingName = false;
   editedName = '';
 
@@ -25,7 +24,6 @@ export class Album implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private albumService: AlbumService,
-    private artistService: ArtistService,
     private dialog: MatDialog,
     private snackbar: MatSnackBar
   ) {}
@@ -43,11 +41,11 @@ export class Album implements OnInit {
     this.albumService.getAlbum(id).subscribe(async (res: any) => {
       console.log('Album loaded:', res);
 
-      const album: AlbumDTO = {
+      this.album = {
         id: res.id,
         name: res.name,
         genres: res.genres || [],
-        author: res.author || { id: '', name: '' },
+        author: res.authors || { id: '', name: '' },
         songs: (res.songs || []).map((s: any) => ({
           id: s.id,
           name: s.name,
@@ -55,17 +53,6 @@ export class Album implements OnInit {
           artists: s.artists
         }))
       };
-
-      // Load artist names
-      const artistIds = [
-        album.author.id,
-        ...album.songs.flatMap(s => s.artists || [])
-      ].filter((id): id is string => !!id);
-
-      await this.loadArtistNames(Array.from(new Set(artistIds)));
-      console.log('Artist names loaded', this.artistNames);
-
-      this.album = album;
     });
   }
 
@@ -82,13 +69,6 @@ export class Album implements OnInit {
       xhr.onerror = () => reject(new Error('Network error during S3 download'));
       xhr.send();
     });
-  }
-
-  async loadArtistNames(ids: string[]) {
-    const artists = await Promise.all(ids.map(id => this.artistService.getArtist(id).toPromise()));
-    const newArtistNames: { [id: string]: string } = {};
-    artists.forEach((a: any) => newArtistNames[a.id] = a.name);
-    this.artistNames = newArtistNames;
   }
 
   startEditing() {
@@ -138,7 +118,7 @@ export class Album implements OnInit {
   }
 
   navigateToArtist(artistId: string) {
-    this.router.navigate([`/author/${artistId}`]);
+    this.router.navigate([`/artist/${artistId}`]);
   }
 
   navigateToSong(songId: string) {

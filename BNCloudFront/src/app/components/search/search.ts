@@ -37,7 +37,7 @@ export class Search implements OnInit {
     console.log(query)
 
     // Fetch results
-    this.fetchResults(query);
+    this.fetchResults((String(query)));
   }
 
   fetchResults(query: string) {

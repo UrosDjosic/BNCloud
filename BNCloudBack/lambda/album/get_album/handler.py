@@ -67,7 +67,7 @@ def get(event, context):
         album_dto = {
             'id': album['id'],
             'name': album['name'],
-            'author': album.get('artists', [{}])[0] if album.get('artists') else {'id': '', 'name': ''},
+            'authors': album.get('artists', []),
             'songs': songs_dto,
             'genres': album.get('genres', [])
         }

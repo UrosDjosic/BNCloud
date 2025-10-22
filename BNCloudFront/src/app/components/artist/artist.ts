@@ -32,7 +32,7 @@ export class Artist implements OnInit {
   loadArtist(artistId: string) {
     this.as.getArtist(artistId).subscribe({
       next: (artist: any) => {
-        console.log(artist.Songs);
+        console.log(artist);
         this.artist = artist; // ✅ assign response to artist
       },
       error: (err) => {
