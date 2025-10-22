@@ -49,6 +49,13 @@ class SongApi(Construct):
                 ]
             )
         )
+        lambda_role.add_to_policy(
+        iam.PolicyStatement(
+            effect=iam.Effect.ALLOW,
+            actions=["lambda:InvokeFunction"],
+            resources=["*"]  # ili ograniči na konkretne funkcije ako želiš
+            )
+        )
 
         #CREATE
         create_song_lambda = _lambda.Function(

@@ -38,6 +38,14 @@ class AlbumApi(Construct):
             )
         )
 
+        lambda_role.add_to_policy(
+        iam.PolicyStatement(
+            effect=iam.Effect.ALLOW,
+            actions=["lambda:InvokeFunction"],
+            resources=["*"]  
+            )
+        )
+
 
         #CREATE
         create_album_lambda = _lambda.Function(
