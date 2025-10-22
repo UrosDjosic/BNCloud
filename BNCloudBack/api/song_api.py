@@ -4,7 +4,8 @@ from aws_cdk import (aws_lambda as _lambda,
                      aws_iam as iam,
                      aws_dynamodb as dynamodb,
                      aws_s3 as s3,
-                     Duration,
+                     Duration, 
+                     Stack,
                      Size)
 from aws_cdk import aws_lambda_event_sources as lambda_event_sources
 class SongApi(Construct):
@@ -247,7 +248,7 @@ class SongApi(Construct):
         # DELETE /song/{songId}
         delete_song_lambda = _lambda.Function(
             self, "DeleteSongLambda",
-            layers=util_layer,
+            layers=layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="song.delete_song.handler.delete",
             code=_lambda.Code.from_asset("lambda"),
@@ -261,9 +262,17 @@ class SongApi(Construct):
             role=lambda_role
         )
 
-        delete_song_from_artists_lambda.grant_invoke(delete_song_lambda)
-        delete_song_from_albums_lambda.grant_invoke(delete_song_lambda)
-        delete_song_from_s3_lambda.grant_invoke(delete_song_lambda)
+        for fn in [
+            delete_song_from_artists_lambda,
+            delete_song_from_albums_lambda,
+            delete_song_from_s3_lambda
+        ]:
+            fn.add_permission(
+                "AllowInvokeFromLambda",
+                principal=iam.ServicePrincipal("lambda.amazonaws.com"),
+                action="lambda:InvokeFunction",
+                source_account=Stack.of(self).account
+            )
 
         songs_bucket.grant_read_write(delete_song_lambda)
         table.grant_read_write_data(delete_song_lambda)

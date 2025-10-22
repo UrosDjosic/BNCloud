@@ -70,7 +70,8 @@
 
 .edit-btn,
 .save-btn,
-.cancel-btn {
+.cancel-btn,
+.delete-btn{
   position: static;
   background: #bb86fc;
   border: none;
@@ -83,7 +84,8 @@
 }
 
 .edit-btn:hover,
-.save-btn:hover {
+.save-btn:hover,
+.delete-btn:hover {
   background: #e0b3ff;
   transform: translateY(-1px);
 }
@@ -223,4 +225,10 @@
 .song-artist:hover {
   color: #e0b3ff;
   text-decoration: underline;
+}
+.delete-btn {
+  background-color: #e53935;
+}
+.delete-btn:hover {
+  background-color: #c51b1b;
 }

@@ -1,5 +1,5 @@
 from constructs import Construct
-from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb
+from aws_cdk import aws_lambda as _lambda, aws_apigateway as apigw, aws_iam as iam,aws_dynamodb as dynamodb, Stack
 class AlbumApi(Construct):
     def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,other_tables,
                  layers, **kwargs):
@@ -120,7 +120,7 @@ class AlbumApi(Construct):
 
         delete_album_lambda = _lambda.Function(
             self, "DeleteAlbumLambda",
-            layers=util_layer,
+            layers=layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="album.delete_album.handler.delete",
             code=_lambda.Code.from_asset("lambda"),
@@ -133,9 +133,17 @@ class AlbumApi(Construct):
             role=lambda_role
         )
 
-        delete_album_from_artists_lambda.grant_invoke(delete_album_lambda)
-        delete_album_from_genres_lambda.grant_invoke(delete_album_lambda)
-        delete_album_from_songs_lambda.grant_invoke(delete_album_lambda)
+        for fn in [
+            delete_album_from_artists_lambda,
+            delete_album_from_genres_lambda,
+            delete_album_from_songs_lambda
+        ]:
+            fn.add_permission(
+                "AllowInvokeFromLambda",
+                principal=iam.ServicePrincipal("lambda.amazonaws.com"),
+                action="lambda:InvokeFunction",
+                source_account=Stack.of(self).account
+            )
 
         table.grant_read_write_data(delete_album_lambda)
         other_tables['artist'].grant_read_write_data(delete_album_lambda)

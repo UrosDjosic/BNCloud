@@ -3,6 +3,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AlbumService } from '../../services/album-service';
 import { ArtistService } from '../../services/artist-service';
 import { AlbumDTO } from '../../models/album';
+import {ConfirmDialogComponent} from '../confirm-dialog/confirm-dialog.component';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-album',
@@ -22,7 +25,9 @@ export class Album implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private albumService: AlbumService,
-    private artistService: ArtistService
+    private artistService: ArtistService,
+    private dialog: MatDialog,
+    private snackbar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -108,6 +113,27 @@ export class Album implements OnInit {
         console.log('Album name updated successfully');
       },
       error: (err) => console.error('Error updating album:', err)
+    });
+  }
+
+  deleteAlbum() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { message: 'Are you sure you want to delete this album?' }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.albumService.deleteAlbum(this.albumId!).subscribe({
+          next: () => {
+            this.snackbar.open('Album deleted successfully.', 'OK', { duration: 3000 });
+            this.router.navigate(['/albums']);
+          },
+          error: (err) => {
+            console.error('Error deleting album:', err);
+            this.snackbar.open('Failed to delete album.', 'Close', { duration: 3000 });
+          }
+        });
+      }
     });
   }
 
