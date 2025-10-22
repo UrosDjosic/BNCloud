@@ -107,8 +107,12 @@ class ApiStack(Stack):
             api = root_api,
             table = tables['album'],
             other_tables=tables,
-            layers = layers
+            layers = layers,
+            other_lambdas = {
+                "delete_song_lambda": song_api.delete_song_lambda  
+            }
         )
+        album_api.node.add_dependency(song_api)
         genre_api = GenreApi(
             self,
             "GenreApi",
