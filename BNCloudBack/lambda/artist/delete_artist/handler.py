@@ -1,11 +1,14 @@
 import boto3, json, os
 from helpers.invoke_lambda import invoke_target_async
 from helpers.create_response import create_response
+from pre_authorize import pre_authorize
+
 
 
 lambda_client = boto3.client('lambda')
 dynamodb = boto3.resource('dynamodb')
 
+@pre_authorize(['Administrator'])
 def delete(event, context):
     path_params = event.get('pathParameters') or {}
     artist_id = path_params.get('artistId')

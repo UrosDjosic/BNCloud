@@ -1,12 +1,15 @@
 import json
 import boto3
 from helpers.create_response import create_response
+from pre_authorize import pre_authorize
+
 
 dynamodb = boto3.resource('dynamodb')
 albums_table = dynamodb.Table('Albums')
 genre_table = dynamodb.Table('Genres')
 artist_table = dynamodb.Table('Artists')
 
+@pre_authorize(['Administrator'])
 def update(event, context):
     """
     Update album name only.

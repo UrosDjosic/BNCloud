@@ -10,7 +10,8 @@ from aws_cdk import (
     aws_apigateway as apigateway,
     aws_s3 as s3,
     aws_s3_notifications as s3n,
-    RemovalPolicy
+    RemovalPolicy,
+    CfnOutput
 )
 
 
@@ -148,6 +149,56 @@ class StorageStack(Stack):
         )
         self.tables['userlist'] = userlist_table
 
+        #------------ RATINGS TABLE ----------------------
+        ratings_table = dynamodb.Table(
+            self,"ratings",
+            table_name="Ratings",
+            partition_key=dynamodb.Attribute(
+                name = "user",
+                type = dynamodb.AttributeType.STRING
+            ),
+            sort_key=dynamodb.Attribute(
+                name="song_id",  
+                type=dynamodb.AttributeType.STRING
+            ),
+            billing_mode=dynamodb.BillingMode.PROVISIONED,
+            read_capacity=1,
+            write_capacity=1
+        )
+        self.tables['ratings'] = ratings_table
+
+
+        #----------- FEED TABLE --------------------------
+        users_feed_table = dynamodb.Table(
+            self,"UsersFeed",
+            table_name="UsersFeed",
+            partition_key=dynamodb.Attribute(
+                name = "username",
+                type = dynamodb.AttributeType.STRING
+            ),
+            billing_mode=dynamodb.BillingMode.PROVISIONED,
+            read_capacity=1,
+            write_capacity=1
+        )
+        self.tables['users_feed'] = users_feed_table
+
+        #--------- FEED SCORES TABLE (SAVING PK - USER SK - TYPE SCORE) ------------
+        feed_scores_table = dynamodb.Table(
+            self,"FeedScores",
+            table_name="FeedScores",
+            partition_key=dynamodb.Attribute(
+                name = "username",
+                type = dynamodb.AttributeType.STRING
+            ),
+            sort_key=dynamodb.Attribute(
+                name = "entity_type",
+                type = dynamodb.AttributeType.STRING
+            ),
+            billing_mode=dynamodb.BillingMode.PROVISIONED,
+            read_capacity=1,
+            write_capacity=1
+        )
+        self.tables['feed_scores'] = feed_scores_table
 
 
         #--------------- S3 BUCKET CREATION WITH CORS ----------------
@@ -203,4 +254,3 @@ class StorageStack(Stack):
             s3.EventType.OBJECT_CREATED,
             s3n.SqsDestination(transcribe_queue),
         )
-

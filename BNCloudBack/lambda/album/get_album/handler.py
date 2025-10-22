@@ -1,6 +1,8 @@
 import json
 import boto3
 import logging
+from pre_authorize import pre_authorize
+
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -18,6 +20,7 @@ CORS_HEADERS = {
     'Access-Control-Allow-Headers': '*'
 }
 
+@pre_authorize(['Administrator','User'])
 def get(event, context):
     try:
         path_params = event.get('pathParameters') or {}

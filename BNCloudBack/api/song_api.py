@@ -9,7 +9,8 @@ from aws_cdk import (aws_lambda as _lambda,
 from aws_cdk import aws_lambda_event_sources as lambda_event_sources
 class SongApi(Construct):
     def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,other_tables, 
-                 songs_bucket, transcribe_queue,notification_queue, **kwargs):
+                 songs_bucket, transcribe_queue,notification_queue,
+                 feed_queue,layers, **kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
                 "TABLE_NAME" : 'Songs'
@@ -19,12 +20,6 @@ class SongApi(Construct):
         song_search_resource = song_resource.add_resource("search")
         song_name_resource = song_search_resource.add_resource("{name}")
 
-        util_layer =[ _lambda.LayerVersion(
-            self, "UtilLambdaLayer",
-            code=_lambda.Code.from_asset("libs"), 
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
-            description="Shared utilities"
-        )]
         lambda_role = iam.Role(
             self, "SongsLambdaRole",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com")
@@ -48,7 +43,8 @@ class SongApi(Construct):
                     table.table_arn,
                     other_tables['artist'].table_arn,
                     other_tables['genre'].table_arn,
-                    other_tables['album'].table_arn
+                    other_tables['album'].table_arn,
+                    other_tables['ratings'].table_arn
                 ]
             )
         )
@@ -56,7 +52,7 @@ class SongApi(Construct):
         #CREATE
         create_song_lambda = _lambda.Function(
             self, "CreateSongLambda",
-            layers = util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="song.create_song.handler.create",
             code=_lambda.Code.from_asset("lambda"),
@@ -79,11 +75,14 @@ class SongApi(Construct):
         #GET
         get_song_lambda = _lambda.Function(
             self, "GetSongLambda",
-            layers = util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="song.get_song.handler.get",
             code=_lambda.Code.from_asset("lambda"),
-            environment=env,
+            environment={
+                "FEED_QUEUE_URL": feed_queue.queue_url,
+                "TABLE_NAME": "Songs",
+            },
             role = lambda_role
         )
 
@@ -95,7 +94,7 @@ class SongApi(Construct):
         #GET /search/{name}
         search_song_lambda = _lambda.Function(
             self, "SearchSongLambda",
-            layers = util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="song.search_song.handler.search",
             code=_lambda.Code.from_asset("lambda"),
@@ -110,7 +109,7 @@ class SongApi(Construct):
         #UPDATE
         update_song_lambda = _lambda.Function(
             self, "UpdateSongLambda",
-            layers=util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="song.update_song.handler.update",
             code=_lambda.Code.from_asset("lambda"),
@@ -133,7 +132,7 @@ class SongApi(Construct):
 
         update_song_audio_lambda = _lambda.Function(
             self, "UpdateSongAudioLambda",
-            layers=util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="song.update_audio.handler.update_audio",
             code=_lambda.Code.from_asset("lambda"),
@@ -153,7 +152,7 @@ class SongApi(Construct):
 
         update_song_image_lambda = _lambda.Function(
             self, "UpdateSongImageLambda",
-            layers=util_layer,
+            layers = layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="song.update_image.handler.update_image",
             code=_lambda.Code.from_asset("lambda"),
@@ -172,7 +171,7 @@ class SongApi(Construct):
         rate_song_resource = song_resource.add_resource("rate")
         rate_song_lambda = _lambda.Function(
             self, "RateSongLambda",
-            layers=util_layer,
+            layers=layers,
             runtime=_lambda.Runtime.PYTHON_3_11,
             handler="song.rate_song.handler.rate",
             code=_lambda.Code.from_asset("lambda"),

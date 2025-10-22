@@ -1,68 +1,106 @@
 import json
-import uuid
 import boto3
 from datetime import datetime
 from boto3.dynamodb.conditions import Key
-import os
-
+from pre_authorize import pre_authorize
+from decimal import Decimal
 
 dynamodb = boto3.resource('dynamodb')
 songs_table = dynamodb.Table('Songs')
+ratings_table = dynamodb.Table('Ratings')
 
+@pre_authorize(['User'])
 def rate(event, context):
     data = json.loads(event['body'])
     song_id = data.get('song')
     rating = data.get('stars')
     user_sub = data.get('user')
+
     if not song_id or not user_sub or rating is None:
         return {
             'statusCode': 400,
             'body': json.dumps({'message': 'song, user, and rating are ALL required'}),
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT',
-                'Access-Control-Allow-Headers': '*'
-            }
+            'headers': _cors_headers()
         }
-    item = songs_table.get_item(Key={'id': song_id})
-    if not item.get('Item'):
+
+    # Song GET
+    song_item = songs_table.get_item(Key={'id': song_id})
+    if 'Item' not in song_item:
         return {
             'statusCode': 404,
             'body': json.dumps({'message': 'Song not found'}),
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT',
-                'Access-Control-Allow-Headers': '*'
+            'headers': _cors_headers()
+        }
+
+    # If already rated!
+    existing = ratings_table.get_item(Key={'user': user_sub, 'song_id': song_id})
+    now = datetime.utcnow().isoformat()
+
+    if 'Item' in existing:
+        old_rating = int(existing['Item']['stars'])
+        diff = int(rating) - old_rating
+
+        # Update user's rating
+        ratings_table.update_item(
+            Key={'user': user_sub, 'song_id': song_id},
+            UpdateExpression='SET stars = :r',
+            ExpressionAttributeValues={':r': int(rating)}
+        )
+
+        # Get current song stats
+        current_song = song_item['Item']
+        sum_ratings = current_song.get('sumRatings', 0) + diff
+        num_ratings = current_song.get('numRatings', 1)
+        avg_rating = sum_ratings / num_ratings
+
+        # Update totals
+        songs_table.update_item(
+            Key={'id': song_id},
+            UpdateExpression='SET sumRatings = :s, avgRating = :a',
+            ExpressionAttributeValues={
+                ':s': Decimal(sum_ratings),
+                ':a': Decimal(avg_rating),
             }
-        }
-    ratings = item['Item'].get('ratings', [])
-    # Check if user already rated
-    updated = False
-    for r in ratings:
-        if r.get('user') == user_sub:
-            r['stars'] = rating
-            updated = True
-            break
+        )
+        message = 'Rating updated successfully'
 
-    if not updated:
-        ratings.append({'user': user_sub, 'stars': rating})
+    else:
+        # New rating — increment count, add to sum, recalc average
+        ratings_table.put_item(
+            Item={
+                'user': user_sub,
+                'song_id': song_id,
+                'stars': int(rating),
+            }
+        )
 
-    # Save back to DynamoDB
-    songs_table.update_item(
-        Key={'id': song_id},
-        UpdateExpression='SET ratings = :r, modificationTime = :m',
-        ExpressionAttributeValues={
-            ':r': ratings,
-            ':m': datetime.utcnow().isoformat()
-        }
-    )
+        current_song = song_item['Item']
+        sum_ratings = current_song.get('sumRatings', 0) + int(rating)
+        num_ratings = current_song.get('numRatings', 0) + 1
+        avg_rating = sum_ratings / num_ratings
+
+        songs_table.update_item(
+            Key={'id': song_id},
+            UpdateExpression='SET sumRatings = :s, numRatings = :n, avgRating = :a',
+            ExpressionAttributeValues={
+                ':s': Decimal(sum_ratings),
+                ':n': Decimal(num_ratings),
+                ':a': Decimal(sum_ratings / num_ratings),
+            }
+        )
+        message = 'Rating added successfully'
+
 
     return {
         'statusCode': 200,
-        'body': json.dumps({'message': 'Ratings updated successfully'}),
-        'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT',
-            'Access-Control-Allow-Headers': '*'
-        }
+        'body': json.dumps({'message': message}),
+        'headers': _cors_headers()
+    }
+
+
+def _cors_headers():
+    return {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT',
+        'Access-Control-Allow-Headers': '*'
     }

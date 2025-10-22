@@ -44,7 +44,7 @@
           </p>
           <p>
             <strong>Ratings:</strong>
-            <span *ngIf="song.ratings?.length; else noRatings">
+            <span *ngIf="song.avgRating; else noRatings">
               {{ avgRating }}
             </span>
             <ng-template #noRatings>Not rated yet</ng-template>
@@ -97,10 +97,11 @@
       </div>
   </div>
     <!-- RIGHT SIDE -->
-    <div class="song-right" *ngIf="song.transcript">
+    <div class="song-right">
       <div class="transcription-box">
         <h3>Transcription</h3>
-        <textarea
+        <p *ngIf="!song.transcript">No text for this song...</p>
+        <textarea *ngIf="song.transcript"
           class="transcription-textarea"
           [value]="song.transcript || ''"
           readonly

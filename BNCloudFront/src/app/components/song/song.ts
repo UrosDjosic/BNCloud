@@ -65,24 +65,15 @@ export class Song implements OnInit {
         transcript : res.transcript,
         fileName: audioKey.split('/').at(-1), // safely get filename
         audio: null,  // placeholder
-        image: null   // placeholder
+        image: null,   // placeholder
+        userRating : res.userRating,
+        avgRating: res.avgRating,
       };
 
       //load ratings
       if (this.user) {
-        for (const rating of this.song.ratings) {
-          if (rating.user === this.user) {
-            this.currentRating = rating.stars;
-            break;
-          }
-        }
-        let sum = 0;
-        let total = 0;
-        for (const stars of this.song.ratings) {
-          sum += Number(stars.stars);
-          total++;
-        }
-        this.avgRating = sum/total;
+        this.currentRating = this.song.userRating;
+        this.avgRating = this.song.avgRating;
       }
 
       try {

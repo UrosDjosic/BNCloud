@@ -63,6 +63,10 @@ class AuthStack(Stack):
                 logout_urls=["http://localhost:4200/logout"],
             )
         )
+
+
+
+
         CfnOutput(self, "UserPoolId", value=self.user_pool.user_pool_id)
         CfnOutput(self, "UserPoolClientId", value=self.user_pool_client.user_pool_client_id)
 

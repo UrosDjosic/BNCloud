@@ -18,13 +18,12 @@ export class Interceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
 
-    const accessToken: any = localStorage.getItem('accessToken');
+    const idToken: any = localStorage.getItem('idToken');
 
     let clonedReq = req;
-    if (accessToken) {
-      console.log(accessToken);
+    if (idToken) {
       clonedReq = req.clone({
-        headers: req.headers.set('Authorization', "Bearer " + accessToken)
+        headers: req.headers.set('Authorization', "Bearer " + idToken),
       });
     }
 
@@ -36,8 +35,12 @@ export class Interceptor implements HttpInterceptor {
         }
       }),
       catchError((error: HttpErrorResponse) => {
+        console.log('🔍 Intercepting request:', req.url);
+        console.log(error.status);
+
         // If 401, try refreshing the token
-        if (error.status === 401) {
+        if (error.status === 403 ) {
+          console.log('Unauthorized');
           return this.authService.refresh().pipe(
             switchMap((response: any) => {
               console.log(response);
@@ -52,6 +55,8 @@ export class Interceptor implements HttpInterceptor {
               return next.handle(retryReq);
             }),
             catchError(refreshError => {
+              console.error('❌ Refresh failed. Logging out...', refreshError);
+
               this.authService.logout();
               return throwError(() => refreshError);
             })

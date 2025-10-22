@@ -7,6 +7,13 @@ hr{
   background: black;
 }
 
+app-navbar {
+  width: fit-content;
+  height: 100%;
+  background-color: #f4f4f4;
+}
+
+
 .outer-home-div{
   display: flex;
   flex-direction: row;
