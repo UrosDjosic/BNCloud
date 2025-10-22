@@ -34,12 +34,17 @@ export class TokenService {
           .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
           .join('')
       );
-      return JSON.parse(payload);
+      const decoded = JSON.parse(payload);
+      const currentTime = Math.floor(Date.now() / 1000);
+      decoded.isExpired = decoded.exp ? decoded.exp < currentTime : true;
+
+      return decoded;
     } catch (e) {
       console.error('Failed to decode ID token:', e);
       return null;
     }
   }
+
 
   getUserEmailFromToken(): string | null {
     const decoded = this.decodeIdToken();

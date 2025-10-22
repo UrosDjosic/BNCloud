@@ -7,11 +7,13 @@ import {
 } from '@angular/common/http';
 import {catchError, Observable, switchMap, tap, throwError} from 'rxjs';
 import { AuthService } from './services/auth-service';
+import {TokenService} from './services/token-service';
 
 
 @Injectable()
 export class Interceptor implements HttpInterceptor {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService,
+              private tokenService: TokenService,) {}
 
   intercept(
     req: HttpRequest<any>,
@@ -35,32 +37,34 @@ export class Interceptor implements HttpInterceptor {
         }
       }),
       catchError((error: HttpErrorResponse) => {
-        console.log('🔍 Intercepting request:', req.url);
-        console.log(error.status);
 
         // If 401, try refreshing the token
-        if (error.status === 403 ) {
-          console.log('Unauthorized');
-          return this.authService.refresh().pipe(
-            switchMap((response: any) => {
-              console.log(response);
+        if (error.status === 0) {
+          const decodedToken = this.tokenService.decodeIdToken();
 
-              localStorage.setItem('accessToken', response.accessToken);
-              localStorage.setItem('idToken', response.idToken);
+          if (decodedToken?.isExpired) {
+            console.log('🔑 Token expired — attempting refresh...');
 
-              const retryReq = req.clone({
-                headers: req.headers.set('Authorization', `Bearer ${response.accessToken}`)
-              });
+            return this.authService.refresh().pipe(
+              switchMap((response: any) => {
+                localStorage.setItem('accessToken', response.accessToken);
+                localStorage.setItem('idToken', response.idToken);
 
-              return next.handle(retryReq);
-            }),
-            catchError(refreshError => {
-              console.error('❌ Refresh failed. Logging out...', refreshError);
+                const retryReq = req.clone({
+                  headers: req.headers.set('Authorization', `Bearer ${response.accessToken}`)
+                });
 
-              this.authService.logout();
-              return throwError(() => refreshError);
-            })
-          );
+                return next.handle(retryReq);
+              }),
+              catchError(refreshError => {
+                console.error('❌ Refresh failed. Logging out...', refreshError);
+                this.authService.logout();
+                return throwError(() => refreshError);
+              })
+            );
+          } else {
+            console.warn('Token still valid — skipping refresh.');
+          }
         }
 
         // For other errors, just pass them along

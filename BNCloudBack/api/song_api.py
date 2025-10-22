@@ -85,7 +85,7 @@ class SongApi(Construct):
             },
             role = lambda_role
         )
-
+        feed_queue.grant_send_messages(get_song_lambda)
         songs_bucket.grant_read(get_song_lambda)
 
         get_song_integration = apigw.LambdaIntegration(get_song_lambda)

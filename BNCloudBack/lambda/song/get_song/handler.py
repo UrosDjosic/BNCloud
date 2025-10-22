@@ -90,7 +90,7 @@ def get(event, context):
 
         logger.info(f"Successfully retrieved song: {song_id}")
 
-    
+
         genres = song.get("genres", [])
         if event['userRole'] == 'User':
             if not genres:
@@ -110,6 +110,9 @@ def get(event, context):
                         }
                     })
                 )
+    
+    
+    
 
 
         return {
