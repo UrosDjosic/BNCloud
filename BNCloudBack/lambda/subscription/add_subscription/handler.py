@@ -8,7 +8,7 @@ from pre_authorize import pre_authorize
 TABLE_NAME = os.environ.get('TABLE_NAME', 'Subscriptions')
 dynamodb = boto3.resource('dynamodb')
 sns = boto3.client('sns')
-sqs = boto3.slient('sqs')
+sqs = boto3.client('sqs')
 
 @pre_authorize(['User'])
 def add(event, context):
@@ -48,7 +48,8 @@ def add(event, context):
             Protocol='email',
             Endpoint=user_email
         )
-
+    
+        
         if event['userRole'] == 'User':
             sqs.send_message(
                 QueueUrl=os.environ["FEED_QUEUE_URL"],
@@ -56,13 +57,14 @@ def add(event, context):
                     "event_type": "user_subscribed",
                     "user_id": event["userId"],
                     "entity_type": sub_type,
-                    "song": {
-                        "id": subject_id,
-                        "name": subject_name
+                    "entity": {
+                        'id' : subject_id,
+                        'name' : subject_name
                     }
                 })
             )
 
+    
         return create_response(200, {
             'message': f'Subscription created. Confirmation email sent to {user_email}.',
             'topicArn': topic_arn,

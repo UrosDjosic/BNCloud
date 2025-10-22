@@ -26,11 +26,10 @@ def handler(event, context):
 
     # Atomic add operation (creates record if it doesn't exist)
     table.update_item(
-        Key={"user_id": user_id, "sort_key": entity_type},
+        Key={"username": user_id, "entity_type": entity_type},
         UpdateExpression="ADD score :p SET entity = :e, last_updated=:u",
         ExpressionAttributeValues={
             ":p": points,
-            ":t": entity_type,
             ":e": entity,
             ":u": now
         }
