@@ -54,7 +54,12 @@
         <!-- Actions -->
         <div class="action-buttons">
           <button mat-stroked-button color="accent" (click)="selectUserList()">Add to My List</button>
-          <button mat-stroked-button color="warn" (click)="downloadSong()">Download</button>
+          <button mat-stroked-button color="primary" (click)="cacheSongForOffline()">
+            Save for offline
+          </button>
+          <button mat-stroked-button color="warn" (click)="removeOfflineCopy()">
+            Remove offline copy
+          </button>
           <div class="crud-buttons">
             <button mat-icon-button color="primary" (click)="editSong()">
               <mat-icon>edit</mat-icon>

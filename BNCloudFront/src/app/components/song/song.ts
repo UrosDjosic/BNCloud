@@ -7,6 +7,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {UserlistService} from '../../services/userlist-service';
 import { MatDialog } from '@angular/material/dialog';
 import {ConfirmDialogComponent} from '../confirm-dialog/confirm-dialog.component';
+import {OfflineService} from '../../services/offline-service';
 
 @Component({
   selector: 'app-song',
@@ -30,7 +31,9 @@ export class Song implements OnInit {
   userlistId?: string;
   usersLists?: any;
 
-  constructor(private dialog: MatDialog, private route: ActivatedRoute, private router: Router, private ss: SongService, private us: UserlistService, private snackbar: MatSnackBar) {}
+  petnesFeninga?: any
+
+  constructor(private dialog: MatDialog, private route: ActivatedRoute, private router: Router, private ss: SongService, private us: UserlistService, private snackbar: MatSnackBar, private offlineSongs: OfflineService) {}
 
   ngOnInit() {
     const token = localStorage.getItem('idToken');
@@ -49,7 +52,20 @@ export class Song implements OnInit {
     });
   }
 
-  loadSong(id: string) {
+  async loadSong(id: string) {
+
+    //try to hit cached blob if downloaded (offline playback)
+    const cachedBlob = await this.offlineSongs.getSongBlob(id);
+    if (cachedBlob) {
+      console.log(`Loaded song ${id} from IndexedDB`);
+      console.log(cachedBlob);
+      console.log(cachedBlob.type)
+      this.song = {
+        audio: URL.createObjectURL(cachedBlob)
+      }
+      return;
+    }
+
     this.ss.getSong(id).subscribe(async (res: any) => {
       console.log(res);
 
@@ -84,6 +100,7 @@ export class Song implements OnInit {
           this.downloadFromS3(res.imageUrl)
         ]);
 
+        this.petnesFeninga = audioBlob;
         this.song.audio = URL.createObjectURL(audioBlob);
         this.song.image = URL.createObjectURL(imageBlob);
 
@@ -152,9 +169,16 @@ export class Song implements OnInit {
     });
   }
 
-  downloadSong() {
-    // Placeholder
-    console.log('Downloading song file');
+  async cacheSongForOffline() {
+    if (!this.songId || !this.song?.audio) return;
+    await this.offlineSongs.saveSongBlob(this.songId, this.petnesFeninga);
+    this.snackbar.open('Song saved for offline playback.', 'OK', { duration: 3000 });
+  }
+
+  async removeOfflineCopy() {
+    if (!this.songId) return;
+    await this.offlineSongs.deleteSong(this.songId);
+    this.snackbar.open('Offline copy removed.', 'OK', { duration: 3000 });
   }
 
   setRating(rating: number) {
