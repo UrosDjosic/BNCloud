@@ -22,17 +22,11 @@ class StepFunctionStack(Stack):
             handler="step_fn.score_update.handler.handler",
             code=_lambda.Code.from_asset("lambda"),
             environment={
-                "FEED_TABLE": tables['feed_scores'].table_name
+                "FEED_SCORES_TABLE": tables['feed_scores'].table_name
             }
         )
         feed_scores_table = tables['feed_scores']
         feed_scores_table.grant_read_write_data(update_feed_scores_lambda)
-
-        update_feed_scores_task = tasks.LambdaInvoke(
-            self, "UpdateFeedScoresTask",
-            lambda_function=update_feed_scores_lambda,
-            output_path="$.Payload"
-        )
 
 
         #After updating FeedScores Table, we can query and get max scores for songs, genres, artists!
@@ -48,11 +42,7 @@ class StepFunctionStack(Stack):
         )
         feed_scores_table.grant_read_data(update_user_feed_lambda)
         tables["users_feed"].grant_read_write_data(update_user_feed_lambda)
-        update_user_feed_task = tasks.LambdaInvoke(
-            self, "UpdateUserFeedTask",
-            lambda_function=update_user_feed_lambda,
-            output_path="$.Payload"
-        )
+    
         def make_chain(base_lambda_id: str, handler_path: str):
             base_task = tasks.LambdaInvoke(
                 self, f"{base_lambda_id}Task",
@@ -60,7 +50,10 @@ class StepFunctionStack(Stack):
                     self, f"{base_lambda_id}Lambda",
                     runtime=_lambda.Runtime.PYTHON_3_11,
                     handler=handler_path,
-                    code=_lambda.Code.from_asset("lambda")
+                    code=_lambda.Code.from_asset("lambda"),
+                    environment = {
+                        "FEED_SCORES_TABLE" : feed_scores_table.table_name,
+                    }
                 ),
                 output_path="$.Payload"
             )

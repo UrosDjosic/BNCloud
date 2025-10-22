@@ -20,9 +20,9 @@ def handler(event, context):
 
     # Group by entity_type
     songs, artists, genres = [], [], []
-    song_records = scores_table.query(KeyConditionExpression=Key("user_id").eq(user_id) & Key("entity_type").eq("song")).get("Items",[])
-    artist_records = scores_table.query(KeyConditionExpression=Key("user_id").eq(user_id) & Key("entity_type").eq("artist")).get("Items",[])
-    genre_records = scores_table.query(KeyConditionExpression=Key("user_id").eq(user_id) & Key("entity_type").eq("genre")).get("Items",[])
+    song_records = scores_table.query(KeyConditionExpression=Key("username").eq(user_id) & Key("entity_type").eq("song")).get("Items",[])
+    artist_records = scores_table.query(KeyConditionExpression=Key("username").eq(user_id) & Key("entity_type").eq("artist")).get("Items",[])
+    genre_records = scores_table.query(KeyConditionExpression=Key("username").eq(user_id) & Key("entity_type").eq("genre")).get("Items",[])
 
     songs = [item["entity"] for item in song_records][:RECORD_LIMIT]
     artists = [item["entity"] for item in artist_records][:RECORD_LIMIT]
@@ -31,7 +31,7 @@ def handler(event, context):
     # Update UserFeed table
     feed_table.put_item(
         Item={
-            "user_id": user_id,
+            "username": user_id,
             "songs": songs,
             "artists": artists,
             "genres": genres

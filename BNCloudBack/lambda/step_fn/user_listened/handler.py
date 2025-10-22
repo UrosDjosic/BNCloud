@@ -48,7 +48,7 @@ def handler(event, context):
         new_score = int(old_score * 0.9)
 
         if new_score < 1:
-            table.delete_item(Key={"user_id": user_id, "sort_key": sort_key})
+            table.delete_item(Key={"username": user_id, "sort_key": sort_key})
         else:
             table.update_item(
                 Key={"user_id": user_id, "sort_key": sort_key},

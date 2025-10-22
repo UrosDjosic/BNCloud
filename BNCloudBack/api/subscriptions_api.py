@@ -67,6 +67,7 @@ class SubscriptionsApi(Construct):
             },
             role = lambda_role
         )
+        feed_queue.grant_send_messages(subscribe_lambda)
         subscribe_integration = apigw.LambdaIntegration(
             subscribe_lambda
         )
@@ -86,6 +87,7 @@ class SubscriptionsApi(Construct):
             },
             role = lambda_role
         )
+        feed_queue.grant_send_messages(unsubscribe_lambda)
         unsubscribe_integration = apigw.LambdaIntegration(
             unsubscribe_lambda
         )
