@@ -61,10 +61,10 @@
             Remove offline copy
           </button>
           <div class="crud-buttons">
-            <button mat-icon-button color="primary" (click)="editSong()">
+            <button mat-icon-button color="primary" (click)="editSong()" *ngIf="this.role === 'ADMINISTRATOR'">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-icon-button color="warn" (click)="deleteSong()">
+            <button mat-icon-button color="warn" (click)="deleteSong()" *ngIf="this.role === 'ADMINISTRATOR'">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
