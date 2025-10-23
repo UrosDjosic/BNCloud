@@ -47,7 +47,7 @@
   <div class="feed-row artists no-image">
     <mat-card class="artist-card" *ngFor="let artist of artists">
       <div class="artist-body">
-        <h3 class="artist-name">{{ artist.name }}</h3>
+        <a [routerLink]="['/artist', artist.id]" class="artist-name">{{ artist.name }}</a>
       </div>
     </mat-card>
   </div>
