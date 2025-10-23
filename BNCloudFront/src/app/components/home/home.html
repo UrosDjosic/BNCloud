@@ -7,7 +7,7 @@
 
   <div class="genre-tags">
   <span class="genre-tag" *ngFor="let item of genreFavorite">
-    {{ item.name }}
+    <a [routerLink]="['/discover', item.name]">{{ item.name }}</a>
   </span>
   </div>
 
