@@ -10,7 +10,7 @@ from aws_cdk import (aws_lambda as _lambda,
 
 
 class SubscriptionsApi(Construct):
-    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,notification_queue, 
+    def __init__(self, scope: Construct, id: str, *, api: apigw.RestApi,table,tables,notification_queue, 
                  layers ,feed_queue,**kwargs):
         super().__init__(scope, id, **kwargs)
         env = {
@@ -88,6 +88,7 @@ class SubscriptionsApi(Construct):
             role = lambda_role
         )
         feed_queue.grant_send_messages(unsubscribe_lambda)
+        tables['feed_scores'].grant_read_write_data(unsubscribe_lambda)
         unsubscribe_integration = apigw.LambdaIntegration(
             unsubscribe_lambda
         )

@@ -51,18 +51,12 @@ def unsubscribe(event, context):
             }
         )
 
-
-        sqs.send_message(
-            QueueUrl=os.environ["FEED_QUEUE_URL"],
-            MessageBody=json.dumps({
-                "event_type": "user_subscribed",
-                "user_id": event["userId"],
-                "entity_type": sub_type,
-                "entity": {
-                    'id' : subject_id,
-                    'name' : subject_name
-                }
-            })
+        scores_table = dynamodb.Table("FeedScores")
+        scores_table.delete_item(
+            Key={
+                'username': event['userId'],
+                'entity_type': subject_id
+            }
         )
 
         message = f"Unsubscribed {user_email} and removed record from table." if unsubscribed \
