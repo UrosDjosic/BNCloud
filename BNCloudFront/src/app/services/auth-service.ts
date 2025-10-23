@@ -60,7 +60,7 @@ export class AuthService {
         return '';
       }
 
-      return groups[0];
+      return groups[0].toUpperCase();
     }
     return '';
   }

@@ -22,10 +22,12 @@ export class Profile implements OnInit {
   claims!: JwtClaims;
   user?: UserProfile;
   userLists: any = [];
+  role : string = '';
 
   constructor(private router: Router, private authService: AuthService, private dialog: MatDialog, private us: UserlistService) {}
 
   ngOnInit() {
+    this.role = this.authService.getRole();
     //decode jwt token
     if (!localStorage['idToken']) {
       this.router.navigate(['/login']);

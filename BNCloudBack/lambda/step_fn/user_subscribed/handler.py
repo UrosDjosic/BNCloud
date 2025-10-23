@@ -31,7 +31,8 @@ def subscribed(event, context):
         "user_id": user_id,
         "entity_type": sub_type,
         "entity": entity,
-        "points": points
+        "points": points,
+        "userListened" : False
     }
 
     print(f"Processed {event_type}: {json.dumps(payload)}")

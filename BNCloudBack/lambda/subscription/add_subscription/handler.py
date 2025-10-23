@@ -25,6 +25,20 @@ def add(event, context):
 
         if not subject_id or not user_email or not sub_type or not subject_name:
             return create_response(400, {'message': 'subject_id and user_email are required'})
+        
+        table = dynamodb.Table(TABLE_NAME)
+
+        existing = table.get_item(
+            Key={
+                'subject_id': str(subject_id),
+                'user_email': str(user_email)
+            }
+        )
+
+        if 'Item' in existing:
+            return create_response(409, {  # 409 Conflict
+                'message': f'User {user_email} is already subscribed to {subject_name}.'
+            })
 
         # 1️⃣ Save to DynamoDB
         table = dynamodb.Table(TABLE_NAME)

@@ -23,7 +23,7 @@ def fix_decimals(obj):
     else:
         return obj
 
-@pre_authorize(['User'])
+@pre_authorize(['Administrator','User'])
 def search(event, context):
     try:
         path_params = event.get('pathParameters') or {}

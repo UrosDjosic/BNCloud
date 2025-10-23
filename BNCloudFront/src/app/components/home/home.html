@@ -1,4 +1,26 @@
 <div class="home-wrapper">
+
+  <!-- FAVORITE GENRES -->
+  <div class="section-header">
+    <h2 class="section-title">Favorite Genres</h2>
+  </div>
+
+  <div class="genre-tags">
+  <span class="genre-tag" *ngFor="let item of genreFavorite">
+    {{ item.name }}
+  </span>
+  </div>
+
+  <!-- QUICK PICKS -->
+  <div class="section-header-genres">
+    <h2 class="section-title">{{ this.getTimeBucket() }} Vibes</h2>
+  </div>
+
+  <div class="genre-tags">
+  <span class="genre-tag" (click)="genreClicked(item)" *ngFor="let item of genreTimeFavorite">
+    {{ item.name }}
+  </span>
+  </div>
   <!-- LISTEN AGAIN -->
   <div class="section-header">
     <h2 class="section-title">Listen Again</h2>
@@ -30,21 +52,5 @@
     </mat-card>
   </div>
 
-
-  <!-- QUICK PICKS -->
-  <div class="section-header">
-    <h2 class="section-title">{{ this.getTimeBucket() }} Vibes</h2>
-  </div>
-
-  <div class="feed-grid songs">
-    <mat-card class="song-card" *ngFor="let item of genreSongs">
-      <div class="song-image-wrapper">
-        <img [src]="item.imageUrl" alt="{{ item.name }}" class="song-image" />
-        <button mat-icon-button class="play-button">
-          <mat-icon>play_arrow</mat-icon>
-        </button>
-      </div>
-    </mat-card>
-  </div>
 
 </div>

@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Artist} from '../components/artist/artist';
 import {ArtistDTO} from '../models/artist';
-import {Observable} from 'rxjs';
+import {map, Observable} from 'rxjs';
 import {environment} from '../../env/enviroment';
 import {CreateArtistRequest} from '../dto/create-artist-request';
 import {FetchArtistsResponse} from '../dto/fetch-artists-response';
@@ -15,8 +15,13 @@ export class ArtistService {
 
   constructor(private http: HttpClient) {}
 
-  create(artist: CreateArtistRequest): Observable<any> {
-    return this.http.post<void>(`${environment.apiHost}/artist`, artist)
+  create(artist: CreateArtistRequest): Observable<ArtistDTO> {
+    return this.http.post<{ message: string; artist: ArtistDTO }>(
+      `${environment.apiHost}/artist`,
+      artist
+    ).pipe(
+      map(response => response.artist)
+    );
   }
 
 

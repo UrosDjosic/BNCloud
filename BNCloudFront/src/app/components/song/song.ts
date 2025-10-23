@@ -8,6 +8,7 @@ import {UserlistService} from '../../services/userlist-service';
 import { MatDialog } from '@angular/material/dialog';
 import {ConfirmDialogComponent} from '../confirm-dialog/confirm-dialog.component';
 import {OfflineService} from '../../services/offline-service';
+import {AuthService} from '../../services/auth-service';
 
 @Component({
   selector: 'app-song',
@@ -33,7 +34,12 @@ export class Song implements OnInit {
 
   petnesFeninga?: any
 
-  constructor(private dialog: MatDialog, private route: ActivatedRoute, private router: Router, private ss: SongService, private us: UserlistService, private snackbar: MatSnackBar, private offlineSongs: OfflineService) {}
+  role : string ='';
+
+  constructor(private dialog: MatDialog, private route: ActivatedRoute, private router: Router,
+              private ss: SongService, private us: UserlistService,
+              private snackbar: MatSnackBar, private offlineSongs: OfflineService,
+              private authService: AuthService,) {}
 
   ngOnInit() {
     const token = localStorage.getItem('idToken');
@@ -50,6 +56,7 @@ export class Song implements OnInit {
         this.loadSong(this.songId);
       }
     });
+    this.role = this.authService.getRole()
   }
 
   async loadSong(id: string) {
@@ -93,7 +100,7 @@ export class Song implements OnInit {
       //load ratings
       if (this.user) {
         this.currentRating = this.song.userRating;
-        this.avgRating = this.song.avgRating;
+        this.avgRating = Number(parseFloat(this.song.avgRating).toFixed(2));
       }
 
       try {

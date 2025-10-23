@@ -39,7 +39,7 @@
       </section>
     </mat-card-content>
 
-    <mat-card-actions>
+    <mat-card-actions *ngIf="this.role === 'USER'">
       <button mat-raised-button color="primary" (click)="subscribeArtist()">Subscribe</button>
     </mat-card-actions>
   </mat-card>

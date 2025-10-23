@@ -24,49 +24,6 @@ def get_time_bucket():
     
 from boto3.dynamodb.conditions import Attr
 
-def get_genre_songs(genre_records, genre_time_records):
-    """
-    For each top genre (including time-bucketed ones),
-    find the first song in Songs table that contains that genre in its 'genres' list.
-    """
-    table = dynamodb.Table("Songs")
-
-    # Pick top 3 from each list
-    top_genres = [g["entity"] for g in genre_records[:3]]
-    top_genres_time = [g["entity"] for g in genre_time_records[:3]]
-
-    print(f"{top_genres} TOP GENRES")
-    print(f"{top_genres_time} TOP GENRES TIME")
-
-    # Deduplicate but preserve order
-    unique_genres = []
-    for g in top_genres + top_genres_time:
-        if g not in unique_genres:
-            unique_genres.append(g)
-
-    print(f"Unique genres {unique_genres}")
-    found_songs = []
-
-
-    for genre in unique_genres:
-        resp = table.scan(
-            FilterExpression=Attr("genres").contains(genre),
-            Limit=1
-        )
-    
-
-        items = resp.get("Items", [])
-        print(f"{items} ITEM")
-        if items:
-            item = items[0]
-            song = {
-                'id' : item['id'],
-                'name' : item['name'],
-            }
-            found_songs.append(song)
-
-    return set_song_images(found_songs)
-
 def set_song_images(songs):
     for song in songs:
         image_url = s3_client.generate_presigned_url(
@@ -90,19 +47,39 @@ def handler(event, context):
     time_bucket = get_time_bucket()
     # Group by entity_type
     songs, artists, genres = [], [], []
-    song_records = scores_table.query(KeyConditionExpression=Key("username").eq(user_id) & Key("entity_type").eq("song")).get("Items",[])
-    artist_records = scores_table.query(KeyConditionExpression=Key("username").eq(user_id) & Key("entity_type").eq("artist")).get("Items",[])
-    genre_records = scores_table.query(KeyConditionExpression=Key("username").eq(user_id) & Key("entity_type").eq("genre")).get("Items",[])
-    genre_time_records = scores_table.query(
-            KeyConditionExpression=Key("username").eq(user_id),
-            FilterExpression=Attr("entity_type").contains(f"#{time_bucket}")
-    ).get("Items",[])
+
+    #QUERYING SONGS  BY GSI username:entity_class so we can get all of entity_types user interacted with
+    songs_resp = scores_table.query(
+        IndexName="UserEntityClassIndex",
+        KeyConditionExpression=Key("username").eq(user_id) & Key("entity_class").eq("song")
+    )
+    artists_resp = scores_table.query(
+        IndexName="UserEntityClassIndex",
+        KeyConditionExpression=Key("username").eq(user_id) & Key("entity_class").eq("artist")
+    )
+    genres_resp = scores_table.query(
+        IndexName="UserEntityClassIndex",
+        KeyConditionExpression=Key("username").eq(user_id) & Key("entity_class").eq("genre"),
+        FilterExpression=(Attr("time_bucket").not_exists() | Attr("time_bucket").eq(""))
+    )
+
+    song_records = songs_resp.get("Items", [])
+    artist_records = artists_resp.get("Items", [])
+    genre_records = genres_resp.get("Items", [])
+
+    # Time-bucketed genres
+    genre_time_resp = scores_table.query(
+        IndexName="UserEntityClassIndex",
+        KeyConditionExpression=Key("username").eq(user_id) & Key("entity_class").eq("genre_time"),
+        FilterExpression=Attr("time_bucket").eq(time_bucket)
+    )
+    genre_time_records = genre_time_resp.get("Items", [])
     print(f"Genre time records : {genre_time_records}, genre#{time_bucket}")
     print(f"Genre record {genre_records}")
 
     #sorting by score so we can search first three geenders!
-    genre_records.sort(key=lambda x: x.get("score", 0), reverse=True)
-    genre_time_records.sort(key=lambda x: x.get("score", 0), reverse=True)
+    genre_records = sorted(genre_records, key=lambda x: x.get("score", 0), reverse=True)[:RECORD_LIMIT]
+    genre_time_records = sorted(genre_time_records, key=lambda x: x.get("score", 0), reverse=True)[:RECORD_LIMIT]
     songs = [s["entity"] for s in sorted(song_records, key=lambda x: x.get("score", 0), reverse=True)[:RECORD_LIMIT]]
     artists = [a["entity"] for a in sorted(artist_records, key=lambda x: x.get("score", 0), reverse=True)[:RECORD_LIMIT]]
 
@@ -110,15 +87,16 @@ def handler(event, context):
     songs = [item["entity"] for item in song_records][:RECORD_LIMIT]
     songs = set_song_images(songs)
     artists = [item["entity"] for item in artist_records][:RECORD_LIMIT]
-    genre_songs = get_genre_songs(genre_records=genre_records,genre_time_records=genre_time_records)
-    print(f"GENRE SONGS : {genre_songs}")
+    genre_favorite = [item["entity"] for item in genre_records][:RECORD_LIMIT]
+    genre_time_favorites = [item["entity"] for item in genre_time_records][:RECORD_LIMIT]
 
     # Update UserFeed table
     feed_table.put_item(
         Item={
             "username": user_id,
             "songs": songs,
-            "genre_songs": genre_songs,
+            "genre_favorite": genre_favorite,
+            "genre_time_favorite" : genre_time_favorites,
             "artists": artists,
         }
     )

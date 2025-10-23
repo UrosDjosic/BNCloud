@@ -36,7 +36,8 @@ def rated(event, context):
         "user_id": user_id,
         "entity_type": "song",
         "entity": song,
-        "points": points
+        "points": points,
+        "userListened" : False
     }
 
     print(f"Processed rating event: {json.dumps(payload)}")

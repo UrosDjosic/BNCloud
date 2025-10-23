@@ -9,7 +9,7 @@ table_name = os.environ['TABLE_NAME']
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(table_name)
 
-@pre_authorize(['User'])
+@pre_authorize(['Administrator','User'])
 def discover(event, context):
     """
     Returns all distinct genres from DynamoDB where EntityType='genre'
