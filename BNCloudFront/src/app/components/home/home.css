@@ -15,7 +15,12 @@
   align-items: center;
   margin: 1.5rem 0 1rem;
 }
-
+.section-header-genres {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.4rem 0 1rem;
+}
 .section-title {
   font-size: 1.6rem;
   font-weight: 600;
@@ -38,6 +43,31 @@
     background-color: #555;
     border-radius: 4px;
   }
+}
+
+.genre-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.genre-tag {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  color: white;
+  font-weight: 500;
+  padding: 0.55rem 1.1rem; /* increased padding */
+  border-radius: 9999px;
+  font-size: 1rem; /* slightly larger text */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 3px 8px rgba(236, 72, 153, 0.35); /* subtle shadow enhancement */
+}
+
+
+.genre-tag:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(168, 85, 247, 0.4);
 }
 
 .feed-item {

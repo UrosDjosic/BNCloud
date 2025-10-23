@@ -69,7 +69,7 @@
             </button>
           </div>
         </div>
-        <div class="ratings">
+        <div class="ratings" *ngIf="this.role === 'USER'">
           <p class="ratings-label"><strong>Rate this song:</strong></p>
           <div class="stars">
             <mat-icon

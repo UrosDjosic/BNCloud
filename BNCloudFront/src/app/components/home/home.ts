@@ -14,7 +14,8 @@ import {Router} from '@angular/router';
 })
 export class Home {
   songs : DiscoverResponse[] = [];
-  genreSongs : DiscoverResponse[] = [];
+  genreFavorite : DiscoverResponse[] = [];
+  genreTimeFavorite : DiscoverResponse[] = [];
   artists : DiscoverResponse[] = [];
   constructor(private songService: SongService,
               private authService: AuthService,
@@ -28,8 +29,10 @@ export class Home {
         console.log(res);
           this.songs = res.songs
           this.artists = res.artists
-          this.genreSongs = res.genre_songs
-        console.log(this.genreSongs)
+          this.genreFavorite = res.genre_favorite
+        this.genreTimeFavorite = res.genre_time_favorite
+        console.log(this.genreTimeFavorite)
+        console.log(this.genreFavorite)
         console.log(this.artists)
         console.log(this.songs)
 
@@ -53,5 +56,9 @@ export class Home {
 
   songClicked(item: DiscoverResponse) {
       this.router.navigate(['song', item.id]);
+  }
+
+  genreClicked(item: DiscoverResponse) {
+      this.router.navigate(['discover', item.name]);
   }
 }

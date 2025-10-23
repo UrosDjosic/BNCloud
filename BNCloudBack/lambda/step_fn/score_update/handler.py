@@ -38,28 +38,41 @@ def handler(event, context):
     now = int(time.time())
 
     if entity_type == 'genre' and event['userListened'] == True:
+        song = event.get("song",[])
         table.update_item(
-            Key={"username": user_id, "entity_type": "song"},
-            UpdateExpression="ADD score :p SET entity = :e, last_updated=:u",
+            Key={"username": user_id, "entity_type": song['id']},
+            UpdateExpression="ADD score :p SET entity = :e, last_updated=:u, entity_class = :c",
             ExpressionAttributeValues={
                 ":p": 1,
                 ":e": event['song'],
-                ":u": now
+                ":u": now,
+                ":c": "song"
             }
         )
         time_bucket = get_time_bucket()
-        entity_type = f"{event['entity']['name']}#{time_bucket}" 
-
-    # Atomic add operation (creates record if it doesn't exist)
-    table.update_item(
-        Key={"username": user_id, "entity_type": entity_type},
-        UpdateExpression="ADD score :p SET entity = :e, last_updated=:u",
+        table.update_item(
+        Key={"username": user_id, "entity_type": f"{entity['id']}#{time_bucket}"},
+        UpdateExpression="ADD score :p SET entity = :e, last_updated=:u, time_bucket = :b,entity_class = :c",
         ExpressionAttributeValues={
             ":p": points,
             ":e": entity,
-            ":u": now
+            ":u": now,
+            ":b": time_bucket,
+            ":c" : "genre_time"
         }
-    )
+        )       
+    else:
+        # Atomic add operation (creates record if it doesn't exist)
+        table.update_item(
+            Key={"username": user_id, "entity_type": entity['id']},
+            UpdateExpression="ADD score :p SET entity = :e, last_updated=:u, entity_class = :c",
+            ExpressionAttributeValues={
+                ":p": points,
+                ":e": entity,
+                ":u": now,
+                ":c": entity_type
+            }
+        )
 
     return {
         "ok": True,

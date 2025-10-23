@@ -16,11 +16,14 @@ export class Artist implements OnInit {
 
   artistId?: string;
   artist?: any;
+  role : string = '';
 
   constructor(private route: ActivatedRoute, private snackBar: MatSnackBar, private as: ArtistService,
-              private subscriptionService: SubscriptionService,private tokenService: TokenService) {}
+              private subscriptionService: SubscriptionService,private tokenService: TokenService,
+              private authService: AuthService) {}
 
   ngOnInit() {
+    this.role = this.authService.getRole();
     this.route.paramMap.subscribe(params => {
       this.artistId = params.get('artistId') || undefined;
       if (this.artistId) {

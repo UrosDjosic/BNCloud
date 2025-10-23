@@ -198,6 +198,18 @@ class StorageStack(Stack):
             read_capacity=1,
             write_capacity=1
         )
+        feed_scores_table.add_global_secondary_index(
+            index_name="UserEntityClassIndex",
+            partition_key=dynamodb.Attribute(
+                name="username",
+                type=dynamodb.AttributeType.STRING
+            ),
+            sort_key=dynamodb.Attribute(
+                name="entity_class",
+                type=dynamodb.AttributeType.STRING
+            ),
+            projection_type=dynamodb.ProjectionType.ALL 
+        )
         self.tables['feed_scores'] = feed_scores_table
 
 

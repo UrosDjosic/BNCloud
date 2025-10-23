@@ -104,7 +104,9 @@ export class ArtistCrud implements OnInit {
       genres: genres,
       biography : formValue.biography
     }).subscribe({
-      next: () => {
+      next: (createdArtist)  => {
+        console.log(createdArtist);
+        this.displayedArtists.push(createdArtist);
         this.snackBar.open('Artist created successfully!', 'Close', { duration: 3000 });
         this.createForm.reset();
       },

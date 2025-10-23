@@ -3,7 +3,7 @@
     <h2 class="title">
       <mat-icon>library_music</mat-icon> Discover Music by Genre
     </h2>
-    <button *ngIf="this.selectedGenre && this.email"
+    <button *ngIf="this.selectedGenre && this.email && this.role=='USER'"
             style="background: #333333 !important;
             color: whitesmoke;
             max-width: 20rem;
