@@ -59,13 +59,6 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-
-      <p><strong>Ratings:</strong>
-        <span *ngIf="song.ratings?.length; else noRatings">
-          {{ song.ratings.join(', ') }}
-        </span>
-        <ng-template #noRatings>Not rated yet</ng-template>
-      </p>
     </div>
 
     <!-- Action Buttons -->

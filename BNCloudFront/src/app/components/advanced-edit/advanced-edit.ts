@@ -90,7 +90,7 @@ export class AdvancedEdit {
         await this.uploadToS3(uploadNewUrl, newFile);
         console.log('New audio uploaded successfully.');
 
-        this.router.navigate(['/song-edit', this.songId]);
+        this.router.navigate(['/discover']);
 
         // Optionally, notify the user that update succeeded
       } catch (error) {
@@ -130,7 +130,7 @@ export class AdvancedEdit {
         await this.uploadToS3(uploadNewUrl, newFile);
         console.log('New image uploaded successfully.');
 
-        this.router.navigate(['/song-edit', this.songId]);
+        this.router.navigate(['/discover']);
 
         // Optionally, notify the user that update succeeded
       } catch (error) {
