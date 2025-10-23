@@ -127,7 +127,8 @@ class ApiStack(Stack):
             table = tables['subscription'],
             notification_queue= notification_queue,
             layers = layers,
-            feed_queue=feed_queue
+            feed_queue=feed_queue,
+            tables = tables
         )
         userlist_api = UserlistApi(
             self,
